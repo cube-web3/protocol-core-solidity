@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {Cube3ProtectionImmutable} from "../../../src/Cube3Protection.sol";
+import {Cube3Protection} from "@cube3/Cube3Protection.sol";
 
-contract Demo is Cube3ProtectionImmutable {
+contract Demo is Cube3Protection {
     event BalanceUpdated(address indexed account, uint256 newBalance);
     event Success();
 
     mapping(address => uint256) public balances;
 
-    constructor(address _router) Cube3ProtectionImmutable(_router, msg.sender) {}
+    constructor(address _router) Cube3Protection(_router, msg.sender, true) {}
 
     function mint(uint256 qty, bytes calldata payload) external cube3Protected(payload) returns (uint256) {
         uint256 balance = balances[msg.sender];

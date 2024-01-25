@@ -19,7 +19,7 @@ library Utils {
     /// @dev The cube3Payload always contains: <module_payload> | <routing_bitmap>
     /// @dev The routing bitmap is a uint256 that contains the following data: <module_padding> | <module_length> | <module_selector> | <module_id>
     function extractPayloadDataFromMsgData(bytes calldata integrationCalldata)
-        public
+        internal
         pure
         returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
     {
@@ -50,7 +50,7 @@ library Utils {
     }
 
     /// @notice 
-    function extractBytes16Bitmap(uint256 bitmap) public pure returns (bytes16 moduleId) {
+    function extractBytes16Bitmap(uint256 bitmap) internal pure returns (bytes16 moduleId) {
         assembly {
             // Mask to extract the right-most 16 bytes
             let mask := sub(shl(128, 1), 1)
@@ -58,7 +58,7 @@ library Utils {
         }
     }
 
-    function extractUint32FromBitmap(uint256 bitmap, uint256 location) public pure returns(uint32 value) {
+    function extractUint32FromBitmap(uint256 bitmap, uint256 location) internal pure returns(uint32 value) {
         assembly {
             // Mask to extract 32 bits
             let mask := sub(shl(32, 1), 1)
@@ -67,7 +67,7 @@ library Utils {
         }
     }
 
-    function extractBytes4FromBitmap(uint256 bitmap, uint256 location) public pure returns(bytes4 value) {
+    function extractBytes4FromBitmap(uint256 bitmap, uint256 location) internal pure returns(bytes4 value) {
         assembly {
             // Mask to extract 32 bits
             let mask := sub(shl(32, 1), 1)
@@ -79,7 +79,7 @@ library Utils {
 
     // TODO: name
     function extractCalledIntegrationFunctionSelector(bytes calldata integrationCalldata)
-        public
+        internal
         pure
         returns (bytes4 selector)
     {

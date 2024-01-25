@@ -2,8 +2,8 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import {ECDSA} from "@openzeppelin/src/utils/cryptography/ECDSA.sol";
-import {ERC1967Proxy} from "@openzeppelin/src/proxy/ERC1967/ERC1967Proxy.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import {DeployUtils} from "../../script/foundry/utils/DeployUtils.sol";
 

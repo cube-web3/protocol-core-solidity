@@ -12,3 +12,4 @@
 [submodule "lib/protection-solidity"]
 	path = lib/protection-solidity
 	url = https://github.com/cube-web3/protection-solidity
+branch = develop

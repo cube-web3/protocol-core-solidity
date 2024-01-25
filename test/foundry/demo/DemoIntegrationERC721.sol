@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import "@openzeppelin/src/token/ERC721/ERC721.sol";
-import "@openzeppelin/src/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-import {Cube3ProtectionImmutable} from "../../../src/Cube3Protection.sol";
+import {Cube3Protection} from "@cube3/Cube3Protection.sol";
 
-contract DemoIntegrationERC721 is ERC721, Cube3ProtectionImmutable {
+contract DemoIntegrationERC721 is ERC721, Cube3Protection {
     uint256 private _tokenIdCounter;
 
     mapping(address => uint256) mintsPerAddress;
@@ -15,7 +15,7 @@ contract DemoIntegrationERC721 is ERC721, Cube3ProtectionImmutable {
 
     constructor(address cubeRouter)
         ERC721("Cube3ProtectedNFT", "CP3NFT")
-        Cube3ProtectionImmutable(cubeRouter, msg.sender)
+        Cube3Protection(cubeRouter, msg.sender, true)
     {}
 
     function safeMint(uint256 qty, bytes calldata cube3SecurePayload) public cube3Protected(cube3SecurePayload) {

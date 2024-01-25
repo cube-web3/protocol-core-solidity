@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 
-import {ECDSA} from "@openzeppelin/src/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import {ICube3Router} from "../../../src/interfaces/ICube3Router.sol";
 
