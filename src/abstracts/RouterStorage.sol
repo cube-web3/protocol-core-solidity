@@ -32,6 +32,9 @@ struct Cube3State {
     mapping(bytes32 => bool) usedRegistrarSignatureHashes; // abi.encode(signature) => used
 }
 
+/// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
+///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
+///      can only be accessed via dedicated getter and setter functions.
 abstract contract RouterStorage is Events, AdminRoles {
     /*//////////////////////////////////////////////////////////////
         RETURN VALUES
@@ -45,6 +48,9 @@ abstract contract RouterStorage is Events, AdminRoles {
 
     // Returned by the router if the module call succeeds, the integration is not registered, the protocol is paused, or the function is not protected.
     bytes32 public constant PROCEED_WITH_CALL = keccak256("PROCEED_WITH_CALL");
+
+    // A unique identifier for the router to validate connections to the protocol. Returned by {supportsInterface}
+    bytes4 public constant INTERFACE_ID_CUBE3_ROUTER = bytes4(keccak256("INTERFACE_ID_CUBE3_ROUTER"));
 
     /*//////////////////////////////////////////////////////////////
         STORAGE
@@ -153,6 +159,7 @@ abstract contract RouterStorage is Events, AdminRoles {
 
     function _deleteIntegrationPendingAdmin(address integration) internal {
         delete _state().integrationToPendingAdmin[integration];
+        // TODO: event
     }
 
     function _deleteInstalledModule(bytes16 moduleId, address deprecatedModuleAddress, string memory version)

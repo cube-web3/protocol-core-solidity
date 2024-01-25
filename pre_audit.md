@@ -14,3 +14,7 @@
 - Is there a need to understand a separate part of the codebase / get context in order to audit this part of the protocol?
 - Is this either a fork of or an alternate implementation of another project?
 - Does it use a side-chain?
+
+## Acnkolwedgements
+
+- TODO: cucrrently, revoking the registry will prevent new users from joining, but will not prevent existing users from using the protocol. the signature module will use a backup signer (which hsould be stored separate from teh registry/kms), so TXs can still be signed. However, the registration of new contracts will be paused (should be paused on the front-end anyway).

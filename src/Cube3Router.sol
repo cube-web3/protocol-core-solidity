@@ -97,7 +97,6 @@ contract Cube3Router is
         uint256 integrationMsgValue,
         bytes calldata integrationCalldata
     ) external returns (bytes32) {
-        // TODO: check warm storage read of protocol config gas usage (might not read this if first condition is valid)
 
         // Extract the originating call's function selector from its calldata so that we can check if it's protected.
         bytes4 integrationFnCallSelector = Utils.extractCalledIntegrationFunctionSelector(integrationCalldata);
@@ -175,6 +174,6 @@ contract Cube3Router is
     //////////////////////////////////////////////////////////////*/
 
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId) || interfaceId == INTERFACE_ID_CUBE3_ROUTER;
     }
 }
