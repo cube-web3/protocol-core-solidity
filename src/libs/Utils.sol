@@ -6,6 +6,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 library Utils {
     using ECDSA for bytes32;
 
+    // TODO: remove
     event log_named_uint(string name, uint256 value);
     event LogMsgData(bytes msgData);
     event LogDigsest(bytes32 digest);
