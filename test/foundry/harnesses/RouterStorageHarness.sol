@@ -12,10 +12,12 @@ contract RouterStorageHarness is RouterStorage {
         SETTERS
     //////////////////////////////////////////////////////////////*/
 
+    /// @dev Fuzz
     function setProtocolConfig(address registry, bool isPaused) public {
         _setProtocolConfig(registry, isPaused);
     }
 
+    /// @dev Fuzz
     function setPendingIntegrationAdmin(address integration, address pendingAdmin) public {
         _setPendingIntegrationAdmin(integration, pendingAdmin);
     }

@@ -114,7 +114,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // Checks: the integration has been pre-registered and the status is in the PENDING state
         require(getIntegrationStatus(integration) == Structs.RegistrationStatus.PENDING, "GK13: not PENDING");
 
-        // prevent the same signature from being reused - replaces the need for blacklisting revoked integrations
+        // Prevent the same signature from being reused - replaces the need for blacklisting revoked integrations
         // who might attempt to re-register with the same signature. Use the hash of the signature to avoid malleability
         // issues.
         bytes32 registrarSignatureHash = keccak256(abi.encode(registrarSignature));

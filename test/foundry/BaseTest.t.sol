@@ -18,10 +18,15 @@ import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
 
 import { Demo } from "../demo/Demo.sol";
 
-contract BaseTest is DeployUtils, PayloadUtils {
+import {ProtocolEvents} from "../../src/common/ProtocolEvents.sol";
+import {RouterStorageHarness} from "./harnesses/RouterStorageHarness.sol";
+
+contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents {
     using ECDSA for bytes32;
 
     Demo public demo;
+
+    RouterStorageHarness routerStorageHarness;
 
     // cube
     uint256 internal deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
@@ -50,9 +55,11 @@ contract BaseTest is DeployUtils, PayloadUtils {
 
     string internal version = "signature-0.0.1";
 
+    // TODO: change to setUp
     function initProtocol() internal {
         // deploy and configure cube protocol
         _createAccounts();
+        _deployTestingContracts();
         _deployProtocol();
         _installSignatureModuleInRouter();
 
@@ -81,6 +88,10 @@ contract BaseTest is DeployUtils, PayloadUtils {
 
         // labels
         vm.label(demoSigningAuthority, "Laon Signing Authority");
+    }
+
+    function _deployTestingContracts() internal {
+        routerStorageHarness = new RouterStorageHarness();
     }
 
     function _deployProtocol() internal {
