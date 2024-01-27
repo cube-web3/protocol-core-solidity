@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-import {ICube3Registry} from "./interfaces/ICube3Registry.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
+import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
 
-import {AdminRoles} from "./common/AdminRoles.sol";
+import { ProtocolAdminRoles } from "./common/ProtocolAdminRoles.sol";
 
 /// @dev See {ICube3Registry}
 /// @dev In the event of a catestrophic breach of the KMS, the registry contract will be detached from the module
-contract Cube3Registry is AccessControl, ICube3Registry, AdminRoles {
-
+contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
     /*//////////////////////////////////////////////////////////////
             SIGNING AUTHORITY STORAGE
     //////////////////////////////////////////////////////////////*/
 
     // stores the signing authority for each integration contract, tied to the active _invalidationNonce
-    mapping(address integration => address signingAuthority) internal integrationToSigningAuthority; // integration => signer
+    mapping(address integration => address signingAuthority) internal integrationToSigningAuthority; // integration =>
+        // signer
 
     /*//////////////////////////////////////////////////////////////
             CONSTRUCTOR
@@ -32,14 +32,20 @@ contract Cube3Registry is AccessControl, ICube3Registry, AdminRoles {
             KEY MANAGER LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function setClientSigningAuthority(address integrationContract, address clientSigningAuthority)
+    function setClientSigningAuthority(
+        address integrationContract,
+        address clientSigningAuthority
+    )
         external
         onlyRole(CUBE3_KEY_MANAGER_ROLE)
     {
         _setClientSigningAuthority(integrationContract, clientSigningAuthority);
     }
 
-    function batchSetSigningAuthority(address[] calldata integrations, address[] calldata signingAuthorities)
+    function batchSetSigningAuthority(
+        address[] calldata integrations,
+        address[] calldata signingAuthorities
+    )
         external
         onlyRole(CUBE3_KEY_MANAGER_ROLE)
     {
@@ -49,7 +55,6 @@ contract Cube3Registry is AccessControl, ICube3Registry, AdminRoles {
         // Checks: make sure there's an authority for each integration provided.
         require(lenIntegrations == signingAuthorities.length, "CRG02: length mismatch");
         for (uint256 i; i < lenIntegrations;) {
-
             // Effects: set the signing authority for the integration.
             _setClientSigningAuthority(integrations[i], signingAuthorities[i]);
             unchecked {

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import {ICube3Router} from "../interfaces/ICube3Router.sol";
-import {ICube3Module} from "../interfaces/ICube3Module.sol";
+import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import { ICube3Router } from "../interfaces/ICube3Router.sol";
+import { ICube3Module } from "../interfaces/ICube3Module.sol";
 
 /// @dev See {ICube3Module}
 abstract contract ModuleBase is ICube3Module, ERC165 {
@@ -32,7 +32,8 @@ abstract contract ModuleBase is ICube3Module, ERC165 {
     ///      not already been installed.
     /// @dev The `version` string should be validated for correctness prior to deployment.
     /// @param cubeRouterProxy Contract address of the Cube3Router proxy.
-    /// @param version Human-readable module version, where minimum valid length is 9 bytes and max valid length is 32 bytes: `xxx-x.x.x`
+    /// @param version Human-readable module version, where minimum valid length is 9 bytes and max valid length is 32
+    /// bytes: `xxx-x.x.x`
     constructor(address cubeRouterProxy, string memory version, uint256 payloadSize) {
         require(cubeRouterProxy != address(0), "CM03: invalid proxy");
         require(bytes(version).length >= 9 && bytes(version).length <= 32, "CM04: invalid version");

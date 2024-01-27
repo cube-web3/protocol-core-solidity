@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {Structs} from "../common/Structs.sol";
-import {Events} from "../common/Events.sol";
+import { Structs } from "../common/Structs.sol";
+import { ProtocolEvents } from "../common/ProtocolEvents.sol";
 
-import {AdminRoles} from "../common/AdminRoles.sol";
+import { ProtocolAdminRoles } from "../common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 struct Cube3State {
     Structs.ProtocolConfig protocolConfig;
@@ -14,7 +15,6 @@ struct Cube3State {
 
     // stores module IDs mapped to their corresponding module contract addresses
     mapping(bytes16 => address) idToModules;
-
     /*//////////////////////////////////////////////////////////////
         INTEGRATION MANAGER STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -28,30 +28,15 @@ struct Cube3State {
     // mapping of integration_address => (mapping of function_selector => protection_status)
     mapping(address => mapping(bytes4 => bool)) integrationToFunctionProtectionStatus;
     // store a hash of the used registrar signature to prevent re-registration in the event of a revocation
-    // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked integration
+    // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked
+    // integration
     mapping(bytes32 => bool) usedRegistrarSignatureHashes; // abi.encode(signature) => used
 }
 
 /// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
 ///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
 ///      can only be accessed via dedicated getter and setter functions.
-abstract contract RouterStorage is Events, AdminRoles {
-    /*//////////////////////////////////////////////////////////////
-        RETURN VALUES
-    //////////////////////////////////////////////////////////////*/
-
-    // Returned by a module when the module successfuly executes its internal logic.
-    bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("MODULE_CALL_SUCCEEDED");
-
-    // Returned by a module when the module's internal logic execution fails.
-    bytes32 public constant MODULE_CALL_FAILED = keccak256("MODULE_CALL_FAILED");
-
-    // Returned by the router if the module call succeeds, the integration is not registered, the protocol is paused, or the function is not protected.
-    bytes32 public constant PROCEED_WITH_CALL = keccak256("PROCEED_WITH_CALL");
-
-    // A unique identifier for the router to validate connections to the protocol. Returned by {supportsInterface}
-    bytes4 public constant INTERFACE_ID_CUBE3_ROUTER = bytes4(keccak256("INTERFACE_ID_CUBE3_ROUTER"));
-
+abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -70,7 +55,6 @@ abstract contract RouterStorage is Events, AdminRoles {
     /*//////////////////////////////////////////////////////////////
         GETTERS
     //////////////////////////////////////////////////////////////*/
-
 
     /// @notice Gets the protection status of an integration contract's function using the selector.
     function getIsIntegrationFunctionProtected(address integration, bytes4 fnSelector) public view returns (bool) {
@@ -158,11 +142,16 @@ abstract contract RouterStorage is Events, AdminRoles {
     //////////////////////////////////////////////////////////////*/
 
     function _deleteIntegrationPendingAdmin(address integration) internal {
+        address pendingAdmin = _state().integrationToPendingAdmin[integration];
         delete _state().integrationToPendingAdmin[integration];
-        // TODO: event
+        emit IntegrationPendingAdminRemoved(integration, pendingAdmin);
     }
 
-    function _deleteInstalledModule(bytes16 moduleId, address deprecatedModuleAddress, string memory version)
+    function _deleteInstalledModule(
+        bytes16 moduleId,
+        address deprecatedModuleAddress,
+        string memory version
+    )
         internal
     {
         delete _state().idToModules[moduleId];

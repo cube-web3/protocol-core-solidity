@@ -4,15 +4,20 @@ pragma solidity 0.8.19;
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import {ICube3Router} from "../../../src/interfaces/ICube3Router.sol";
+import { ICube3Router } from "../../../src/interfaces/ICube3Router.sol";
 
-abstract contract RegistrarUtils is Script {
+abstract contract SignatureUtils is Script {
     using ECDSA for bytes32;
 
-    function _generateRegistrarSignature(address router, address integration, uint256 signingAuthPvtKey)
+    function _generateRegistrarSignature(
+        address router,
+        address integration,
+        uint256 signingAuthPvtKey
+    )
         internal
+        view
         returns (bytes memory)
     {
         address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
@@ -20,8 +25,12 @@ abstract contract RegistrarUtils is Script {
             _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
     }
 
-    function _createSignature(bytes memory encodedSignatureData, uint256 pvtKeyToSignWith)
+    function _createSignature(
+        bytes memory encodedSignatureData,
+        uint256 pvtKeyToSignWith
+    )
         private
+        pure
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);

@@ -5,29 +5,20 @@ import {
     AccessControlUpgradeable,
     ERC165Upgradeable
 } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ERC165CheckerUpgradeable} from
+import { ERC165CheckerUpgradeable } from
     "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
-import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import {ICube3Router} from "./interfaces/ICube3Router.sol";
-import {ICube3Registry} from "./interfaces/ICube3Registry.sol";
+import { ICube3Router } from "./interfaces/ICube3Router.sol";
+import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
 
-import {ProtocolManagement} from "./abstracts/ProtocolManagement.sol";
-import {IntegrationManagement} from "./abstracts/IntegrationManagement.sol";
-import {Utils} from "./libs/Utils.sol";
-import {Structs} from "./common/Structs.sol";
-import {RouterStorage} from "./abstracts/RouterStorage.sol";
-
-/*
-    References:
-    - Wormhole: https://vscode.blockscan.com/ethereum/0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B
-    - Axelar: https://github.com/axelarnetwork/axelar-cgp-solidity/blob/0fb933430103c863e9804b790de5caa917f61fb1/contracts/AxelarGateway.sol#L144
-    - Sablier https://github.com/sablier-labs/v2-core
-
-    Use errors from here:
-    - https://github.com/sablier-labs/v2-core/blob/main/src/libraries/Errors.sol
-*/
+import { ProtocolManagement } from "./abstracts/ProtocolManagement.sol";
+import { IntegrationManagement } from "./abstracts/IntegrationManagement.sol";
+import { Utils } from "./libs/Utils.sol";
+import { Structs } from "./common/Structs.sol";
+import { ProtocolConstants } from "./common/ProtocolConstants.sol";
+import { RouterStorage } from "./abstracts/RouterStorage.sol";
 
 /// @dev See {ICube3Router}
 /// @dev All storage variables are defined in RouterStorage.sol and accessed via dedicated getter and setter functions
@@ -37,7 +28,8 @@ contract Cube3Router is
     AccessControlUpgradeable,
     UUPSUpgradeable,
     ProtocolManagement,
-    IntegrationManagement
+    IntegrationManagement,
+    ProtocolConstants
 {
     /// @dev The implementation should only be initialized in the constructor of the proxy
     modifier onlyConstructor() {
@@ -77,7 +69,7 @@ contract Cube3Router is
     }
 
     /// @dev Adds access control logic to the {upgradeTo} function
-    function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 
     /// @dev returns the proxy's current implementation address
     function getImplementation() external view returns (address) {
@@ -90,14 +82,17 @@ contract Cube3Router is
 
     /// @dev Routes the module payload contained in the integrationCalldata to the appropriate module, provided
     ///      the originating function call's function is protected.
-    /// @dev Will return PROCEED_WITH_CALL if the function is not protected, the integration's registration status is REVOKED,
+    /// @dev Will return PROCEED_WITH_CALL if the function is not protected, the integration's registration status is
+    /// REVOKED,
     ///      or the protocol is paused.
     function routeToModule(
         address integrationMsgSender,
         uint256 integrationMsgValue,
         bytes calldata integrationCalldata
-    ) external returns (bytes32) {
-
+    )
+        external
+        returns (bytes32)
+    {
         // Extract the originating call's function selector from its calldata so that we can check if it's protected.
         bytes4 integrationFnCallSelector = Utils.extractCalledIntegrationFunctionSelector(integrationCalldata);
 
@@ -119,13 +114,16 @@ contract Cube3Router is
             return PROCEED_WITH_CALL;
         }
 
-        // Extracts the payload data, which comprises: moduleFnSelector | moduleId | modulePayload | moduleLength.  The orginating
-        // function's calldata is hashed, without the modulePayload, to create a digest that validates none of the call's arguments
+        // Extracts the payload data, which comprises: moduleFnSelector | moduleId | modulePayload | moduleLength.  The
+        // orginating
+        // function's calldata is hashed, without the modulePayload, to create a digest that validates none of the
+        // call's arguments
         // differ from those used to generate the signature contained in the payload, if required.
-        (bytes4 moduleFnSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 integrationCalldataDigest)
-        = Utils.extractPayloadDataFromMsgData(integrationCalldata);
+        (bytes4 moduleFnSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 integrationCalldataDigest) =
+            Utils.extractPayloadDataFromMsgData(integrationCalldata);
 
-        // Checks: The module ID is mapped to an installed module.  Including the module address, instead of the ID, could lead to spoofing.
+        // Checks: The module ID is mapped to an installed module.  Including the module address, instead of the ID,
+        // could lead to spoofing.
         address module = getModuleAddressById(moduleId);
         require(module != address(0), "CR03: non-existent module");
 
@@ -136,13 +134,16 @@ contract Cube3Router is
                 integrationMsgSender,
                 msg.sender, // this will be the proxy address if the integration uses a proxy
                 integrationMsgValue,
-                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload // TODO: better name
+                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload //
+                    // TODO: better name
             ),
             modulePayload
         );
 
-        // Interactions: Makes the call to the desired module, including the relevant information about the originating function call.
+        // Interactions: Makes the call to the desired module, including the relevant information about the originating
+        // function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);
+        // TODO: does this bubble up if it's not in a try/catch
         if (!success) {
             // Bubble up the revert data from the module call.
             assembly {
@@ -174,6 +175,6 @@ contract Cube3Router is
     //////////////////////////////////////////////////////////////*/
 
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId) || interfaceId == INTERFACE_ID_CUBE3_ROUTER;
+        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId);
     }
 }

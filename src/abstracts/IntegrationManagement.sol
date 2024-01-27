@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-import {ERC165CheckerUpgradeable} from
+import { ERC165CheckerUpgradeable } from
     "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
-import {ICube3Module} from "../interfaces/ICube3Module.sol";
-import {ICube3Registry} from "../interfaces/ICube3Registry.sol";
+import { ICube3Module } from "../interfaces/ICube3Module.sol";
+import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
 
-import {Structs} from "../common/Structs.sol";
-import {RouterStorage} from "./RouterStorage.sol";
-import {Utils} from "../libs/Utils.sol";
+import { Structs } from "../common/Structs.sol";
+import { RouterStorage } from "./RouterStorage.sol";
+import { Utils } from "../libs/Utils.sol";
 
 /// @dev This contract contains all the logic for managing customer integrations
 abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
@@ -19,7 +19,6 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
-    
     modifier onlyIntegrationAdmin(address integration) {
         require(getIntegrationAdmin(integration) == msg.sender, "TODO: Not admin");
         _;
@@ -36,7 +35,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
     /// @dev Begins the 2 step transfer of admin rights for an integration contract.
     /// @dev Called by the integration's existing admin.
-    function transferIntegrationAdmin(address integration, address newAdmin)
+    function transferIntegrationAdmin(
+        address integration,
+        address newAdmin
+    )
         external
         onlyIntegrationAdmin(integration)
     {
@@ -55,13 +57,17 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
-    ) external onlyIntegrationAdmin(integration) {
+    )
+        external
+        onlyIntegrationAdmin(integration)
+    {
         bool isRegisteredIntegration = getIntegrationStatus(integration) == Structs.RegistrationStatus.REGISTERED;
 
         uint256 len = updates.length;
         for (uint256 i; i < len;) {
             Structs.FunctionProtectionStatusUpdate calldata update = updates[i];
-            // Checks only an integration that's REGISTERED can enable protection for a function and utilize the protocol.
+            // Checks only an integration that's REGISTERED can enable protection for a function and utilize the
+            // protocol.
             // However, if an integration has protections enabled, we allow them to disable them even if REVOKED.
             if (update.protectionEnabled) {
                 require(isRegisteredIntegration, "TODO: not registered");
@@ -98,7 +104,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         address integration,
         bytes calldata registrarSignature,
         bytes4[] calldata enabledByDefaultFnSelectors
-    ) external onlyIntegrationAdmin(integration) {
+    )
+        external
+        onlyIntegrationAdmin(integration)
+    {
         // Checks: the integration being registered is a valid address
         require(integration != address(0), "TODO zero address");
 
@@ -106,7 +115,8 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         require(getIntegrationStatus(integration) == Structs.RegistrationStatus.PENDING, "GK13: not PENDING");
 
         // prevent the same signature from being reused - replaces the need for blacklisting revoked integrations
-        // who might attempt to re-register with the same signature. Use the hash of the signature to avoid malleability issues.
+        // who might attempt to re-register with the same signature. Use the hash of the signature to avoid malleability
+        // issues.
         bytes32 registrarSignatureHash = keccak256(abi.encode(registrarSignature));
 
         // Checks: the signature has not been used before to register an integrationq
@@ -146,7 +156,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     function batchSetIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatus[] calldata statuses
-    ) external onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE) {
+    )
+        external
+        onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
+    {
         require(integrations.length == statuses.length, "CR05: array length mismatch");
         uint256 len = integrations.length;
         for (uint256 i; i < len;) {
@@ -157,7 +170,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
     }
 
-    function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatus registrationStatus)
+    function setIntegrationRegistrationStatus(
+        address integration,
+        Structs.RegistrationStatus registrationStatus
+    )
         external
         onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
     {

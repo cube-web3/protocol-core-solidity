@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {Structs} from "../common/Structs.sol";
+import { Structs } from "../common/Structs.sol";
 
 /// @title Cube3 Signature Module.
 /// @author CUBE3.ai
@@ -31,7 +31,10 @@ interface ICube3SignatureModule {
             FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function validateSignature(Structs.IntegrationCallMetadata memory integrationData, bytes calldata cube3SecurePayload)
+    function validateSignature(
+        Structs.IntegrationCallMetadata memory integrationData,
+        bytes calldata cube3SecurePayload
+    )
         external
         returns (bytes32);
 

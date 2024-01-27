@@ -3,22 +3,22 @@ pragma solidity 0.8.19;
 
 import "forge-std/Script.sol";
 
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {Cube3Router} from "../../src/Cube3Router.sol";
-import {Cube3Registry} from "../../src/Cube3Registry.sol";
-import {Cube3SignatureModule} from "../../src/modules/Cube3SignatureModule.sol";
+import { Cube3Router } from "../../src/Cube3Router.sol";
+import { Cube3Registry } from "../../src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 
-import {DemoIntegrationERC721} from "../../test/foundry/demo/DemoIntegrationERC721.sol";
-import {DeployUtils} from "./utils/DeployUtils.sol";
+import { DemoIntegrationERC721 } from "../../test/demo/DemoIntegrationERC721.sol";
+import { DeployUtils } from "./utils/DeployUtils.sol";
 
-import {RegistrarUtils} from "./utils/RegistrarUtils.sol";
+import { SignatureUtils } from "./utils/SignatureUtils.sol";
 
-import {PayloadUtils} from "./utils/PayloadUtils.sol";
+import { PayloadUtils } from "./utils/PayloadUtils.sol";
 
-import {Structs} from "../../src/common/Structs.sol";
+import { Structs } from "../../src/common/Structs.sol";
 
-contract DeployLocal is Script, DeployUtils, RegistrarUtils, PayloadUtils {
+contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
     DemoIntegrationERC721 demo;
 
     uint256 deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
@@ -30,7 +30,8 @@ contract DeployLocal is Script, DeployUtils, RegistrarUtils, PayloadUtils {
     uint256 cubeAdminPvtKey = 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a; // anvil [2]
     address cube3admin;
 
-    uint256 cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil [4]
+    uint256 cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil
+        // [4]
     address cube3integrationAdmin;
 
     uint256 backupSignerPvtKey = 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97; // anvil[8]
@@ -44,7 +45,7 @@ contract DeployLocal is Script, DeployUtils, RegistrarUtils, PayloadUtils {
 
     string version = "signature-0.0.1";
 
-    constructor() {}
+    constructor() { }
 
     function setUp() external {
         backupSigner = vm.addr(backupSignerPvtKey);
@@ -84,7 +85,8 @@ contract DeployLocal is Script, DeployUtils, RegistrarUtils, PayloadUtils {
     //     // deploy the implementation
     //     routerImplAddr = address(new Cube3Router());
     //     // deploy the proxy
-    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3Router.initialize, (address(registry))));
+    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3Router.initialize,
+    // (address(registry))));
     //     // create a wrapper interface (for convenience)
     //     wrappedRouterProxy = Cube3Router(payable(address(cubeRouterProxy)));
     //     _addAccessControlAndRevokeDeployerPermsForRouter(cube3admin, cube3integrationAdmin, deployer);

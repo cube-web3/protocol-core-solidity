@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-contract AdminRoles {
-
+abstract contract ProtocolAdminRoles {
     /*//////////////////////////////////////////////////////////////
         ROLES
     //////////////////////////////////////////////////////////////*/
@@ -15,5 +14,4 @@ contract AdminRoles {
 
     // EOA acting on behalf of the KMS, responsible for managing signing authorities
     bytes32 public constant CUBE3_KEY_MANAGER_ROLE = keccak256("CUBE3_KEY_MANAGER_ROLE");
-
 }

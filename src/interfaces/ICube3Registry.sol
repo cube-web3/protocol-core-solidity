@@ -69,7 +69,10 @@ interface ICube3Registry {
     /// @param integrations The addresses of the integration contracts.
     /// @param signingAuthorities The addresses of the signingAuthorities, where each index corresponds to
     ///        the ingtegration contract in the `integrations` array at the same index.
-    function batchSetSigningAuthority(address[] calldata integrations, address[] calldata signingAuthorities)
+    function batchSetSigningAuthority(
+        address[] calldata integrations,
+        address[] calldata signingAuthorities
+    )
         external;
 
     /// @notice Revokes a signing authority for the provided contract address.

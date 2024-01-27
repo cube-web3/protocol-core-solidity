@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import {ERC165CheckerUpgradeable} from
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { ERC165CheckerUpgradeable } from
     "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 
-import {Structs} from "../common/Structs.sol";
-import {RouterStorage} from "./RouterStorage.sol";
-import {ICube3Module} from "../interfaces/ICube3Module.sol";
-import {ICube3Registry} from "../interfaces/ICube3Registry.sol";
+import { Structs } from "../common/Structs.sol";
+import { RouterStorage } from "./RouterStorage.sol";
+import { ICube3Module } from "../interfaces/ICube3Module.sol";
+import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
 
-import {IntegrationManagement} from "./IntegrationManagement.sol";
+import { IntegrationManagement } from "./IntegrationManagement.sol";
 
 /// @dev This contract contains all the logic for managing the protocol
 abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage {
@@ -33,7 +33,10 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
 
     /// @dev used to call privileged functions on modules where only the router has access
     /// @dev never know if it needs to be payable or not
-    function callModuleFunctionAsAdmin(bytes16 moduleId, bytes calldata fnCalldata)
+    function callModuleFunctionAsAdmin(
+        bytes16 moduleId,
+        bytes calldata fnCalldata
+    )
         external
         payable
         onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE)

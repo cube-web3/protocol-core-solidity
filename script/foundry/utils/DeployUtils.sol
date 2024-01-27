@@ -3,11 +3,11 @@ pragma solidity 0.8.19;
 
 import "forge-std/Script.sol";
 
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import {Cube3Router} from "../../../src/Cube3Router.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { Cube3Router } from "../../../src/Cube3Router.sol";
 
-import {Cube3Registry} from "../../../src/Cube3Registry.sol";
-import {Cube3SignatureModule} from "../../../src/modules/Cube3SignatureModule.sol";
+import { Cube3Registry } from "../../../src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
 // import {LibDeployConstants} from "../utils/LibDeployConstants.sol";
 
 abstract contract DeployUtils is Script {
@@ -66,7 +66,9 @@ abstract contract DeployUtils is Script {
         address _backupSigner,
         uint256 _signatureModulePayloadLength,
         string memory _signatureModuleVersion
-    ) internal {
+    )
+        internal
+    {
         vm.startBroadcast(_deployerPvtKey);
 
         // ============ registry
@@ -83,7 +85,9 @@ abstract contract DeployUtils is Script {
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), _signatureModuleVersion, _backupSigner, _signatureModulePayloadLength);
+        signatureModule = new Cube3SignatureModule(
+            address(cubeRouterProxy), _signatureModuleVersion, _backupSigner, _signatureModulePayloadLength
+        );
 
         vm.stopBroadcast();
     }
@@ -93,7 +97,9 @@ abstract contract DeployUtils is Script {
         address protocolAdmin,
         address integrationAdmin,
         address deployer
-    ) internal {
+    )
+        internal
+    {
         // make the multisig the default admin
         wrappedRouterProxy.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
         require(wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
@@ -116,7 +122,9 @@ abstract contract DeployUtils is Script {
         address protocolAdmin,
         address keyManager,
         address deployer
-    ) internal {
+    )
+        internal
+    {
         registry.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
         require(registry.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
 

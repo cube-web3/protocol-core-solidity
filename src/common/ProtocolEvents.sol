@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {Structs} from "./Structs.sol";
+import { Structs } from "./Structs.sol";
 
-contract Events {
+contract ProtocolEvents {
     /// @notice Emitted when an integration's revocation status is updated.
     /// @dev Recovation status will be {True} when the integration is revoked and {False} when the revocation is cleared
     /// @param integration The integration contract whose revocation status is updated.
@@ -31,10 +31,11 @@ contract Events {
     //////////////////////////////////////////////////////////////*/
 
     event IntegrationRegistrationStatusUpdated(address indexed integration, Structs.RegistrationStatus status);
-    event IntegrationAdminUpdated(address indexed integration, address admin);
+    event IntegrationAdminUpdated(address indexed integration, address indexed admin);
+    event IntegrationPendingAdminRemoved(address indexed integration, address indexed pendingAdmin);
     event IntegrationAdminTransferStarted(address indexed oldAdmin, address indexed pendingAdmin);
     event IntegrationAdminTransferred(address indexed oldAdmin, address indexed newAdmin);
-    event FunctionProtectionStatusUpdated(address indexed integration, bytes4 selector, bool status);
+    event FunctionProtectionStatusUpdated(address indexed integration, bytes4 indexed selector, bool status);
     event ProtocolConfigUpdated(address indexed registry, bool paused);
 
     event InitiateReg(address integration, Structs.IntegrationState state);

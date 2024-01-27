@@ -2,10 +2,10 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import {Demo} from "../demo/Demo.sol";
-import {BaseTest} from "../BaseTest.t.sol";
+import { Demo } from "../../demo/Demo.sol";
+import { BaseTest } from "../BaseTest.t.sol";
 
-import {Structs} from "../../../src/common/Structs.sol";
+import { Structs } from "../../../src/common/Structs.sol";
 
 contract IntegrationTest is BaseTest {
     function setUp() public {
@@ -138,5 +138,5 @@ contract IntegrationTest is BaseTest {
         vm.stopPrank();
     }
 
-    function testPayable() public {}
+    function testPayable() public { }
 }

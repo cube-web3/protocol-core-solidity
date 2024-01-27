@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import {ICube3SignatureModule} from "../interfaces/ICube3SignatureModule.sol";
-import {ICube3Registry} from "../interfaces/ICube3Registry.sol";
-import {ModuleBase} from "./ModuleBase.sol";
+import { ICube3SignatureModule } from "../interfaces/ICube3SignatureModule.sol";
+import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
+import { ModuleBase } from "./ModuleBase.sol";
 
-import {Structs} from "../common/Structs.sol";
+import { Structs } from "../common/Structs.sol";
 
 /// @dev see {ICube3SignatureModule}
 /// @dev in the unlikely event that the backup signer is compromised, the module should be deprecated
@@ -22,8 +22,8 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
     address private immutable _backupSigner;
 
     // stores the caller's (EOA) integration- and module-specific nonce
-    mapping(address => mapping(address => uint256)) private integrationToUserNonce; //contract => (user account => nonce)
-
+    mapping(address => mapping(address => uint256)) private integrationToUserNonce; //contract => (user account =>
+        // nonce)
 
     event logCube3SignatureModulePayload(Cube3SignatureModulePayload payload);
     /*//////////////////////////////////////////////////////////////
@@ -35,7 +35,12 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
     /// @param cube3RouterProxy The address of the Cube3Router proxy.
     /// @param version Human-readable module version used to generate the module's ID
     /// @param backupSigner Backup payload signer in the event the registry is removed
-    constructor(address cube3RouterProxy, string memory version, address backupSigner, uint256 expectedPayloadSize)
+    constructor(
+        address cube3RouterProxy,
+        string memory version,
+        address backupSigner,
+        uint256 expectedPayloadSize
+    )
         ModuleBase(cube3RouterProxy, version, expectedPayloadSize)
     {
         _backupSigner = backupSigner;
@@ -45,12 +50,14 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             EXTERNAL VALIDATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function validateSignature(Structs.IntegrationCallMetadata memory integrationData, bytes calldata modulePayload)
+    function validateSignature(
+        Structs.IntegrationCallMetadata memory integrationData,
+        bytes calldata modulePayload
+    )
         external
         onlyCube3Router
         returns (bytes32)
     {
-
         // Fetch the registry address from the router. This will be used later to fetch the signing authority
         // for the integration provided in the {integrationData}.
         ICube3Registry cube3registry = _getRegistryFromRouter();
@@ -64,13 +71,16 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         // Effects: deconstruct the payload provided by the CUBE3 Risk API
         Cube3SignatureModulePayload memory cubeSecuredData = _decodeModulePayload(modulePayload);
         // emit logCube3SignatureModulePayload(cubeSecuredData);
-        
+
         // If nonce tracking is not required, we expect the payload nonce to be 0
         uint256 userNonce;
 
-        // Effects: If nonce tracking is disabled, the possibility of replay attacks exists, therefore it is up to the integration
-        // to assess the risk.  Nonce tracking is disabled by default in the CUBE3 Risk API and must be explicitly enabled by the integration owner.
-        // note: If nonce tracking is enabled, and the nonce is incremented, we intenionally omit an event to lower the function's gas usage.
+        // Effects: If nonce tracking is disabled, the possibility of replay attacks exists, therefore it is up to the
+        // integration
+        // to assess the risk.  Nonce tracking is disabled by default in the CUBE3 Risk API and must be explicitly
+        // enabled by the integration owner.
+        // note: If nonce tracking is enabled, and the nonce is incremented, we intenionally omit an event to lower the
+        // function's gas usage.
         if (cubeSecuredData.shouldTrackNonce) {
             // no user can feasibly get close to type(uint256).max nonces, so use unchecked math.
             unchecked {
@@ -82,13 +92,16 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             require(cubeSecuredData.nonce == userNonce, "SM03: invalid nonce");
         }
 
-        // Effects: recover the signer from the signature and compare to the signing authority fetched from the registry.
-        // The first param passed to {_recoverSigner} is the reconstructed chain data that was used when creating the signature.
+        // Effects: recover the signer from the signature and compare to the signing authority fetched from the
+        // registry.
+        // The first param passed to {_recoverSigner} is the reconstructed chain data that was used when creating the
+        // signature.
         if (
             _recoverSigner(
                 abi.encode(
                     _getChainID(), // chainid
-                    integrationData, // includes the integration's: address, msg.sender, msg.value, and a hash of the calldata (less the module payload)
+                    integrationData, // includes the integration's: address, msg.sender, msg.value, and a hash of the
+                        // calldata (less the module payload)
                     address(this), // module contract address
                     msg.sig, // module's target function selector
                     userNonce, // if shouldTrackNonce is false, nonce will be zero
@@ -98,10 +111,12 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
                 integrationSigningAuthority // retrieved from registry
             )
         ) {
-            // Interactions: The signer was successfully recovered, so we can proceed with the integration's function call.
+            // Interactions: The signer was successfully recovered, so we can proceed with the integration's function
+            // call.
             return MODULE_CALL_SUCCEEDED;
         } else {
-            // Interactions: Let the router know that the signature recovery failed, which will trigger a revert in the router.
+            // Interactions: Let the router know that the signature recovery failed, which will trigger a revert in the
+            // router.
             return MODULE_CALL_FAILED;
         }
     }
@@ -125,14 +140,19 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         }
     }
 
-    /// @notice Validates the signature by comparing the recovered address to the signing authority retrieved from the registry.
+    /// @notice Validates the signature by comparing the recovered address to the signing authority retrieved from the
+    /// registry.
     /// @dev {toEthSignedMessageHash} replicates the behavior of eth_sign.
     /// @dev Will revert if the recovered address does not match the signing authority retrieved from the registry.
     /// @param reconstructedChainData Reconstructed data, using on-chain data, to hash and attempt address recovery.
     /// @param signature The bytes signature of length 65 of abi.encodePacked(r,s,v).
     /// @param _signingAuthority The signing authority address retrieved from the Cube3Registry.
     /// @return True if the recovery was successful.
-    function _recoverSigner(bytes memory reconstructedChainData, bytes memory signature, address _signingAuthority)
+    function _recoverSigner(
+        bytes memory reconstructedChainData,
+        bytes memory signature,
+        address _signingAuthority
+    )
         private
         pure
         returns (bool)
@@ -155,7 +175,10 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
     }
 
     /// @dev Utility function for retrieving the signing authority from the registry for a given integration
-    function _getSigningAuthority(ICube3Registry cube3registry, address integration)
+    function _getSigningAuthority(
+        ICube3Registry cube3registry,
+        address integration
+    )
         private
         view
         returns (address signer)
@@ -187,8 +210,6 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
 
         require(expirationTimestamp > block.timestamp, "SM08: signature expired");
 
-        deconstructedPayload = Cube3SignatureModulePayload(
-            expirationTimestamp, shouldTrackNonce, nonce, signature
-        );
+        deconstructedPayload = Cube3SignatureModulePayload(expirationTimestamp, shouldTrackNonce, nonce, signature);
     }
 }

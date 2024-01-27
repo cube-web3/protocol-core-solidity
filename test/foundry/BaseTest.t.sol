@@ -2,21 +2,21 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {DeployUtils} from "../../script/foundry/utils/DeployUtils.sol";
+import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
 
-import {PayloadUtils} from "../../script/foundry/utils/PayloadUtils.sol";
+import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
-import {Cube3Router} from "../../src/Cube3Router.sol";
+import { Cube3Router } from "../../src/Cube3Router.sol";
 
-import {Cube3Registry} from "../../src/Cube3Registry.sol";
-import {Cube3SignatureModule} from "../../src/modules/Cube3SignatureModule.sol";
+import { Cube3Registry } from "../../src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 
-import {ICube3Router} from "../../src/interfaces/ICube3Router.sol";
+import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
 
-import {Demo} from "./demo/Demo.sol";
+import { Demo } from "../demo/Demo.sol";
 
 contract BaseTest is DeployUtils, PayloadUtils {
     using ECDSA for bytes32;
@@ -33,7 +33,8 @@ contract BaseTest is DeployUtils, PayloadUtils {
     uint256 internal cubeAdminPvtKey = 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a; // anvil [2]
     address internal cube3admin;
 
-    uint256 internal cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil [4]
+    uint256 internal cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil
+        // [4]
     address internal cube3integrationAdmin;
 
     uint256 internal backupSignerPvtKey = 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97; // anvil[8]
@@ -45,7 +46,7 @@ contract BaseTest is DeployUtils, PayloadUtils {
     uint256 internal demoDeployerPrivateKey = uint256(420);
     address internal demoDeployer;
 
-    address internal user = vm.addr(42069);
+    address internal user = vm.addr(42_069);
 
     string internal version = "signature-0.0.1";
 
@@ -135,7 +136,8 @@ contract BaseTest is DeployUtils, PayloadUtils {
         // deploy the contract
         // ICube3Data.FunctionProtectionStatusUpdate[] memory fnProtectionData =
         //     new ICube3Data.FunctionProtectionStatusUpdate[](1);
-        // fnProtectionData[0] = ICube3Data.FunctionProtectionStatusUpdate({fnSelector: selector, protectionEnabled: true});
+        // fnProtectionData[0] = ICube3Data.FunctionProtectionStatusUpdate({fnSelector: selector, protectionEnabled:
+        // true});
 
         bytes4[] memory fnSelectors = new bytes4[](6);
         fnSelectors[0] = Demo.mint.selector;
@@ -158,7 +160,11 @@ contract BaseTest is DeployUtils, PayloadUtils {
 
     // ============== UTILS
 
-    function _generateRegistrarSignature(address router, address integration, uint256 signingAuthPvtKey)
+    function _generateRegistrarSignature(
+        address router,
+        address integration,
+        uint256 signingAuthPvtKey
+    )
         internal
         returns (bytes memory)
     {
@@ -168,7 +174,10 @@ contract BaseTest is DeployUtils, PayloadUtils {
             _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
     }
 
-    function _createSignature(bytes memory encodedSignatureData, uint256 pvtKeyToSignWith)
+    function _createSignature(
+        bytes memory encodedSignatureData,
+        uint256 pvtKeyToSignWith
+    )
         private
         returns (bytes memory signature)
     {
