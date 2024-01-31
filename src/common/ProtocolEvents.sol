@@ -33,8 +33,8 @@ contract ProtocolEvents {
     event IntegrationRegistrationStatusUpdated(address indexed integration, Structs.RegistrationStatus status);
     event IntegrationAdminUpdated(address indexed integration, address indexed admin);
     event IntegrationPendingAdminRemoved(address indexed integration, address indexed pendingAdmin);
-    event IntegrationAdminTransferStarted(address indexed oldAdmin, address indexed pendingAdmin);
-    event IntegrationAdminTransferred(address indexed oldAdmin, address indexed newAdmin);
+    event IntegrationAdminTransferStarted(address indexed integration, address indexed oldAdmin, address indexed pendingAdmin);
+    event IntegrationAdminTransferred(address indexed integration, address indexed oldAdmin, address indexed newAdmin);
     event FunctionProtectionStatusUpdated(address indexed integration, bytes4 indexed selector, bool status);
     event ProtocolConfigUpdated(address indexed registry, bool paused);
 

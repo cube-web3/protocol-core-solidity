@@ -21,7 +21,9 @@ import { Demo } from "../demo/Demo.sol";
 import {ProtocolEvents} from "../../src/common/ProtocolEvents.sol";
 import {RouterStorageHarness} from "./harnesses/RouterStorageHarness.sol";
 
-contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents {
+import {TestUtils} from "../utils/TestUtils.sol";
+
+contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils {
     using ECDSA for bytes32;
 
     Demo public demo;
