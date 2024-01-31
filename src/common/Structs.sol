@@ -5,7 +5,7 @@ pragma solidity 0.8.19;
 // TODO: maybe DataSchema
 contract Structs {
     /// @notice  Defines the state of the integration's registration status.
-    /// @dev     RegistrationStatus refers to the integration's relationship with the CUBE3 protocol.
+    /// @dev     RegistrationStatusEnum refers to the integration's relationship with the CUBE3 protocol.
     /// @dev     An integration can only register with the protocol by receiving a registration signature from the CUBE3
     /// service off-chain.
     /// @param   UNREGISTERED The integration technically does not exist as it has not been pre-registered with the
@@ -15,7 +15,7 @@ contract Structs {
     /// the off-chain CUBE3 service
     ///          and is permissioned to update the protection status of functions.
     /// @param   REVOKED The integration no longer has the ability to enable function protection.
-    enum RegistrationStatus {
+    enum RegistrationStatusEnum {
         UNREGISTERED,
         PENDING,
         REGISTERED,
@@ -26,7 +26,7 @@ contract Structs {
     // TODO: Look into using a bloom filter here
     struct IntegrationState {
         address admin; // 20 bytes
-        RegistrationStatus registrationStatus; // 1 byte
+        RegistrationStatusEnum registrationStatus; // 1 byte
     }
 
     struct FunctionProtectionStatusUpdate {

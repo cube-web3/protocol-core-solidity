@@ -104,7 +104,7 @@ contract Cube3Router is
         }
 
         // Checks: Whether the integration has had its status REVOKED.
-        if (getIntegrationStatus(msg.sender) == Structs.RegistrationStatus.REVOKED) {
+        if (getIntegrationStatus(msg.sender) == Structs.RegistrationStatusEnum.REVOKED) {
             return PROCEED_WITH_CALL;
         }
 

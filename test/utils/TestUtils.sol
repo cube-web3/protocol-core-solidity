@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {Structs} from "../../src/common/Structs.sol";
 import { Vm } from "forge-std/Vm.sol";
 
 abstract contract TestUtils {
@@ -23,4 +24,27 @@ abstract contract TestUtils {
     function _randomAddress() internal view returns (address payable) {
         return payable(address(uint160(_randomUint256())));
     }
+
+    function uintToString(uint _i) public pure returns (string memory) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k-1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
+    }
+
 }

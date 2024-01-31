@@ -61,7 +61,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         external
         onlyIntegrationAdmin(integration)
     {
-        bool isRegisteredIntegration = getIntegrationStatus(integration) == Structs.RegistrationStatus.REGISTERED;
+        bool isRegisteredIntegration = getIntegrationStatus(integration) == Structs.RegistrationStatusEnum.REGISTERED;
 
         uint256 len = updates.length;
         for (uint256 i; i < len;) {
@@ -93,7 +93,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         require(admin_ != address(0), "TODO: zero address");
         require(getIntegrationAdmin(msg.sender) == address(0), "TODO: Already registered");
         _setIntegrationAdmin(msg.sender, admin_);
-        _setIntegrationRegistrationStatus(msg.sender, Structs.RegistrationStatus.PENDING);
+        _setIntegrationRegistrationStatus(msg.sender, Structs.RegistrationStatusEnum.PENDING);
         return true;
     }
 
@@ -112,7 +112,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         require(integration != address(0), "TODO zero address");
 
         // Checks: the integration has been pre-registered and the status is in the PENDING state
-        require(getIntegrationStatus(integration) == Structs.RegistrationStatus.PENDING, "GK13: not PENDING");
+        require(getIntegrationStatus(integration) == Structs.RegistrationStatusEnum.PENDING, "GK13: not PENDING");
 
         // Prevent the same signature from being reused - replaces the need for blacklisting revoked integrations
         // who might attempt to re-register with the same signature. Use the hash of the signature to avoid malleability
@@ -146,7 +146,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             }
         }
 
-        _setIntegrationRegistrationStatus(integration, Structs.RegistrationStatus.REGISTERED);
+        _setIntegrationRegistrationStatus(integration, Structs.RegistrationStatusEnum.REGISTERED);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
     function batchSetIntegrationRegistrationStatus(
         address[] calldata integrations,
-        Structs.RegistrationStatus[] calldata statuses
+        Structs.RegistrationStatusEnum[] calldata statuses
     )
         external
         onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
@@ -172,7 +172,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
     function setIntegrationRegistrationStatus(
         address integration,
-        Structs.RegistrationStatus registrationStatus
+        Structs.RegistrationStatusEnum registrationStatus
     )
         external
         onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
@@ -201,7 +201,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     /// @dev Updates the integration status for an integration or an integration's proxy.
     /// @dev Only accessible by the Cube3Router contract, allowing changes from, and to, any state
     /// @dev Prevents the status from being set to the same value.
-    function _updateIntegrationRegistrationStatus(address integration, Structs.RegistrationStatus status) internal {
+    function _updateIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal {
         require(integration != address(0), "GK14: zero address");
         require(getIntegrationStatus(integration) != status, "GK06: same status");
         _setIntegrationRegistrationStatus(integration, status);

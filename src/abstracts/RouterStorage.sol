@@ -62,7 +62,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
     }
 
     /// @notice gets whether the integration has had its registration status revoked
-    function getIntegrationStatus(address integration) public view returns (Structs.RegistrationStatus) {
+    function getIntegrationStatus(address integration) public view returns (Structs.RegistrationStatusEnum) {
         return _state().integrationToState[integration].registrationStatus;
     }
 
@@ -124,7 +124,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         emit FunctionProtectionStatusUpdated(integration, fnSelector, isEnabled);
     }
 
-    function _setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatus status) internal {
+    function _setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal {
         _state().integrationToState[integration].registrationStatus = status;
         emit IntegrationRegistrationStatusUpdated(integration, status);
     }

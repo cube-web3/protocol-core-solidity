@@ -30,7 +30,7 @@ contract RouterStorageHarness is RouterStorage {
         _setFunctionProtectionStatus(integration, fnSelector, isEnabled);
     }
 
-    function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatus status) public {
+    function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) public {
         _setIntegrationRegistrationStatus(integration, status);
     }
 

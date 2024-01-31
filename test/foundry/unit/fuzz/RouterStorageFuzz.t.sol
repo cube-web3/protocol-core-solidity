@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {BaseTest} from "../../BaseTest.t.sol";
-
+import {Structs} from "../../../../src/common/Structs.sol";
 import {RouterStorageHarness} from "../../harnesses/RouterStorageHarness.sol";
 
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {
@@ -31,6 +31,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
  }
 
  // Setting the pending integration admin succeeds and emits the correct event
+ // Deleting the pending integration admin succeeds and emits the correct event
  function testFuzz_SucceedsWhen_PendingIntegrationAdminIsSet(uint256 addressSeed, uint256 addressSeed2) public {
   addressSeed = bound(addressSeed, 1, 1 + HALF_MAX_UINT);
   addressSeed2 = bound(addressSeed2, 1, 1 + HALF_MAX_UINT);
@@ -50,6 +51,12 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
 
   // check the pending admin
   assertEq(pendingAdmin, routerStorageHarness.getIntegrationPendingAdmin(integration), "pending admin mismatch");
+
+  // delete the pending admin
+  vm.expectEmit(true,true,true,true);
+  emit IntegrationPendingAdminRemoved(integration, pendingAdmin);
+  routerStorageHarness.deleteIntegrationPendingAdmin(integration);
+  assertEq(address(0), routerStorageHarness.getIntegrationPendingAdmin(integration), "pending admin mismatch");
  }
 
  // setting the integration admin succeeds and emits the correct event
@@ -106,4 +113,60 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
 
   assertEq(!flag, routerStorageHarness.getIsIntegrationFunctionProtected(integration, selector), "protection mismatch");
  }
+
+ // Setting integration registration status succeeds and emits correct event
+ function testFuzz_SucceedsWhen_IntegrationRegistrationStatusSet() public {
+  address integration = _randomAddress();
+
+  // unitialized status should be UNREGISTERED
+  assertEq(uint256(Structs.RegistrationStatusEnum.UNREGISTERED), uint256(routerStorageHarness.getIntegrationStatus(integration)), "status mismatch");
+
+  Structs.RegistrationStatusEnum status = Structs.RegistrationStatusEnum.PENDING;
+
+  // set the status to PENDING
+  vm.expectEmit(true,true,true,true);
+  emit IntegrationRegistrationStatusUpdated(integration, status);
+  routerStorageHarness.setIntegrationRegistrationStatus(integration, status);
+  assertEq(uint256(status), uint256(routerStorageHarness.getIntegrationStatus(integration)), "status mismatch");
+
+  // set the status to REGISTERED
+  status = Structs.RegistrationStatusEnum.REGISTERED;
+  vm.expectEmit(true,true,true,true);
+  emit IntegrationRegistrationStatusUpdated(integration, status);
+  routerStorageHarness.setIntegrationRegistrationStatus(integration, status);
+  assertEq(uint256(Structs.RegistrationStatusEnum.REGISTERED), uint256(routerStorageHarness.getIntegrationStatus(integration)), "status mismatch");
+
+  // set the status to REVOKED
+  status = Structs.RegistrationStatusEnum.REVOKED;
+  vm.expectEmit(true,true,true,true);
+  emit IntegrationRegistrationStatusUpdated(integration, status);
+  routerStorageHarness.setIntegrationRegistrationStatus(integration, status);
+  assertEq(uint256(Structs.RegistrationStatusEnum.REVOKED), uint256(routerStorageHarness.getIntegrationStatus(integration)), "status mismatch");
+ }
+
+ // Installing a module succeeds and emits the correct event
+ // Deleting a module succeeds and emits the correct event
+ function testFuzz_SucceedsWhen_ModuleInstalled(uint256 moduleIdSeed, uint256 addressSeed, uint256 versionSeed) public {
+  moduleIdSeed = bound(moduleIdSeed, 1, 1 + HALF_MAX_UINT);
+  addressSeed = bound(addressSeed, 1, 1 + HALF_MAX_UINT);
+  versionSeed = bound(versionSeed, 1, 1 + HALF_MAX_UINT);
+
+  bytes16 moduleId = bytes16(bytes32(moduleIdSeed));
+  address moduleAddress = vm.addr(addressSeed);
+  string memory version = "moduleVersion-0.0.1";
+
+  // install the module
+  vm.expectEmit(true,true,true,true);
+  emit RouterModuleInstalled(moduleId, moduleAddress, version);
+  routerStorageHarness.setModuleInstalled(moduleId, moduleAddress, version);
+  assertEq(moduleAddress, routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
+
+  // delete the module
+  vm.expectEmit(true,true,true,true);
+  emit RouterModuleDeprecated(moduleId, moduleAddress, version);
+  routerStorageHarness.deleteInstalledModule(moduleId, moduleAddress, version);
+  assertEq(address(0), routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
+ }
+
+
 }

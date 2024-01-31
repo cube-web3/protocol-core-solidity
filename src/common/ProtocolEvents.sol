@@ -30,7 +30,7 @@ contract ProtocolEvents {
             EVENTS
     //////////////////////////////////////////////////////////////*/
 
-    event IntegrationRegistrationStatusUpdated(address indexed integration, Structs.RegistrationStatus status);
+    event IntegrationRegistrationStatusUpdated(address indexed integration, Structs.RegistrationStatusEnum status);
     event IntegrationAdminUpdated(address indexed integration, address indexed admin);
     event IntegrationPendingAdminRemoved(address indexed integration, address indexed pendingAdmin);
     event IntegrationAdminTransferStarted(address indexed integration, address indexed oldAdmin, address indexed pendingAdmin);

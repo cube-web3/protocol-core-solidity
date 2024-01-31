@@ -101,7 +101,7 @@ interface ICube3Router {
     function setIntegrationRegistrationStatus(
         address integrationOrProxy,
         address integrationOrImplementation,
-        Structs.RegistrationStatus registrationStatus
+        Structs.RegistrationStatusEnum registrationStatus
     )
         external;
 
