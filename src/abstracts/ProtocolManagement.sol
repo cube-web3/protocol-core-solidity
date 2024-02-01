@@ -92,6 +92,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         require(moduleToDeprecate != address(0), "CR09: non-existent version");
         (bool success, string memory version) = ICube3Module(moduleToDeprecate).deprecate();
         require(success, "CR17: deprecation unsuccessful");
+        // TODO: should add to deprecateedMapping?
         _deleteInstalledModule(moduleId, moduleToDeprecate, version);
     }
 }

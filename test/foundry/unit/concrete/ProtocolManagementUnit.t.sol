@@ -190,6 +190,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         protocolManagementHarness.installModule(address(mockModule), altModuleId);
     }
 
+    // TODO: this logic is flawed. When a module is deprecated, it's (incorrectly?) removed from storage, probably
+    // shouldn't delete it
     // fails reinstalling a module that's been deprecated
     function test_RevertsWhen_ReInstallingDeprecatedModule() public {
         bytes16 moduleId = _installModuleAsAdmin();

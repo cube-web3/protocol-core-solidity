@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import { Structs } from "./Structs.sol";
 
-contract ProtocolEvents {
+abstract contract ProtocolEvents {
     /// @notice Emitted when an integration's revocation status is updated.
     /// @dev Recovation status will be {True} when the integration is revoked and {False} when the revocation is cleared
     /// @param integration The integration contract whose revocation status is updated.

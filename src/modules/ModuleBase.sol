@@ -5,10 +5,11 @@ import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { ICube3Router } from "../interfaces/ICube3Router.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 
+import { ModuleBaseEvents } from "./ModuleBaseEvents.sol";
 import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 /// @dev See {ICube3Module}
-abstract contract ModuleBase is ICube3Module, ERC165, ProtocolConstants {
+abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, ProtocolConstants {
     // interface wrapping the Cube3RouterProxy for convenience
     ICube3Router internal immutable cube3router;
 
@@ -64,9 +65,10 @@ abstract contract ModuleBase is ICube3Module, ERC165, ProtocolConstants {
     }
 
     /*//////////////////////////////////////////////////////////////
-            MODIFIERS
+            DEPRECATION
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: test custom override here and call super.deprecate();
     /// @inheritdoc	ICube3Module
     /// @dev Can be overridden in the event additional logic needs to be executed during deprecation.
     /// @dev Overriden function MUST use `onlyCube3Router` modifier.
@@ -90,10 +92,11 @@ abstract contract ModuleBase is ICube3Module, ERC165, ProtocolConstants {
 
     /// @dev Module installation is infrequent and performed by CUBE3, so the slightly elevated gas cost
     ///      of this check is acceptable given the operational significance.
-    /// @dev Is NOT a comprehensive validation. Validation on the schema should be done prior to deployment.
+    /// @dev Is NOT a comprehensive validation. Validation on the schema should be done in the deployment script.
     /// @dev A minimal check evaluating that the version string conforms to the schema: {xxx-x.x.x}
     /// @dev Checks for the correct version schema by counting the "." separating MAJOR.MINOR.PATCH
     /// @dev Checks for the presence of the single "-" separating name and version number
+    /// @dev Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
     function _isValidVersionSchema(string memory version_) internal pure returns (bool) {
         uint256 versionSeparatorCount;
         uint256 dashCount;
