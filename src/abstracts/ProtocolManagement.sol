@@ -20,7 +20,8 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
 
     // TODO: add convenience function for pausing/unpausing
 
-    /// @dev We allow the registry to be set to the zero address in the event of a compromise
+    /// @dev We allow the registry to be set to the zero address in the event of a compromise. Removing the
+    ///      registry will prevent any new integrations from being registered.
     function setProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         if (registry != address(0)) {
             require(
@@ -78,7 +79,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         // The module version is used as the salt for the module ID, so we need to ensure that
         // it matches the desired module being installed
         string memory moduleVersion = ICube3Module(moduleAddress).moduleVersion();
-        require(bytes16(keccak256(abi.encode(moduleVersion))) == moduleId, "CR08: module not deployed");
+        require(bytes16(keccak256(abi.encode(moduleVersion))) == moduleId, "CR08: version mismatch");
 
         // check that the module hasn't been deprecated to prevent reinstallation
         require(!ICube3Module(moduleAddress).isDeprecated(), "CR16: module deprecated");

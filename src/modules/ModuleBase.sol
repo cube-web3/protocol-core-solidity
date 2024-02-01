@@ -5,12 +5,10 @@ import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { ICube3Router } from "../interfaces/ICube3Router.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 
-/// @dev See {ICube3Module}
-abstract contract ModuleBase is ICube3Module, ERC165 {
-    // TODO: import these
-    bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("MODULE_CALL_SUCCEEDED");
-    bytes32 public constant MODULE_CALL_FAILED = keccak256("MODULE_CALL_FAILED");
+import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
+/// @dev See {ICube3Module}
+abstract contract ModuleBase is ICube3Module, ERC165, ProtocolConstants {
     // interface wrapping the Cube3RouterProxy for convenience
     ICube3Router internal immutable cube3router;
 
@@ -18,6 +16,7 @@ abstract contract ModuleBase is ICube3Module, ERC165 {
     string public moduleVersion;
     bytes16 public immutable moduleId;
 
+    // TODO: is this needed?
     // The expected CUBE3 Payload length (in bytes) for this module.
     uint256 public immutable expectedPayloadSize;
 
@@ -41,6 +40,8 @@ abstract contract ModuleBase is ICube3Module, ERC165 {
         require(payloadSize > 0, "TODO: invalid payload size");
 
         moduleVersion = version;
+
+        // use the 128 most significant bits of the keccak256 hash of the version string
         moduleId = bytes16(keccak256(abi.encode(moduleVersion)));
         expectedPayloadSize = payloadSize;
 

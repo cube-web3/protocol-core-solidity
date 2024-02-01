@@ -104,13 +104,15 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
     function _setProtocolConfig(address registry, bool isPaused) internal {
         _state().protocolConfig = Structs.ProtocolConfig(registry, isPaused);
         emit ProtocolConfigUpdated(registry, isPaused);
+        if (registry == address(0)) {
+            emit ProtocolRegistryRemoved();
+        }
     }
 
-    /// @dev Can only be called by the current admin, represented by `msg.sender`.
-    // TODO: should probably pass the admin in instead.
-    function _setPendingIntegrationAdmin(address integration, address pendingAdmin) internal {
+    /// @dev `currentAdmin` should always be `msg.sender`.
+    function _setPendingIntegrationAdmin(address integration, address currentAdmin, address pendingAdmin) internal {
         _state().integrationToPendingAdmin[integration] = pendingAdmin;
-        emit IntegrationAdminTransferStarted(integration, msg.sender, pendingAdmin);
+        emit IntegrationAdminTransferStarted(integration, currentAdmin, pendingAdmin);
     }
 
     function _setIntegrationAdmin(address integration, address newAdmin) internal {

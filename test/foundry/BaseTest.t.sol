@@ -18,17 +18,34 @@ import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
 
 import { Demo } from "../demo/Demo.sol";
 
-import {ProtocolEvents} from "../../src/common/ProtocolEvents.sol";
-import {RouterStorageHarness} from "./harnesses/RouterStorageHarness.sol";
+import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
+import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
+import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
 
-import {TestUtils} from "../utils/TestUtils.sol";
+import { TestUtils } from "../utils/TestUtils.t.sol";
 
-contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils {
+import { TestEvents } from "../utils/TestEvents.t.sol";
+
+struct Accounts {
+    address deployer;
+    address keyManager;
+    address protocolAdmin;
+    address integrationAdmin;
+    address backupSigner;
+    address demoSigningAuthority;
+    address demoDeployer;
+}
+
+contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents {
     using ECDSA for bytes32;
 
     Demo public demo;
 
+    // Test-specific contracts
     RouterStorageHarness routerStorageHarness;
+    ProtocolManagementHarness protocolManagementHarness;
+
+    Accounts cube3Accounts;
 
     // cube
     uint256 internal deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
@@ -61,6 +78,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils {
     function initProtocol() internal {
         // deploy and configure cube protocol
         _createAccounts();
+
         _deployTestingContracts();
         _deployProtocol();
         _installSignatureModuleInRouter();
@@ -80,13 +98,22 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils {
     // ============= CUBE
 
     function _createAccounts() internal {
-        backupSigner = vm.addr(backupSignerPvtKey);
-        deployer = vm.addr(deployerPvtKey);
-        cube3integrationAdmin = vm.addr(cube3integrationAdminPvtKey);
-        keyManager = vm.addr(keyManagerPvtKey);
-        cube3admin = vm.addr(cubeAdminPvtKey);
-        demoSigningAuthority = vm.addr(demoSigningAuthorityPvtKey);
-        demoDeployer = vm.addr(demoDeployerPrivateKey);
+        cube3Accounts = Accounts({
+            backupSigner: vm.addr(backupSignerPvtKey),
+            deployer: vm.addr(deployerPvtKey),
+            integrationAdmin: vm.addr(cube3integrationAdminPvtKey),
+            keyManager: vm.addr(keyManagerPvtKey),
+            protocolAdmin: vm.addr(cubeAdminPvtKey),
+            demoSigningAuthority: vm.addr(demoSigningAuthorityPvtKey),
+            demoDeployer: vm.addr(demoDeployerPrivateKey)
+        });
+        // backupSigner = vm.addr(backupSignerPvtKey);
+        // deployer = vm.addr(deployerPvtKey);
+        // cube3integrationAdmin = vm.addr(cube3integrationAdminPvtKey);
+        // keyManager = vm.addr(keyManagerPvtKey);
+        // cube3admin = vm.addr(cubeAdminPvtKey);
+        // demoSigningAuthority = vm.addr(demoSigningAuthorityPvtKey);
+        // demoDeployer = vm.addr(demoDeployerPrivateKey);
 
         // labels
         vm.label(demoSigningAuthority, "Laon Signing Authority");
@@ -94,6 +121,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils {
 
     function _deployTestingContracts() internal {
         routerStorageHarness = new RouterStorageHarness();
+        protocolManagementHarness = new ProtocolManagementHarness();
     }
 
     function _deployProtocol() internal {

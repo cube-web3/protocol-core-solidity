@@ -18,8 +18,8 @@ contract RouterStorageHarness is RouterStorage {
     }
 
     /// @dev Fuzz
-    function setPendingIntegrationAdmin(address integration, address pendingAdmin) public {
-        _setPendingIntegrationAdmin(integration, pendingAdmin);
+    function setPendingIntegrationAdmin(address integration, address currentAdmin, address pendingAdmin) public {
+        _setPendingIntegrationAdmin(integration, currentAdmin, pendingAdmin);
     }
 
     function setIntegrationAdmin(address integration, address newAdmin) public {

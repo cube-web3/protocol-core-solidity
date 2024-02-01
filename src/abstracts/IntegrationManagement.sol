@@ -34,7 +34,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Begins the 2 step transfer of admin rights for an integration contract.
-    /// @dev Called by the integration's existing admin.
+    /// @dev Can only be called by the integration's existing admin.
     function transferIntegrationAdmin(
         address integration,
         address newAdmin
@@ -42,7 +42,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         external
         onlyIntegrationAdmin(integration)
     {
-        _setPendingIntegrationAdmin(integration, newAdmin);
+        _setPendingIntegrationAdmin(integration, msg.sender, newAdmin);
     }
 
     /// @dev Facilitates tranfer of admin rights for an integration contract.
@@ -201,7 +201,12 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     /// @dev Updates the integration status for an integration or an integration's proxy.
     /// @dev Only accessible by the Cube3Router contract, allowing changes from, and to, any state
     /// @dev Prevents the status from being set to the same value.
-    function _updateIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal {
+    function _updateIntegrationRegistrationStatus(
+        address integration,
+        Structs.RegistrationStatusEnum status
+    )
+        internal
+    {
         require(integration != address(0), "GK14: zero address");
         require(getIntegrationStatus(integration) != status, "GK06: same status");
         _setIntegrationRegistrationStatus(integration, status);
