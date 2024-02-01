@@ -14,8 +14,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
     //////////////////////////////////////////////////////////////*/
 
     // stores the signing authority for each integration contract, tied to the active _invalidationNonce
-    mapping(address integration => address signingAuthority) internal integrationToSigningAuthority; // integration =>
-        // signer
+    mapping(address integration => address signingAuthority) internal integrationToSigningAuthority; // integration => signer
 
     /*//////////////////////////////////////////////////////////////
             CONSTRUCTOR

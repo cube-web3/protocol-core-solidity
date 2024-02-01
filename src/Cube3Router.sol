@@ -15,7 +15,10 @@ import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
 
 import { ProtocolManagement } from "./abstracts/ProtocolManagement.sol";
 import { IntegrationManagement } from "./abstracts/IntegrationManagement.sol";
-import { Utils } from "./libs/Utils.sol";
+import { PayloadUtils } from "./libs/PayloadUtils.sol";
+import { SignatureUtils } from "./libs/SignatureUtils.sol";
+
+import { AddressUtils } from "./libs/AddressUtils.sol";
 import { Structs } from "./common/Structs.sol";
 import { ProtocolConstants } from "./common/ProtocolConstants.sol";
 import { RouterStorage } from "./abstracts/RouterStorage.sol";
@@ -31,6 +34,13 @@ contract Cube3Router is
     IntegrationManagement,
     ProtocolConstants
 {
+
+    using AddressUtils for address;
+    using PayloadUtils for bytes;
+    using SignatureUtils for bytes32;
+
+    // TODO: Maybe using Utils for uint256 etc
+
     /// @dev The implementation should only be initialized in the constructor of the proxy
     modifier onlyConstructor() {
         require(address(this).code.length == 0, "CR02: not in constructor");
@@ -94,7 +104,7 @@ contract Cube3Router is
         returns (bytes32)
     {
         // Extract the originating call's function selector from its calldata so that we can check if it's protected.
-        bytes4 integrationFnCallSelector = Utils.extractCalledIntegrationFunctionSelector(integrationCalldata);
+        bytes4 integrationFnCallSelector = integrationCalldata.extractCalledIntegrationFunctionSelector();
 
         // Checks: Whether the function is protected. Checing this first ensures that there's only one SLOAD
         // for an integration that has protection disabled before returning.
@@ -120,7 +130,7 @@ contract Cube3Router is
         // call's arguments
         // differ from those used to generate the signature contained in the payload, if required.
         (bytes4 moduleFnSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 integrationCalldataDigest) =
-            Utils.extractPayloadDataFromMsgData(integrationCalldata);
+            integrationCalldata.extractPayloadDataFromCalldata();
 
         // Checks: The module ID is mapped to an installed module.  Including the module address, instead of the ID,
         // could lead to spoofing.

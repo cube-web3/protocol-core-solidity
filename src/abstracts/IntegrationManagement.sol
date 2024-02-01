@@ -11,10 +11,15 @@ import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
 
 import { Structs } from "../common/Structs.sol";
 import { RouterStorage } from "./RouterStorage.sol";
-import { Utils } from "../libs/Utils.sol";
+import { SignatureUtils } from "../libs/SignatureUtils.sol";
+import { AddressUtils } from "../libs/AddressUtils.sol";
 
 /// @dev This contract contains all the logic for managing customer integrations
 abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
+
+    using SignatureUtils for bytes;
+    using AddressUtils for address;
+
     /*//////////////////////////////////////////////////////////////
             MODIFIERS
     //////////////////////////////////////////////////////////////*/
@@ -85,10 +90,12 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION REGISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev called by integration contract during construction, thus the integration contract is `msg.sender`.
+    /// @dev Called by integration contract during construction, thus the integration contract is `msg.sender`.
     /// @dev We cannot restrict who calls this function, including EOAs, however an integration has no
     ///      access to the protocol until `registerIntegrationWithCube3` is called by the integration admin, for
     ///      which a registrarSignature is required and must be signed by the integration's signing authority via CUBE3.
+    /// @dev Does not prevent an EOA from calling this function, as registration takes place in an integration's constructor
+    ///      and codesize will be zero.
     function initiateIntegrationRegistration(address admin_) external returns (bool) {
         require(admin_ != address(0), "TODO: zero address");
         require(getIntegrationAdmin(msg.sender) == address(0), "TODO: Already registered");
@@ -97,9 +104,9 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         return true;
     }
 
-    /// @dev called by integration admin
-    /// @dev can only be called by the integration admin set in `initiateIntegrationRegistration`
-    /// @dev Passing an empty array of selectors to enable none by default
+    /// @dev Can only be called by the integration admin set in `initiateIntegrationRegistration`.
+    /// @dev Passing an empty array of selectors to enable none by default.
+    /// @dev Only a contract who initiated registration can complete registration via codesize check.
     function registerIntegrationWithCube3(
         address integration,
         bytes calldata registrarSignature,
@@ -111,6 +118,9 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // Checks: the integration being registered is a valid address
         require(integration != address(0), "TODO zero address");
 
+        // Checks: the account that pre-registered is not an EOA.
+        integration.assertIsContract();
+        
         // Checks: the integration has been pre-registered and the status is in the PENDING state
         require(getIntegrationStatus(integration) == Structs.RegistrationStatusEnum.PENDING, "GK13: not PENDING");
 
@@ -123,17 +133,23 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         require(!getRegistrarSignatureHashExists(registrarSignatureHash), "CR13: registrar reuse");
 
         // TODO: what about the case of multiple registrars
-        //
+        // Checks: the registry and registrar are valid accounts.
         (address registry, address integrationRegistrar) = fetchSigningAuthorityForIntegrationFromRegistry(integration);
         require(registry != address(0), "TODO: No Registry");
         require(integrationRegistrar != address(0), "TODO: No Registrar");
 
+        // Generate the digest with the integration-specific data. Using `chainid` prevents replay across chains.
+        bytes32 digest = keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
+
+        // Checks: uses ECDSA recovery to validates the signature.  Reverts if the registrarSignature is invalid.
+        registrarSignature.assertIsValidSignature(
+             digest, integrationRegistrar
+        );
+
         // Effects: marks the registration signature hash as used by setting the entry in the mapping to True.
         _setUsedRegistrationSignatureHash(registrarSignatureHash);
-        // Uses ECDSA recovery to validates the signatures.  Reverts if the registrarSignature is invalid.
-        Utils.assertIsValidRegistrar(
-            registrarSignature, getIntegrationAdmin(integration), integration, integrationRegistrar
-        );
+
+
 
         // Set the function protection status for each selector in the array.
         uint256 numSelectors = enabledByDefaultFnSelectors.length;

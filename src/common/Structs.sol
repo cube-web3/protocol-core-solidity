@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 // TODO: rename structs and enums
 // TODO: maybe DataSchema
-contract Structs {
+abstract contract Structs {
     /// @notice  Defines the state of the integration's registration status.
     /// @dev     RegistrationStatusEnum refers to the integration's relationship with the CUBE3 protocol.
     /// @dev     An integration can only register with the protocol by receiving a registration signature from the CUBE3
