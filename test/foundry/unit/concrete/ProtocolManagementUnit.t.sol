@@ -138,7 +138,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
             installModule
     //////////////////////////////////////////////////////////////*/
 
-
     // succeeds when installing a valid module
     function test_SucceedsWhen_InstallingValidModule() public {
         _installModuleAsAdmin();
@@ -179,11 +178,10 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when deploying a module whose ID doesn't match the version
     function test_RevertsWhen_ModuleIdNotMatchingVersion() public {
-
         // TODO: need to install a module with a janky version
 
-       bytes16 moduleId = _installModuleAsAdmin();
-       MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
+        bytes16 moduleId = _installModuleAsAdmin();
+        MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
 
         bytes16 altModuleId = altMockModule.moduleId();
         vm.startPrank(cube3Accounts.protocolAdmin);
@@ -194,7 +192,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails reinstalling a module that's been deprecated
     function test_RevertsWhen_ReInstallingDeprecatedModule() public {
-        bytes16 moduleId = _installModuleAsAdmin(); 
+        bytes16 moduleId = _installModuleAsAdmin();
 
         // deprecate the current module
         vm.startPrank(cube3Accounts.protocolAdmin);
@@ -209,7 +207,26 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         protocolManagementHarness.installModule(address(mockModule), duplicateId);
     }
 
+    /*//////////////////////////////////////////////////////////////
+            deprecateModule
+    //////////////////////////////////////////////////////////////*/
 
+    // succeeds depracting an existing module
+    function test_SucceedsWhen_DeprecatingExistingModule() public {
+        bytes16 moduleId = _installModuleAsAdmin();
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        protocolManagementHarness.deprecateModule(moduleId);
+    }
+
+    // fails deprecating a module which reverts in {deprecate}
+    function test_RevertsWhen_ModuleDeprecateFnReverts() public {
+        bytes16 moduleId = _installModuleAsAdmin();
+        mockModule.updatePreventDeprecation(true);
+
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        vm.expectRevert(bytes("CR17: deprecation unsuccessful"));
+        protocolManagementHarness.deprecateModule(moduleId);
+    }
 
     /*//////////////////////////////////////////////////////////////
          HELPERS

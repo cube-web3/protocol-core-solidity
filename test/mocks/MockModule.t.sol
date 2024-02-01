@@ -9,7 +9,13 @@ contract MockModule is ModuleBase, TestEvents {
 
  bytes32 constant public SUCCESSFUL_RETURN = keccak256("SUCCESSFUL_RETURN");
 
+ bool public preventDeprecation = false;
+
  constructor(address mockRouter, string memory version, uint256 payloadSize) ModuleBase(mockRouter, version, payloadSize) {}
+
+   function updatePreventDeprecation(bool shouldPreventDeprecation) public {
+      preventDeprecation = shouldPreventDeprecation;
+   }
 
  // TODO: test payable
  function privilegedFunctionWithArgs(bytes32 arg) external onlyCube3Router returns(bytes32) {
@@ -24,6 +30,14 @@ contract MockModule is ModuleBase, TestEvents {
 
  function privilegedFunctionThatReverts() external onlyCube3Router {
   revert("FAILED");
+ }
+
+ function deprecate() external override returns(bool, string memory) {
+   if (preventDeprecation) {
+      return(false, "");
+   }
+
+   return (true, moduleVersion);
  }
 
 }

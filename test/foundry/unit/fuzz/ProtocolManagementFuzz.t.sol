@@ -63,6 +63,20 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
     }
 
     /*//////////////////////////////////////////////////////////////
+            deprecateModule
+    //////////////////////////////////////////////////////////////*/
+
+    // fails deprecating a non-existent module
+    function testFuzz_RevertsWhen_DeprecatingNonExistentModule(uint256 moduleSeed) public {
+        bytes16 nonExistentModuleId = bytes16(bytes32(moduleSeed));
+
+        address nonExistentModule = _randomAddress();
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        vm.expectRevert(bytes("CR09: non-existent version"));
+        protocolManagementHarness.deprecateModule(nonExistentModuleId);
+    }
+
+    /*//////////////////////////////////////////////////////////////
          HELPERS
     //////////////////////////////////////////////////////////////*/
     function _installModuleAsAdmin() internal returns (bytes16 moduleId) {
