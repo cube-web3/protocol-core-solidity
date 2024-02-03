@@ -46,7 +46,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         0x965086ef32785f3c2d215dde11368175b9856558874805a1f295cdb684eea500;
 
     /// @custom:storage-location cube3.router.storage
-    function _state() internal pure returns (Cube3State storage state) {
+    function _state() private pure returns (Cube3State storage state) {
         assembly {
             state.slot := CUBE3_ROUTER_STORAGE_LOCATION
         }

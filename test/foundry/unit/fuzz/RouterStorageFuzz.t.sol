@@ -195,4 +195,14 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         routerStorageHarness.deleteInstalledModule(moduleId, moduleAddress, version);
         assertEq(address(0), routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
     }
+
+    // Setting the used registration signature hash succeeds and emits the correct event
+    function testFuzz_SucceedsWhen_UsedRegistrationSignatureHashSet(uint256 hashSeed) public {
+        bytes32 signatureHash = bytes32(hashSeed);
+        assertFalse(routerStorageHarness.getRegistrarSignatureHashExists(signatureHash), "hash mismatch");
+        vm.expectEmit(true, true, true, true);
+        emit UsedRegistrationSignatureHash(signatureHash);
+        routerStorageHarness.setUsedRegistrationSignatureHash(signatureHash);
+        assertTrue(routerStorageHarness.getRegistrarSignatureHashExists(signatureHash), "hash mismatch");
+    }
 }
