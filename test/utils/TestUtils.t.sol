@@ -39,4 +39,20 @@ abstract contract TestUtils {
                     )
                 );
     }
+
+    /**
+     * @dev Generates pseudo-random bytes.
+     * @param length The length of the byte array to generate.
+     * @return randomBytes The generated pseudo-random bytes.
+     */
+    function _getRandomBytes(uint256 length) public returns (bytes memory randomBytes) {
+        uint256 seed = _randomUint256();
+        randomBytes = new bytes(length);
+        for (uint256 i = 0; i < length; i++) {
+            // Update the seed for the next byte
+            seed = uint256(keccak256(abi.encodePacked(seed)));
+            // Extract a byte from the seed
+            randomBytes[i] = bytes1(uint8(seed));
+        }
+    }
 }

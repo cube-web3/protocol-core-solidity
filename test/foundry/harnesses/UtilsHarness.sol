@@ -47,7 +47,8 @@ contract UtilsHarness {
         return true;
     }
 
-    function assertIsValidSignature(bytes calldata signature, bytes32 digest, address signer) external pure {
+    function assertIsValidSignature(bytes calldata signature, bytes32 digest, address signer) external pure returns(bool) {
         signature.assertIsValidSignature(digest, signer);
+        return true;
     }
 }

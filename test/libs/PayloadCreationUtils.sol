@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
 library PayloadCreationUtils {
 
  uint256 constant SIGNATURE_MODULE_PAYLOAD_SIZE = 352;
