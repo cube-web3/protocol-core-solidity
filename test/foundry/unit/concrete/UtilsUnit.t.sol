@@ -13,9 +13,8 @@ import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
 import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
 
 contract Utils_Concrete_Unit_Test is BaseTest {
-
     UtilsHarness utilsHarness;
-    
+
     function setUp() public {
         utilsHarness = new UtilsHarness();
     }

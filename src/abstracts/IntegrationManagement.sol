@@ -79,7 +79,8 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         for (uint256 i; i < len;) {
             Structs.FunctionProtectionStatusUpdate calldata update = updates[i];
             // Checks: only an integration that's REGISTERED can enable protection for a function and utilize the
-            // protocol.  However, if an integration has protections enabled, we allow them to disable them even if REVOKED.
+            // protocol.  However, if an integration has protections enabled, we allow them to disable them even if
+            // REVOKED.
             if (update.protectionEnabled) {
                 require(isRegisteredIntegration, "TODO: not registered");
             }

@@ -42,12 +42,20 @@ contract UtilsHarness {
         return integrationCalldata.extractCalledIntegrationFunctionSelector();
     }
 
-    function assertIsContract(address target) public view returns(bool){
+    function assertIsContract(address target) public view returns (bool) {
         target.assertIsContract();
         return true;
     }
 
-    function assertIsValidSignature(bytes calldata signature, bytes32 digest, address signer) external pure returns(bool) {
+    function assertIsValidSignature(
+        bytes calldata signature,
+        bytes32 digest,
+        address signer
+    )
+        external
+        pure
+        returns (bool)
+    {
         signature.assertIsValidSignature(digest, signer);
         return true;
     }

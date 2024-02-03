@@ -2,8 +2,6 @@
 pragma solidity 0.8.19;
 
 library BitmapUtils {
-
-
     /*
         Note: When creating a mask, subtracting one sets all bits to the right as 1s, thus creating
               a mask of 1s for the & operation.
