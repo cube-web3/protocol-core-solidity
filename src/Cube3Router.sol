@@ -38,8 +38,6 @@ contract Cube3Router is
     using PayloadUtils for bytes;
     using SignatureUtils for bytes32;
 
-    // TODO: Maybe using Utils for uint256 etc
-
     /// @dev The implementation should only be initialized in the constructor of the proxy
     modifier onlyConstructor() {
         require(address(this).code.length == 0, "CR02: not in constructor");
@@ -60,8 +58,7 @@ contract Cube3Router is
             PROXY + UPGRADE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev we can't initialize the contract with any variables, such as access control for accounts,
-    //       in order to keep the bytecode the same for all EVM network deployments
+    /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
         require(registry != address(0), "Registry ZeroAddress");
 
@@ -69,11 +66,12 @@ contract Cube3Router is
         __UUPSUpgradeable_init();
         __ERC165_init();
 
-        // not paused by default
+        // Not paused by default.
         _setProtocolConfig(registry, false);
 
-        // the deployer is the EOA who initiated the transaction, and is the account that will revoke
-        // it's own access permissions and add new ones immediately following deployment
+        // The deployer is the EOA who initiated the transaction, and is the account that will revoke
+        // it's own access permissions and add new ones immediately following deployment. Using tx.origin accounts
+        // for salted contract creation via another contract.
         _grantRole(DEFAULT_ADMIN_ROLE, tx.origin);
     }
 

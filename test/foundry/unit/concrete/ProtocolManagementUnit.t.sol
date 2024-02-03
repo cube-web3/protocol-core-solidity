@@ -90,7 +90,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // succeeds when called by an admin, the module exists, and the module call succeeds,
     // and returns the correct return data
-    function test_SucceedsWhen_CalledByAnAdminWithModuleInstalledAndValidReturn() public {
+    function test_SucceedsWhen_CallingModuleFunction_AsProtocolAdmin() public {
         bytes16 moduleId = _installModuleAsAdmin();
 
         vm.startPrank(cube3Accounts.protocolAdmin);
@@ -107,7 +107,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     }
 
     // fails when module function is called by a non admin
-    function test_RevertsWhen_CalledByANonAdmin() public {
+    function test_RevertsWhen_CallingModuleFunction_AsNonProtocolAdmin() public {
         address randomAccount = _randomAddress();
 
         bytes16 moduleId = _installModuleAsAdmin();

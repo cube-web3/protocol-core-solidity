@@ -56,8 +56,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         _deleteIntegrationPendingAdmin(integration); // gas-saving
     }
 
-    /// @dev Protection can only be enabled for a function if the status is REGISTERED
-    /// @dev Can only be called by the integration's admin
+    /// @dev Protection can only be enabled for a function if the status is REGISTERED.
+    /// @dev Can only be called by the integration's admin.
+    /// @dev Only an integration that has pre-registered will have an assigned admin, so there's no
+    ///      need to if the status is UNREGISTERED.
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
@@ -65,14 +67,19 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         external
         onlyIntegrationAdmin(integration)
     {
-        bool isRegisteredIntegration = getIntegrationStatus(integration) == Structs.RegistrationStatusEnum.REGISTERED;
-
+        // Checks: the integration has completed the registration step.
+        Structs.RegistrationStatusEnum status = getIntegrationStatus(integration);
+        if (status == Structs.RegistrationStatusEnum.PENDING) {
+            revert("TODO: NotRegistered");
+        }
+        // load onto the stack to save gas
+        bool isRegisteredIntegration = status == Structs.RegistrationStatusEnum.REGISTERED;
         uint256 len = updates.length;
+
         for (uint256 i; i < len;) {
             Structs.FunctionProtectionStatusUpdate calldata update = updates[i];
-            // Checks only an integration that's REGISTERED can enable protection for a function and utilize the
-            // protocol.
-            // However, if an integration has protections enabled, we allow them to disable them even if REVOKED.
+            // Checks: only an integration that's REGISTERED can enable protection for a function and utilize the
+            // protocol.  However, if an integration has protections enabled, we allow them to disable them even if REVOKED.
             if (update.protectionEnabled) {
                 require(isRegisteredIntegration, "TODO: not registered");
             }
@@ -182,7 +189,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
     }
 
-    function setIntegrationRegistrationStatus(
+    function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
     )
