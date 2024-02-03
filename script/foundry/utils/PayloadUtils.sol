@@ -57,8 +57,7 @@ contract PayloadUtils is Test {
         bytes memory slicedCalldata = _sliceBytes(
             integrationCalldataWithEmptyPayload,
             0,
-            integrationCalldataWithEmptyPayload.length - signatureModule.expectedPayloadSize() - 64 // emptyPayload is
-                // 320 bytes in length
+            integrationCalldataWithEmptyPayload.length - signatureModule.expectedPayloadSize() - 64 //
         );
         bytes32 calldataDigest = keccak256(slicedCalldata);
 
@@ -186,7 +185,7 @@ contract PayloadUtils is Test {
         // emit log_named_bytes("modulePayloadWithoutPadding", modulePayload);
 
         // calculate the padding needed to fill it to the final word
-        uint256 paddingNeeded = (32 - (modulePayload.length % 32)) % 32;
+        uint256 paddingNeeded = _calculateRequiredPadding(modulePayload.length);
         // emit log_named_uint("paddingNeeded", paddingNeeded);
 
         bytes memory payloadWithPadding = new bytes(modulePayload.length + paddingNeeded);
@@ -209,6 +208,11 @@ contract PayloadUtils is Test {
     //     MODULE_PAYLOAD_LENGTH = 8,
     //     MODULE_SELECTOR = 4
     // }
+
+    function _calculateRequiredPadding(uint256 modulePayloadLength) internal pure returns (uint256) {
+        // calculate the padding needed to fill it to the final word
+        return (32 - (modulePayloadLength % 32)) % 32;
+    }
 
     function _createRoutingFooterBitmap(
         bytes16 id,

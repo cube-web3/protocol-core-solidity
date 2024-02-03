@@ -125,17 +125,15 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     //////////////////////////////////////////////////////////////*/
     function test_SucceedsWhen_VersionSchemaIsValid() public {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE, PAYLOAD_SIZE);
-        assertTrue(moduleBaseHarness.isValidVersionSchema("version-0.0.1"),"invalid version");
-        assertTrue(moduleBaseHarness.isValidVersionSchema("version-0.6.9"),"invalid version");
-        assertTrue(moduleBaseHarness.isValidVersionSchema("version-1.1.1"),"invalid version");
-        assertTrue(moduleBaseHarness.isValidVersionSchema("version-v9.11.2"),"invalid version");
+        assertTrue(moduleBaseHarness.isValidVersionSchema("version-0.0.1"), "invalid version");
+        assertTrue(moduleBaseHarness.isValidVersionSchema("version-0.6.9"), "invalid version");
+        assertTrue(moduleBaseHarness.isValidVersionSchema("version-1.1.1"), "invalid version");
+        assertTrue(moduleBaseHarness.isValidVersionSchema("version-v9.11.2"), "invalid version");
 
-        assertFalse(moduleBaseHarness.isValidVersionSchema("version-0.1"),"invalid version");
-        assertFalse(moduleBaseHarness.isValidVersionSchema("version-1"),"invalid version");
-        assertFalse(moduleBaseHarness.isValidVersionSchema("version-1.0"),"invalid version");
-        assertFalse(moduleBaseHarness.isValidVersionSchema("version-9.11.2.3"),"invalid version");
-        assertFalse(moduleBaseHarness.isValidVersionSchema("new-version-0.0.1"),"invalid version");
-
+        assertFalse(moduleBaseHarness.isValidVersionSchema("version-0.1"), "invalid version");
+        assertFalse(moduleBaseHarness.isValidVersionSchema("version-1"), "invalid version");
+        assertFalse(moduleBaseHarness.isValidVersionSchema("version-1.0"), "invalid version");
+        assertFalse(moduleBaseHarness.isValidVersionSchema("version-9.11.2.3"), "invalid version");
+        assertFalse(moduleBaseHarness.isValidVersionSchema("new-version-0.0.1"), "invalid version");
     }
-
 }

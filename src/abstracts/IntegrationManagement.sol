@@ -16,7 +16,6 @@ import { AddressUtils } from "../libs/AddressUtils.sol";
 
 /// @dev This contract contains all the logic for managing customer integrations
 abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
-
     using SignatureUtils for bytes;
     using AddressUtils for address;
 
@@ -94,7 +93,8 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     /// @dev We cannot restrict who calls this function, including EOAs, however an integration has no
     ///      access to the protocol until `registerIntegrationWithCube3` is called by the integration admin, for
     ///      which a registrarSignature is required and must be signed by the integration's signing authority via CUBE3.
-    /// @dev Does not prevent an EOA from calling this function, as registration takes place in an integration's constructor
+    /// @dev Does not prevent an EOA from calling this function, as registration takes place in an integration's
+    /// constructor
     ///      and codesize will be zero.
     function initiateIntegrationRegistration(address admin_) external returns (bool) {
         require(admin_ != address(0), "TODO: zero address");
@@ -120,7 +120,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
         // Checks: the account that pre-registered is not an EOA.
         integration.assertIsContract();
-        
+
         // Checks: the integration has been pre-registered and the status is in the PENDING state
         require(getIntegrationStatus(integration) == Structs.RegistrationStatusEnum.PENDING, "GK13: not PENDING");
 
@@ -142,14 +142,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         bytes32 digest = keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
 
         // Checks: uses ECDSA recovery to validates the signature.  Reverts if the registrarSignature is invalid.
-        registrarSignature.assertIsValidSignature(
-             digest, integrationRegistrar
-        );
+        registrarSignature.assertIsValidSignature(digest, integrationRegistrar);
 
         // Effects: marks the registration signature hash as used by setting the entry in the mapping to True.
         _setUsedRegistrationSignatureHash(registrarSignatureHash);
-
-
 
         // Set the function protection status for each selector in the array.
         uint256 numSelectors = enabledByDefaultFnSelectors.length;

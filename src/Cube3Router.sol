@@ -34,7 +34,6 @@ contract Cube3Router is
     IntegrationManagement,
     ProtocolConstants
 {
-
     using AddressUtils for address;
     using PayloadUtils for bytes;
     using SignatureUtils for bytes32;
