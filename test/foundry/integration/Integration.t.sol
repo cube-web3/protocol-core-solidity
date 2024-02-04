@@ -10,7 +10,7 @@ import { Structs } from "../../../src/common/Structs.sol";
 contract IntegrationTest is BaseTest {
     function setUp() public {
         // deploy and configure cube protocol
-        _createAccounts();
+        _createCube3Accounts();
         _deployProtocol();
         _installSignatureModuleInRouter();
 

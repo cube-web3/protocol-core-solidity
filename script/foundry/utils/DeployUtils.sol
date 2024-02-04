@@ -7,14 +7,16 @@ import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy
 import { Cube3Router } from "../../../src/Cube3Router.sol";
 
 import { Cube3Registry } from "../../../src/Cube3Registry.sol";
+
+import { ProtocolAdminRoles } from "../../../src/common/ProtocolAdminRoles.sol";
 import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
 // import {LibDeployConstants} from "../utils/LibDeployConstants.sol";
 
-abstract contract DeployUtils is Script {
+abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
-    bytes32 internal constant CUBE3_PROTOCOL_ADMIN_ROLE = keccak256("CUBE3_PROTOCOL_ADMIN_ROLE");
-    bytes32 internal constant CUBE3_INTEGRATION_ADMIN_ROLE = keccak256("CUBE3_INTEGRATION_ADMIN_ROLE");
-    bytes32 internal constant CUBE3_KEY_MANAGER_ROLE = keccak256("CUBE3_KEY_MANAGER_ROLE");
+    // bytes32 internal constant CUBE3_PROTOCOL_ADMIN_ROLE = keccak256("CUBE3_PROTOCOL_ADMIN_ROLE");
+    // bytes32 internal constant CUBE3_INTEGRATION_MANAGER_ROLE = keccak256("CUBE3_INTEGRATION_MANAGER_ROLE");
+    // bytes32 internal constant CUBE3_KEY_MANAGER_ROLE = keccak256("CUBE3_KEY_MANAGER_ROLE");
     bytes32 internal constant DEFAULT_ADMIN_ROLE = bytes32(0);
 
     event consoleLog(string log);
@@ -95,7 +97,7 @@ abstract contract DeployUtils is Script {
 
     function _addAccessControlAndRevokeDeployerPermsForRouter(
         address protocolAdmin,
-        address integrationAdmin,
+        address integrationManager,
         address deployer
     )
         internal
@@ -108,9 +110,9 @@ abstract contract DeployUtils is Script {
         wrappedRouterProxy.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin);
         require(wrappedRouterProxy.hasRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin), "router: no cube3 admin role");
 
-        wrappedRouterProxy.grantRole(CUBE3_INTEGRATION_ADMIN_ROLE, integrationAdmin);
+        wrappedRouterProxy.grantRole(CUBE3_INTEGRATION_MANAGER_ROLE, integrationManager);
         require(
-            wrappedRouterProxy.hasRole(CUBE3_INTEGRATION_ADMIN_ROLE, integrationAdmin),
+            wrappedRouterProxy.hasRole(CUBE3_INTEGRATION_MANAGER_ROLE, integrationManager),
             "router: no cube3 integration  role"
         );
 

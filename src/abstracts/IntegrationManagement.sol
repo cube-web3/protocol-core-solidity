@@ -138,7 +138,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
         // TODO: what about the case of multiple registrars
         // Checks: the registry and registrar are valid accounts.
-        (address registry, address integrationRegistrar) = fetchSigningAuthorityForIntegrationFromRegistry(integration);
+        (address registry, address integrationRegistrar) = fetchRegistryAndSigningAuthorityForIntegration(integration);
         require(registry != address(0), "TODO: No Registry");
         require(integrationRegistrar != address(0), "TODO: No Registrar");
 
@@ -170,12 +170,12 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function batchSetIntegrationRegistrationStatus(
+    function batchUpdateIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatusEnum[] calldata statuses
     )
         external
-        onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
+        onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE)
     {
         require(integrations.length == statuses.length, "CR05: array length mismatch");
         uint256 len = integrations.length;
@@ -187,12 +187,15 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
     }
 
+    /// @dev Can be used to revoke an integration's registration status, preventing it from enabling function protection
+    /// and
+    ///      blocking access to the protocol by skipping protection checks.
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
     )
         external
-        onlyRole(CUBE3_INTEGRATION_ADMIN_ROLE)
+        onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE)
     {
         _updateIntegrationRegistrationStatus(integration, registrationStatus);
     }
@@ -203,7 +206,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
     /// @dev Utility function for returning the integration's signing authority, which is used to validate
     ///      the registrar signature.
-    function fetchSigningAuthorityForIntegrationFromRegistry(address integration)
+    function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         public
         view
         returns (address registry, address authority)

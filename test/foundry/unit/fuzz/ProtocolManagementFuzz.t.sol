@@ -16,7 +16,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
 
     function setUp() public {
         // BaseTest.setUp();
-        _createAccounts();
+        _createCube3Accounts();
         _deployTestingContracts();
 
         protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);

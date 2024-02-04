@@ -168,7 +168,7 @@ interface ICube3Router {
 
     function getRegistryAddress() external view returns (address);
 
-    function fetchSigningAuthorityForIntegrationFromRegistry(address integration)
+    function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         external
         view
         returns (address registry, address authority);

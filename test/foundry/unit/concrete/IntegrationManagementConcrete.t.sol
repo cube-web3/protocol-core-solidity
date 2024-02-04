@@ -180,27 +180,60 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     }
 
     /*//////////////////////////////////////////////////////////////
-           updateIntegrationRegistrationStatus
+          batchUpdateIntegrationRegistrationStatus
     //////////////////////////////////////////////////////////////*/
 
-    /*
-    // succeeds updating integration registration status
-    function test_SucceedsWhen_UpdatingIntegrationRegistrationStatus() public {
-    address integration = _randomAddress();
-    Structs.RegistrationStatusEnum status = Structs.RegistrationStatusEnum.Registered;
+    // fails if not called by CUBE3_INTEGRATION_MANAGER_ROLE
+    function test_RevertsWhen_BatchUpdatingRegistrations_AsNonAdmin() public {
+        address[] memory integrations = new address[](1);
+        integrations[0] = _randomAddress();
+        Structs.RegistrationStatusEnum[] memory statuses = new Structs.RegistrationStatusEnum[](1);
+        statuses[0] = Structs.RegistrationStatusEnum.REGISTERED;
 
-    vm.expectEmit(true,true,true,true);
-    emit IntegrationRegistrationStatusUpdated(integration, status);
-    integrationManagementHarness.updateIntegrationRegistrationStatus(integration, status);
+        address account = _randomAddress();
+        vm.startPrank(account);
+        vm.expectRevert(bytes(_constructAccessControlErrorString(account, CUBE3_INTEGRATION_MANAGER_ROLE)));
+        integrationManagementHarness.batchUpdateIntegrationRegistrationStatus(integrations, statuses);
+        vm.stopPrank();
     }
 
-    // fails updating integration registration status when integration is not registered
-    function test_RevertsWhen_UpdatingIntegrationRegistrationStatus_WhenNotRegistered() public {
-    address integration = _randomAddress();
-    Structs.RegistrationStatusEnum status = Structs.RegistrationStatusEnum.Registered;
+    /*//////////////////////////////////////////////////////////////
+          updateIntegrationRegistrationStatus
+    //////////////////////////////////////////////////////////////*/
 
-    vm.expectRevert(bytes("TODO: Not registered"));
-    integrationManagementHarness.updateIntegrationRegistrationStatus(integration, status);
+    // fails updating integration registration status without correct role
+    function test_RevertsWhen_UpdatingIntegrationRegistration_AsNonIntegrationManager() public {
+        address account = _randomAddress();
+        vm.startPrank(account);
+        vm.expectRevert(bytes(_constructAccessControlErrorString(account, CUBE3_INTEGRATION_MANAGER_ROLE)));
+        integrationManagementHarness.updateIntegrationRegistrationStatus(
+            _randomAddress(), Structs.RegistrationStatusEnum.REGISTERED
+        );
+        vm.stopPrank();
     }
-    */
+
+    // succeeds updating integration registration status with correct role and emits correct event
+    function test_SucceedsWhen_UpdatingIntegrationRegistrationStatus_AsIntegrationManager() public {
+        integrationManagementHarness.grantRole(CUBE3_INTEGRATION_MANAGER_ROLE, cube3Accounts.integrationManager);
+
+        address integration = _randomAddress();
+        vm.startPrank(cube3Accounts.integrationManager);
+        vm.expectEmit(true, true, true, true);
+        emit IntegrationRegistrationStatusUpdated(integration, Structs.RegistrationStatusEnum.REGISTERED);
+        integrationManagementHarness.updateIntegrationRegistrationStatus(
+            integration, Structs.RegistrationStatusEnum.REGISTERED
+        );
+    }
+
+    /*//////////////////////////////////////////////////////////////
+           _updateIntegrationRegistrationStatus
+    //////////////////////////////////////////////////////////////*/
+
+    // fails if the integration is the zero address
+    function test_RevertsWhen_IntegrationAddressIsZeroAddress() public {
+        vm.expectRevert("GK14: zero address");
+        integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(
+            address(0), Structs.RegistrationStatusEnum.REGISTERED
+        );
+    }
 }

@@ -6,7 +6,11 @@ import { IntegrationManagement } from "../../../src/abstracts/IntegrationManagem
 
 /// @notice Testing harness for the IntegrationManagement contract, exposing internal functions for testing
 contract IntegrationManagementHarness is IntegrationManagement {
-    // public/external functions are exposed by the IntegrationManagement contract
+    constructor() {
+        // allow the test suite to assign roles as needed
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+    // public/external functions exposed by the IntegrationManagement contract
     // are not overridden here
 
     function setIntegrationAdmin(address integration, address admin) public {
@@ -22,10 +26,19 @@ contract IntegrationManagementHarness is IntegrationManagement {
     }
 
     function setProtocolConfig(address registry, bool isPaused) public {
-     _setProtocolConfig(registry, isPaused);
+        _setProtocolConfig(registry, isPaused);
     }
 
     function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) public {
+        _updateIntegrationRegistrationStatus(integration, status);
+    }
+
+    function wrappedUpdateIntegrationRegistrationStatus(
+        address integration,
+        Structs.RegistrationStatusEnum status
+    )
+        public
+    {
         _updateIntegrationRegistrationStatus(integration, status);
     }
 }

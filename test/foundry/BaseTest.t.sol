@@ -22,6 +22,7 @@ import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
 import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
 import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
 
+import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
 import { TestUtils } from "../utils/TestUtils.t.sol";
 
 import { TestEvents } from "../utils/TestEvents.t.sol";
@@ -30,7 +31,7 @@ struct Accounts {
     address deployer;
     address keyManager;
     address protocolAdmin;
-    address integrationAdmin;
+    address integrationManager;
     address backupSigner;
     address demoSigningAuthority;
     address demoDeployer;
@@ -77,7 +78,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     // TODO: change to setUp
     function initProtocol() internal {
         // deploy and configure cube protocol
-        _createAccounts();
+        _createCube3Accounts();
 
         _deployTestingContracts();
         _deployProtocol();
@@ -97,11 +98,11 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
 
     // ============= CUBE
 
-    function _createAccounts() internal {
+    function _createCube3Accounts() internal {
         cube3Accounts = Accounts({
             backupSigner: vm.addr(backupSignerPvtKey),
             deployer: vm.addr(deployerPvtKey),
-            integrationAdmin: vm.addr(cube3integrationAdminPvtKey),
+            integrationManager: vm.addr(cube3integrationAdminPvtKey),
             keyManager: vm.addr(keyManagerPvtKey),
             protocolAdmin: vm.addr(cubeAdminPvtKey),
             demoSigningAuthority: vm.addr(demoSigningAuthorityPvtKey),
