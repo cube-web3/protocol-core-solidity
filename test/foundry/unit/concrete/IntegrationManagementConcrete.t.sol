@@ -132,7 +132,52 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.stopPrank();
     }
 
-    // fails setting function protection to true when registration is revoked
+    /*//////////////////////////////////////////////////////////////
+           initiateIntegrationRegistration
+    //////////////////////////////////////////////////////////////*/
+
+    // fails if admin address is zero
+    function test_RevertsWhen_AdminAddressIsZeroAddress() public {
+        address admin = address(0);
+        vm.expectRevert(bytes("TODO: zero address"));
+        integrationManagementHarness.initiateIntegrationRegistration(admin);
+    }
+
+    // fails if integration already has an admin
+    function test_RevertsWhen_AdminExistsForIntegration() public {
+        address integration = _randomAddress();
+        address admin = _randomAddress();
+        address newAdmin = _randomAddress();
+
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+
+        vm.startPrank(integration);
+        vm.expectRevert(bytes("TODO: Already registered"));
+        integrationManagementHarness.initiateIntegrationRegistration(admin);
+        vm.stopPrank();
+    }
+
+    // succeeds initiating integration registration as a new admin
+    function test_Succeeds_InitiatingRegistrationWithAdmin() public {
+        address admin = _randomAddress();
+        address integration = _randomAddress();
+        assertNotEq(integration, admin, "integration and admin match");
+
+        vm.startPrank(integration);
+        vm.expectEmit(true, true, true, true);
+        emit IntegrationAdminTransferred(integration, address(0), admin);
+        emit IntegrationRegistrationStatusUpdated(integration, Structs.RegistrationStatusEnum.PENDING);
+        integrationManagementHarness.initiateIntegrationRegistration(admin);
+        vm.stopPrank();
+
+        assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
+
+        assertEq(
+            uint256(Structs.RegistrationStatusEnum.PENDING),
+            uint256(integrationManagementHarness.getIntegrationStatus(integration)),
+            "status not set"
+        );
+    }
 
     /*//////////////////////////////////////////////////////////////
            updateIntegrationRegistrationStatus

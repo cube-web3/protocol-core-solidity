@@ -47,3 +47,10 @@ The registry stores the signing authority for each customer integration. A signi
 Application-specific smart contracts that provide dedicated per-contract functionality to CUBE3’s on-chain protocol. The Cube3Router is responsible for routing transactions to designated modules, which will be covered in more detail in the Payload Routing section.
 
 ## Routing
+
+# Glossay
+
+- Integration
+- Signature Authority
+- Router
+-

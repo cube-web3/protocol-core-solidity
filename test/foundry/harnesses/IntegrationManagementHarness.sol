@@ -17,8 +17,12 @@ contract IntegrationManagementHarness is IntegrationManagement {
         _setPendingIntegrationAdmin(integration, currentAdmin, pendingAdmin);
     }
 
-    function IntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) public {
-        _setIntegrationRegistrationStatus(integration, status);
+    function setUsedRegistrationSignatureHash(bytes32 sigHash) public {
+        _setUsedRegistrationSignatureHash(sigHash);
+    }
+
+    function setProtocolConfig(address registry, bool isPaused) public {
+     _setProtocolConfig(registry, isPaused);
     }
 
     function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) public {

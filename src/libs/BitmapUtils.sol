@@ -16,6 +16,7 @@ library BitmapUtils {
 
     /// @notice
     function extractBytes16Bitmap(uint256 bitmap) internal pure returns (bytes16 moduleId) {
+        /// @solidity memory-safe-assembly
         assembly {
             // Mask to extract the right-most 16 bytes
             let mask := sub(shl(128, 1), 1)
@@ -25,6 +26,7 @@ library BitmapUtils {
     }
 
     function extractUint32FromBitmap(uint256 bitmap, uint8 location) internal pure returns (uint32 value) {
+        /// @solidity memory-safe-assembly
         assembly {
             // Mask to extract 32 bits
             let mask := sub(shl(32, 1), 1)
@@ -36,6 +38,7 @@ library BitmapUtils {
     /// @notice Extracts a bytes4 from the bitmap at the specified location, converting to bytes4 from
     ///         uint32 by shifting left to the most significant bits.
     function extractBytes4FromBitmap(uint256 bitmap, uint8 location) internal pure returns (bytes4 value) {
+        /// @solidity memory-safe-assembly
         assembly {
             // Mask to extract 32 bits
             let mask := sub(shl(32, 1), 1)

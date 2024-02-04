@@ -215,11 +215,12 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
             _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
     }
 
+    // TODO: move to ustils
     function _createSignature(
         bytes memory encodedSignatureData,
         uint256 pvtKeyToSignWith
     )
-        private
+        internal
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);

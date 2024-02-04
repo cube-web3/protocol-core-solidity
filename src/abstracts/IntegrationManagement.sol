@@ -5,10 +5,8 @@ import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/ac
 
 import { ERC165CheckerUpgradeable } from
     "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
-
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
-
 import { Structs } from "../common/Structs.sol";
 import { RouterStorage } from "./RouterStorage.sol";
 import { SignatureUtils } from "../libs/SignatureUtils.sol";
@@ -82,7 +80,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             // protocol.  However, if an integration has protections enabled, we allow them to disable them even if
             // REVOKED.
             if (update.protectionEnabled) {
-                require(isRegisteredIntegration, "TODO: not registered");
+                require(isRegisteredIntegration, "TODO: RegistrationRevoked");
             }
 
             // Effects: updates the function protection status of the integration's function using the selector.
@@ -101,9 +99,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     /// @dev We cannot restrict who calls this function, including EOAs, however an integration has no
     ///      access to the protocol until `registerIntegrationWithCube3` is called by the integration admin, for
     ///      which a registrarSignature is required and must be signed by the integration's signing authority via CUBE3.
-    /// @dev Does not prevent an EOA from calling this function, as registration takes place in an integration's
-    /// constructor
-    ///      and codesize will be zero.
+    /// @dev Only a contract who initiated registration can complete registration via codesize check.
     function initiateIntegrationRegistration(address admin_) external returns (bool) {
         require(admin_ != address(0), "TODO: zero address");
         require(getIntegrationAdmin(msg.sender) == address(0), "TODO: Already registered");
@@ -135,7 +131,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // Prevent the same signature from being reused - replaces the need for blacklisting revoked integrations
         // who might attempt to re-register with the same signature. Use the hash of the signature to avoid malleability
         // issues.
-        bytes32 registrarSignatureHash = keccak256(abi.encode(registrarSignature));
+        bytes32 registrarSignatureHash = keccak256(registrarSignature);
 
         // Checks: the signature has not been used before to register an integrationq
         require(!getRegistrarSignatureHashExists(registrarSignatureHash), "CR13: registrar reuse");
@@ -155,7 +151,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // Effects: marks the registration signature hash as used by setting the entry in the mapping to True.
         _setUsedRegistrationSignatureHash(registrarSignatureHash);
 
-        // Set the function protection status for each selector in the array.
+        // Effects: Set the function protection status for each selector in the array.
         uint256 numSelectors = enabledByDefaultFnSelectors.length;
         if (numSelectors > 0) {
             for (uint256 i; i < numSelectors;) {
@@ -166,6 +162,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             }
         }
 
+        // Effects: updates the integration's registration status to REGISTERED.
         _setIntegrationRegistrationStatus(integration, Structs.RegistrationStatusEnum.REGISTERED);
     }
 

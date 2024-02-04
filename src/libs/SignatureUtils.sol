@@ -17,7 +17,7 @@ library SignatureUtils {
         } else if (ecdsaError == ECDSA.RecoverError.InvalidSignatureLength) {
             revert("TODO: InvalidSigLength");
         }
-        require(payloadSigner != address(0), "CR11: zero signer");
+        require(payloadSigner != address(0), "CR11: unrecovered signer");
         require(payloadSigner == signer, "CR12: invalid signer");
     }
 }
