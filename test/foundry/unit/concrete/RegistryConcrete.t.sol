@@ -7,12 +7,10 @@ import { BaseTest } from "../../BaseTest.t.sol";
 
 import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
 
-import {ICube3Registry} from "../../../../src/interfaces/ICube3Registry.sol";
+import { ICube3Registry } from "../../../../src/interfaces/ICube3Registry.sol";
 
 contract Registry_Concrete_Unit_Test is BaseTest {
     RegistryHarness registryHarness;
-
-
 
     function setUp() public {
         _createCube3Accounts();
@@ -40,7 +38,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         RegistryHarness registryConstructor = new RegistryHarness();
         vm.stopBroadcast();
 
-        assertFalse(registryConstructor.hasRole(registryConstructor.DEFAULT_ADMIN_ROLE(), _randomAddress()), "incorrect");
+        assertFalse(
+            registryConstructor.hasRole(registryConstructor.DEFAULT_ADMIN_ROLE(), _randomAddress()), "incorrect"
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         address clientSigningAuthority = _randomAddress();
 
         registryHarness.grantRole(CUBE3_KEY_MANAGER_ROLE, cube3Accounts.keyManager);
-        
+
         vm.startBroadcast(cube3Accounts.keyManager);
         registryHarness.setClientSigningAuthority(integrationContract, clientSigningAuthority);
         vm.stopBroadcast();
@@ -75,7 +75,6 @@ contract Registry_Concrete_Unit_Test is BaseTest {
             "incorrect authority"
         );
     }
-
 
     /*//////////////////////////////////////////////////////////////
             batchSetSigningAuthority
@@ -102,7 +101,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         signingAuthorities[0] = _randomAddress();
 
         registryHarness.grantRole(CUBE3_KEY_MANAGER_ROLE, cube3Accounts.keyManager);
-        
+
         vm.startBroadcast(cube3Accounts.keyManager);
         registryHarness.batchSetSigningAuthority(integrations, signingAuthorities);
         vm.stopBroadcast();
@@ -114,8 +113,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         );
     }
 
-
-        /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
             batchSetSigningAuthority
     //////////////////////////////////////////////////////////////*/
 
@@ -143,9 +141,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract),
-            address(0),
-            "incorrect authority"
+            registryHarness.getSignatureAuthorityForIntegration(integrationContract), address(0), "incorrect authority"
         );
     }
 
@@ -177,9 +173,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrations[0]),
-            address(0),
-            "incorrect authority"
+            registryHarness.getSignatureAuthorityForIntegration(integrations[0]), address(0), "incorrect authority"
         );
     }
 
@@ -226,8 +220,8 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         address integrationContract = _randomAddress();
         address clientSigningAuthority = _randomAddress();
 
-        vm.expectEmit(true,true,true,true);
-         emit SigningAuthorityUpdated(integrationContract, clientSigningAuthority);
+        vm.expectEmit(true, true, true, true);
+        emit SigningAuthorityUpdated(integrationContract, clientSigningAuthority);
         registryHarness.wrappedSetSigningAuthority(integrationContract, clientSigningAuthority);
 
         assertEq(
@@ -237,7 +231,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         );
     }
 
-        /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
             _revokeSigningAuthorityForIntegration
     //////////////////////////////////////////////////////////////*/
 
@@ -248,6 +242,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         registryHarness.wrappedRevokeSigningAuthorityForIntegration(integrationContract);
     }
     // succeeds when revoking an existing integration
+
     function test_RevertsWhen_RevokingAuthorityForIntegration() public {
         address integrationContract = _randomAddress();
         address clientSigningAuthority = _randomAddress();
@@ -259,16 +254,11 @@ contract Registry_Concrete_Unit_Test is BaseTest {
             "incorrect authority"
         );
 
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit SigningAuthorityRevoked(integrationContract, clientSigningAuthority);
         registryHarness.wrappedRevokeSigningAuthorityForIntegration(integrationContract);
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract),
-            address(0),
-            "existing authority"
+            registryHarness.getSignatureAuthorityForIntegration(integrationContract), address(0), "existing authority"
         );
     }
-
-
-
 }

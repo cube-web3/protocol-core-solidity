@@ -14,12 +14,12 @@ contract UtilsHarness {
     using AddressUtils for address;
     using BitmapUtils for uint256;
 
-    function extractPayloadDataFromCalldata(bytes calldata integrationCalldata)
+    function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         external
         pure
         returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
     {
-        return integrationCalldata.extractPayloadDataFromCalldata();
+        return integrationCalldata.parseRoutingInfoAndPayload();
     }
 
     function extractBytes16Bitmap(uint256 bitmap) external pure returns (bytes16 moduleId) {
@@ -34,12 +34,12 @@ contract UtilsHarness {
         return bitmap.extractBytes4FromBitmap(offset);
     }
 
-    function extractCalledIntegrationFunctionSelector(bytes calldata integrationCalldata)
+    function parseIntegrationFunctionCallSelector(bytes calldata integrationCalldata)
         external
         pure
         returns (bytes4 selector)
     {
-        return integrationCalldata.extractCalledIntegrationFunctionSelector();
+        return integrationCalldata.parseIntegrationFunctionCallSelector();
     }
 
     function assertIsContract(address target) public view returns (bool) {

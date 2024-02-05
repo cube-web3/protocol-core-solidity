@@ -101,23 +101,11 @@ contract Cube3Router is
         returns (bytes32)
     {
         // Extract the originating call's function selector from its calldata so that we can check if it's protected.
-        bytes4 integrationFnCallSelector = integrationCalldata.extractCalledIntegrationFunctionSelector();
+        bytes4 integrationFnCallSelector = integrationCalldata.parseIntegrationFunctionCallSelector();
 
-        // Checks: Whether the function is protected. Checing this first ensures that there's only one SLOAD
-        // for an integration that has protection disabled before returning.
-        // note: It's cheaper gas-wise to use 3 separate conditionals versus chaining with logical ||.
-        if (!getIsIntegrationFunctionProtected(msg.sender, integrationFnCallSelector)) {
-            return PROCEED_WITH_CALL;
-        }
-
-        // Checks: Whether the integration has had its status REVOKED.
-        if (getIntegrationStatus(msg.sender) == Structs.RegistrationStatusEnum.REVOKED) {
-            return PROCEED_WITH_CALL;
-        }
-
-        // Checks: Whether the protocol is paused.
-        // note: warms the slot that contains the registry address which is retrieved further on.
-        if (getIsProtocolPaused()) {
+        // Checks: if the function is protected, if the integration's registration status is REVOKED, or if the protocol
+        // is paused.
+        if(_shouldBypassRoutingForIntegrationFunctionCall(integrationFnCallSelector)) {
             return PROCEED_WITH_CALL;
         }
 
@@ -127,7 +115,7 @@ contract Cube3Router is
         // call's arguments
         // differ from those used to generate the signature contained in the payload, if required.
         (bytes4 moduleFnSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 integrationCalldataDigest) =
-            integrationCalldata.extractPayloadDataFromCalldata();
+            integrationCalldata.parseRoutingInfoAndPayload();
 
         // Checks: The module ID is mapped to an installed module.  Including the module address, instead of the ID,
         // could lead to spoofing.
@@ -143,10 +131,45 @@ contract Cube3Router is
                 integrationMsgValue,
                 integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload //
                     // TODO: better name
-            ),
+            ),  
             modulePayload
         );
 
+        // route the call to the module using the data extracted from the integration's calldata
+        return _executeModuleFunctionCall(module, moduleCalldata);
+
+    }
+
+    /// @dev Returns whether routing to the module should be bypassed. Note: There's no need to check for a registration
+    ///      status of PENDING, as an integration's function protection status cannot be enabled until it's registered, and
+    ///      thus the first condition will always be false and thus routing should be bypassed.
+    function _shouldBypassRoutingForIntegrationFunctionCall(
+        bytes4 integrationFnCallSelector
+    ) internal view returns (bool) {
+        // Checks: Whether the function is protected. Checing this first ensures that there's only one SLOAD
+        // for an integration that has protection disabled before returning.
+        // note: It's cheaper gas-wise to use 3 separate conditionals versus chaining with logical ||.
+        if (!getIsIntegrationFunctionProtected(msg.sender, integrationFnCallSelector)) {
+            return true;
+        }
+
+        // Checks: Whether the integration has had its status REVOKED.
+        if (getIntegrationStatus(msg.sender) == Structs.RegistrationStatusEnum.REVOKED) {
+            return true;
+        }
+
+        // Checks: Whether the protocol is paused.
+        // note: warms the slot that contains the registry address which is retrieved later on in the call.
+        if (getIsProtocolPaused()) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
+    ///      not return the expected success value.
+    function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
         // Interactions: Makes the call to the desired module, including the relevant information about the originating
         // function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);
@@ -176,7 +199,6 @@ contract Cube3Router is
             revert("CR04: invalid module response");
         }
     }
-
     /*//////////////////////////////////////////////////////////////
             ERC165
     //////////////////////////////////////////////////////////////*/

@@ -188,8 +188,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     }
 
     /// @dev Can be used to revoke an integration's registration status, preventing it from enabling function protection
-    /// and
-    ///      blocking access to the protocol by skipping protection checks.
+    /// and blocking access to the protocol by skipping protection checks.
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus

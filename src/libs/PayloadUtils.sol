@@ -17,7 +17,7 @@ library PayloadUtils {
     /// @dev The cube3Payload always contains: <module_payload> | <routing_bitmap>
     /// @dev The routing bitmap is a uint256 that contains the following data: <module_padding> | <module_length> |
     /// <module_selector> | <module_id>
-    function extractPayloadDataFromCalldata(bytes calldata integrationCalldata)
+    function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         internal
         pure
         returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
@@ -49,7 +49,7 @@ library PayloadUtils {
         originalCalldataDigest = keccak256(integrationCalldata[:integrationCalldata.length - moduleLength - 64]);
     }
 
-    function extractCalledIntegrationFunctionSelector(bytes calldata integrationCalldata)
+    function parseIntegrationFunctionCallSelector(bytes calldata integrationCalldata)
         internal
         pure
         returns (bytes4 selector)

@@ -15,11 +15,7 @@ contract Registry_Fuzz_Unit_Test is BaseTest {
         registryHarness = new RegistryHarness();
     }
 
-
     /*//////////////////////////////////////////////////////////////
             batchSetSigningAuthority
     //////////////////////////////////////////////////////////////*/
-
-
-
 }

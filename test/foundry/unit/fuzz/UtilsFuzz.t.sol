@@ -77,7 +77,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
             bytes16 derivedModuleID,
             bytes memory derivedModulePayload,
             bytes32 derivedOriginalCalldataDigest
-        ) = utilsHarness.extractPayloadDataFromCalldata(combined);
+        ) = utilsHarness.parseRoutingInfoAndPayload(combined);
 
         assertEq(derivedSelector, moduleSelector, "selector not matching");
         assertEq(derivedModuleID, mockModuleID, "module id not matching");
@@ -96,7 +96,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         bytes memory mockBytes = _getRandomBytes(bytesSize);
 
         bytes memory mockCalldata = abi.encodeWithSelector(selector, mockBytes);
-        bytes4 derivedSelector = utilsHarness.extractCalledIntegrationFunctionSelector(mockCalldata);
+        bytes4 derivedSelector = utilsHarness.parseIntegrationFunctionCallSelector(mockCalldata);
         assertEq(derivedSelector, selector, "selector not matching");
     }
 
