@@ -3,13 +3,14 @@ pragma solidity 0.8.19;
 
 library BitmapUtils {
     /*
-        Note: When creating a mask, subtracting one sets all bits to the right as 1s, thus creating
+        Note: When creating a mask, subtracting by 1 sets all bits to the right as 1s, thus creating
               a mask of 1s for the & operation.
-        Eg.
+
+        Eg. Creating a mask for the 4 least significant bits:
         uint8 shift = (uint8(1) << 4)
                     = 16
                     = 0 0 0 1 0 0 0 0
-        uint8 mask  = mask - 1
+        uint8 mask  = shift - 1
                     = 15
                     = 0 0 0 0 1 1 1 1
     */

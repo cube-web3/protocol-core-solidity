@@ -3,32 +3,37 @@ src = 'src'
 test = 'test/foundry'
 libs = ['lib']
 out = 'out'
-cache_path  = 'forge-cache'
+cache_path = 'forge-cache'
 verbosity = 2
-optimizer=true
-optimizer_runs=1000
+optimizer = true
+optimizer_runs = 1000
 
 # For saving deployment addresses
 # fs_permissions = [{ access = "read-write", path = "./deployments"}]
 
-build_info=true
+build_info = true
 extra_output = ["storageLayout"]
 
 [fmt]
-  bracket_spacing = true
-  int_types = "long"
-  line_length = 120
-  multiline_func_header = "all"
-  number_underscore = "thousands"
-  quote_style = "double"
-  tab_width = 4
-  wrap_comments = true
+bracket_spacing = true
+int_types = "long"
+line_length = 120
+multiline_func_header = "all"
+number_underscore = "thousands"
+quote_style = "double"
+tab_width = 4
+wrap_comments = true
+
+[doc]
+ignore = ["**/*.t.sol"]
+out = "docs"
+repository = "https://github.com/cube-web3/protocol-core-solidity"
 
 # comment out if you notice any weird behavior
 # sparse_mode = true
 remappings = [
- "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
- "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/"
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
 ]
 auto_detect_remappings = false
 

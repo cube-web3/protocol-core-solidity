@@ -85,7 +85,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
     /*//////////////////////////////////////////////////////////////
             ERC165
     //////////////////////////////////////////////////////////////*/
-    /// @dev made available via AccessControlUpgradeable
+    /// @dev override for AccessControlUpgradeable
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return interfaceId == type(ICube3Registry).interfaceId || super.supportsInterface(interfaceId);
     }

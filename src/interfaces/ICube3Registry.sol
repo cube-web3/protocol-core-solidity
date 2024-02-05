@@ -33,21 +33,10 @@ interface ICube3Registry {
     /// @param revokedSigner The signing authority's account address.
     event SigningAuthorityRevoked(address indexed integration, address indexed revokedSigner);
 
-    /// @notice Emitted when the invalidation nonce is incremented.
-    /// @dev Effectively represents an entire set of signing authorities that have been revoked.
-    /// @param invalidationNonce The `_invalidationNonce` that was invalidated.
-    event SigningAuthorityNonceSetInvalidated(uint256 invalidationNonce);
-
     /// @notice Emitted when the `_invalidationNonce` is incremented and a temporary recovery signing authority is set
     /// @param tempSignerOverride The override account that will serve as the signing authority for all integrations
     /// @param newInvalidationNonce The invalidation nonce whose set the temporary signing authority belongs to
     event TemporaryRecoverySigningAuthorityAssigned(address indexed tempSignerOverride, uint256 newInvalidationNonce);
-
-    /// @notice Emitted when the Cube3 admin enters/exits recovery mode.
-    /// @dev Setting mode to active occurs when the invalidation nonce is incremented.
-    /// @dev See {Cube3RegistryLogic-invalidateSigningAuthorityNonceSet} for details.
-    /// @param isActive The current Recovery Mode status, where True is active.
-    event RecoveryModeStatusUpdated(bool isActive);
 
     /*//////////////////////////////////////////////////////////////
             FUNCTIONS

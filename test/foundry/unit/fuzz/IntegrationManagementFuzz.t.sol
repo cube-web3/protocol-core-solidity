@@ -432,7 +432,9 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         Structs.RegistrationStatusEnum status = Structs.RegistrationStatusEnum(enumUint);
         emit IntegrationRegistrationStatusUpdated(integration, status);
         integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(integration, status);
-        assertEq(uint256(status), uint256(integrationManagementHarness.getIntegrationStatus(integration)), "status mismatch");
+        assertEq(
+            uint256(status), uint256(integrationManagementHarness.getIntegrationStatus(integration)), "status mismatch"
+        );
     }
 
     /*//////////////////////////////////////////////////////////////
