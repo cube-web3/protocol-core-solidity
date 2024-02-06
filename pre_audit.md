@@ -18,3 +18,5 @@
 ## Acnkolwedgements
 
 - TODO: cucrrently, revoking the registry will prevent new users from joining, but will not prevent existing users from using the protocol. the signature module will use a backup signer (which hsould be stored separate from teh registry/kms), so TXs can still be signed. However, the registration of new contracts will be paused (should be paused on the front-end anyway).
+
+## Files in Scope

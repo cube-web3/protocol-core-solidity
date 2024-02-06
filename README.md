@@ -54,3 +54,13 @@ Application-specific smart contracts that provide dedicated per-contract functio
 - Signature Authority
 - Router
 -
+
+## Debugging
+
+Find selectors using:
+
+```
+forge selectors list
+```
+
+All have been uploaded to SamCZSun's signature database.

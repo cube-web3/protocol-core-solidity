@@ -23,6 +23,7 @@ import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
 import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
 
 import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "../../src/common/ProtocolConstants.sol";
 import { TestUtils } from "../utils/TestUtils.t.sol";
 
 import { TestEvents } from "../utils/TestEvents.t.sol";
@@ -37,7 +38,7 @@ struct Accounts {
     address demoDeployer;
 }
 
-contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents {
+contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
 
     Demo public demo;

@@ -58,9 +58,12 @@ contract Cube3Router is
             PROXY + UPGRADE LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: test this
     /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
+        // Checks: registry is a valid contract account
         require(registry != address(0), "Registry ZeroAddress");
+        registry.assertIsContract();
 
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -75,6 +78,7 @@ contract Cube3Router is
         _grantRole(DEFAULT_ADMIN_ROLE, tx.origin);
     }
 
+    // TODO: test this
     /// @dev Adds access control logic to the {upgradeTo} function
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 
@@ -87,6 +91,7 @@ contract Cube3Router is
             ROUTING
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: test this
     /// @dev Routes the module payload contained in the integrationCalldata to the appropriate module, provided
     ///      the originating function call's function is protected.
     /// @dev Will return PROCEED_WITH_CALL if the function is not protected, the integration's registration status is
@@ -105,20 +110,19 @@ contract Cube3Router is
 
         // Checks: if the function is protected, if the integration's registration status is REVOKED, or if the protocol
         // is paused.
-        if(_shouldBypassRoutingForIntegrationFunctionCall(integrationFnCallSelector)) {
+        if (_shouldBypassRouting(integrationFnCallSelector)) {
             return PROCEED_WITH_CALL;
         }
 
-        // Extracts the payload data, which comprises: moduleFnSelector | moduleId | modulePayload | moduleLength.  The
-        // orginating
-        // function's calldata is hashed, without the modulePayload, to create a digest that validates none of the
-        // call's arguments
-        // differ from those used to generate the signature contained in the payload, if required.
+        // Extracts the module payload data, which comprises: moduleFnSelector | moduleId | modulePayload.
+        // The orginating function's calldata is hashed, without the modulePayload, to create a digest that validates
+        // none of the call's arguments differ from those used to generate the signature contained in the payload, if
+        // required.
         (bytes4 moduleFnSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 integrationCalldataDigest) =
             integrationCalldata.parseRoutingInfoAndPayload();
 
-        // Checks: The module ID is mapped to an installed module.  Including the module address, instead of the ID,
-        // could lead to spoofing.
+        // Checks: The module ID is mapped to an installed module.  Including the module address in the payload
+        // as opposed to the module ID that needs to be retrieved from storage, could lead to spoofing.
         address module = getModuleAddressById(moduleId);
         require(module != address(0), "CR03: non-existent module");
 
@@ -129,26 +133,28 @@ contract Cube3Router is
                 integrationMsgSender,
                 msg.sender, // this will be the proxy address if the integration uses a proxy
                 integrationMsgValue,
-                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload //
+                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload
                     // TODO: better name
-            ),  
+            ),
             modulePayload
         );
 
-        // route the call to the module using the data extracted from the integration's calldata
+        // Interactions: route the call to the module using the data extracted from the integration's calldata.
         return _executeModuleFunctionCall(module, moduleCalldata);
-
     }
 
+    /*//////////////////////////////////////////////////////////////
+            ROUTING HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
     /// @dev Returns whether routing to the module should be bypassed. Note: There's no need to check for a registration
-    ///      status of PENDING, as an integration's function protection status cannot be enabled until it's registered, and
+    ///      status of PENDING, as an integration's function protection status cannot be enabled until it's registered,
+    /// and
     ///      thus the first condition will always be false and thus routing should be bypassed.
-    function _shouldBypassRoutingForIntegrationFunctionCall(
-        bytes4 integrationFnCallSelector
-    ) internal view returns (bool) {
-        // Checks: Whether the function is protected. Checing this first ensures that there's only one SLOAD
+    function _shouldBypassRouting(bytes4 integrationFnCallSelector) internal view returns (bool) {
+        // Checks: Whether the function is protected. Checking this first ensures that there's only one SLOAD
         // for an integration that has protection disabled before returning.
-        // note: It's cheaper gas-wise to use 3 separate conditionals versus chaining with logical ||.
+        // note: It's more gas-efficient to use 3 separate conditionals versus chaining with logical ||.
         if (!getIsIntegrationFunctionProtected(msg.sender, integrationFnCallSelector)) {
             return true;
         }
@@ -166,14 +172,15 @@ contract Cube3Router is
 
         return false;
     }
-    
+
+
     /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
     ///      not return the expected success value.
     function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
-        // Interactions: Makes the call to the desired module, including the relevant information about the originating
-        // function call.
+        // Interactions: Makes the call to the desired module, calldataa includes the relevant information about the
+        // originating function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);
-        // TODO: does this bubble up if it's not in a try/catch
+        // TODO: does this bubble up if it's not in a try/catch, look at dragonfly example
         if (!success) {
             // Bubble up the revert data from the module call.
             assembly {
@@ -186,8 +193,8 @@ contract Cube3Router is
             }
         }
 
-        // Interactions: A CUBE3 module will always return the bytes32 equivalent of keccak256("MODULE_CALL_SUCCEEDED").
-        // This operates like an assertion, whereby any result other than success will result in a revert.
+        // Interactions: A CUBE3 module will always return the bytes32 value for keccak256("MODULE_CALL_SUCCEEDED").
+        // This statement operates like an assertion, whereby any result other than success will result in a revert.
         if (returnOrRevertData.length == 32) {
             // Successful and returned a decodable boolean.
             if (abi.decode(returnOrRevertData, (bytes32)) == MODULE_CALL_SUCCEEDED) {
@@ -196,7 +203,7 @@ contract Cube3Router is
                 revert("tODO: Module failed");
             }
         } else {
-            revert("CR04: invalid module response");
+            revert("CR04: invalid response length");
         }
     }
     /*//////////////////////////////////////////////////////////////
