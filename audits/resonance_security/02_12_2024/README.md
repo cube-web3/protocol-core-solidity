@@ -57,6 +57,16 @@ TODO: complete
 - In order to make use of CUBE3's on-chain protocol, the integration contract must receive data provided by CUBE3's off-chain services.
 - An integration can disconnect from the protocol at any time, or be disconnected from the protocol by CUBE3. From a user-standpoint, disconnecting prevents calls to the router from taking place. Disconnection from the protocol side still requires a call to the Router, which will return early and bypass the protocol's functionality.
 
+## Storage
+
+Both the Core Protocol and Protection abstractions make use of `ERC7201` namespaced storage layout. This serves a dual purpose of helping to prevent storage collisions for upgradeable contracts, and to help reduce transaction costs by facilitating the use of an `accessList` to pre-warm the storage slots we know will be accessed during all transactions - introduced in `EIP-2930`.
+
+Both the protection contracts and the core protocol share the storage namespace of `cube3.storage`, with the start of storage layout assigned to the slot: `0xd26911dcaedb68473d1e75486a92f0a8e6ef3479c0c1c4d6684d3e2888b6b600`, which is derived from:
+
+```solidity
+keccak256(abi.encode(uint256(keccak256("cube3.storage")) - 1)) & ~bytes32(uint256(0xff));
+```
+
 ## Access Control and Roles
 
 ### Integration Access Control

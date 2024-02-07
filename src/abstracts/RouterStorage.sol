@@ -41,11 +41,11 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    // keccak256(abi.encode(uint256(keccak256("cube3.router.storage")) - 1)) & ~bytes32(uint256(0xff));
+   // keccak256(abi.encode(uint256(keccak256("cube3.storage")) - 1)) & ~bytes32(uint256(0xff));
     bytes32 private constant CUBE3_ROUTER_STORAGE_LOCATION =
-        0x965086ef32785f3c2d215dde11368175b9856558874805a1f295cdb684eea500;
+        0xd26911dcaedb68473d1e75486a92f0a8e6ef3479c0c1c4d6684d3e2888b6b600;
 
-    /// @custom:storage-location cube3.router.storage
+    /// @custom:storage-location cube3.storage
     function _state() private pure returns (Cube3State storage state) {
         assembly {
             state.slot := CUBE3_ROUTER_STORAGE_LOCATION
