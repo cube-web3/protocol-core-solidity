@@ -95,8 +95,9 @@ contract Cube3Router is
     /// @dev Routes the module payload contained in the integrationCalldata to the appropriate module, provided
     ///      the originating function call's function is protected.
     /// @dev Will return PROCEED_WITH_CALL if the function is not protected, the integration's registration status is
-    /// REVOKED,
-    ///      or the protocol is paused.
+    /// REVOKED, or the protocol is paused.
+    /// @dev Only contracts can complete registration, so checking the caller is a contract is redundant.
+    // TODO: check gas consumption of contract check
     function routeToModule(
         address integrationMsgSender,
         uint256 integrationMsgValue,
