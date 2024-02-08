@@ -178,10 +178,10 @@ contract Cube3Router is
     /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
     ///      not return the expected success value.
     function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
+        
         // Interactions: Makes the call to the desired module, calldataa includes the relevant information about the
         // originating function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);
-        // TODO: does this bubble up if it's not in a try/catch, look at dragonfly example
         if (!success) {
             // Bubble up the revert data from the module call.
             assembly {
