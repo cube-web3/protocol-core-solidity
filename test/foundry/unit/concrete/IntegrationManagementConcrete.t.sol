@@ -233,7 +233,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
     // fails if the integration is the zero address
     function test_RevertsWhen_IntegrationAddressIsZeroAddress() public {
-        vm.expectRevert("GK14: zero address");
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIntegrationAdmin.selector);
         integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(
             address(0), Structs.RegistrationStatusEnum.REGISTERED
         );

@@ -143,7 +143,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // TODO: test
         // Checks: the integration being registered is a valid address.
         if(integration == address(0)) {
-            revert ProtocolErrors.Cube3Router_InvalidIntegrationProvided();
+            revert ProtocolErrors.Cube3Router_InvalidIntegration();
         }
 
         // Checks: the account that pre-registered is not an EOA.
@@ -166,15 +166,23 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
         // TODO: what about the case of multiple registrars
         // Checks: the registry and registrar are valid accounts.
-        (address registry, address integrationRegistrar) = fetchRegistryAndSigningAuthorityForIntegration(integration);
-        require(registry != address(0), "TODO: No Registry");
-        require(integrationRegistrar != address(0), "TODO: No Registrar");
+        (address registry, address integrationSigningAuthority) = fetchRegistryAndSigningAuthorityForIntegration(integration);
+        
+        // Checks: the registry has been set.
+        if (registry == address(0)) {
+            revert ProtocolErrors.Cube3Router_RegistryNotSet();
+        }
+
+        // Checks: the integration's signing authority exists.
+        if (integrationSigningAuthority == address(0)) {
+            revert ProtocolErrors.Cube3Router_IntegrationSigningAuthorityNotSet();
+        }
 
         // Generate the digest with the integration-specific data. Using `chainid` prevents replay across chains.
-        bytes32 digest = keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
+        bytes32 registrationDigest = keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
 
         // Checks: uses ECDSA recovery to validates the signature.  Reverts if the registrarSignature is invalid.
-        registrarSignature.assertIsValidSignature(digest, integrationRegistrar);
+        registrarSignature.assertIsValidSignature(registrationDigest, integrationSigningAuthority);
 
         // Effects: marks the registration signature hash as used by setting the entry in the mapping to True.
         _setUsedRegistrationSignatureHash(registrarSignatureHash);
@@ -205,9 +213,16 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         external
         onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE)
     {
-        require(integrations.length == statuses.length, "CR05: array length mismatch");
-        uint256 len = integrations.length;
-        for (uint256 i; i < len;) {
+        uint256 numIntegrations = integrations.length;
+
+        // TODO: test this
+        // Checks: the array lengths are equal.
+        if (numIntegrations != statuses.length) {
+            revert ProtocolErrors.Cube3Router_ArrayLengthMismatch();
+        }
+
+        // Interactions: updates the registration status for each integration in the array.
+        for (uint256 i; i < numIntegrations;) {
             _updateIntegrationRegistrationStatus(integrations[i], statuses[i]);
             unchecked {
                 ++i;
@@ -232,13 +247,17 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Utility function for returning the integration's signing authority, which is used to validate
-    ///      the registrar signature.
+    /// the registrar signature. If the registry is not set, the function will return the zero address as the signing
+    /// authority. It is up to the module to handle this case.
     function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         public
         view
         returns (address registry, address authority)
     {
+        // Get the registry address from storage.
         registry = getRegistryAddress();
+
+        // Checks: the registry exists. If not, return the zero address as the signing authority.
         if (registry == address(0)) {
             return (address(0), address(0));
         }
@@ -254,8 +273,17 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     )
         internal
     {
-        require(integration != address(0), "GK14: zero address");
-        require(getIntegrationStatus(integration) != status, "GK06: same status");
+        // Checks: the integration address is valid.
+        if (integration == address(0)) {
+            revert ProtocolErrors.Cube3Router_InvalidIntegration();
+        }
+        
+        // Checks: whether the status is the same as the current status.
+        if (status == getIntegrationStatus(integration)) {
+            revert ProtocolErrors.Cube3Router_CannotSetStatusToCurrentStatus();
+        }
+
+        // Effects: updates the integration's registration status.
         _setIntegrationRegistrationStatus(integration, status);
     }
 }

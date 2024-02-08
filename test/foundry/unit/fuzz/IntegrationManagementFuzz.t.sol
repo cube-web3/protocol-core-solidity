@@ -220,7 +220,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             integration, Structs.RegistrationStatusEnum.PENDING
         );
         vm.startPrank(admin);
-        vm.expectRevert("TODO: No Registry");
+        vm.expectRevert(ProtocolErrors.Cube3Router_RegistryNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -244,7 +244,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         );
         integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
         vm.startPrank(admin);
-        vm.expectRevert("TODO: No Registrar");
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationSigningAuthorityNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -419,7 +419,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         }
 
         for (uint256 i; i < numRegistrations; i++) {
-            vm.expectRevert("GK06: same status");
+            vm.expectRevert(ProtocolErrors.Cube3Router_CannotSetStatusToCurrentStatus.selector);
             integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(integrations[i], statuses[i]);
             vm.stopPrank();
         }

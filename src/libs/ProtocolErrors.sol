@@ -16,6 +16,9 @@ library ProtocolErrors {
    /// @notice Throws when the target address is a contract.
    error Cube3Protocol_TargetIsContract(address target);
 
+   /// @notice Throws when the arrays passed as arguments are not the same length.
+   error Cube3Router_ArrayLengthMismatch();
+
 
     /////////////////////////////////////////////////////////////////////////////////
     //                                       Router                                //
@@ -60,9 +63,15 @@ library ProtocolErrors {
     error Cube3Router_IntegrationAdminAlreadyInitialized();
 
     /// @notice Throws when the integration address provided is the zero address.
-    error Cube3Router_InvalidIntegrationProvided();
+    error Cube3Router_InvalidIntegration();
 
     /// @notice Throws when attempting to use a registrar signature that has already been used to register
     /// an integration.
     error Cube3Router_RegistrarSignatureAlreadyUsed();
+
+    /// @notice Throws when the registry contract is not set.
+    error Cube3Router_RegistryNotSet();
+
+    /// @notice Throws when the integration's signing authority has not been set, ie returns the Zero Address.
+    error Cube3Router_IntegrationSigningAuthorityNotSet();
 }
