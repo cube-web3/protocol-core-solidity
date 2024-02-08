@@ -6,6 +6,8 @@ import { Structs } from "../../../../src/common/Structs.sol";
 
 import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
 
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
+
 import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
 
 contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
@@ -46,7 +48,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         address nonAdmin = _randomAddress();
         vm.startPrank(nonAdmin);
-        vm.expectRevert(bytes("TODO: Not admin"));
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin.selector)));
         integrationManagementHarness.transferIntegrationAdmin(integration, nonAdmin);
         vm.stopPrank();
     }
@@ -84,7 +86,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         address nonPendingAdmin = _randomAddress();
         vm.startPrank(nonPendingAdmin);
-        vm.expectRevert(bytes("TODO: Not pending admin"));
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotPendingIntegrationAdmin.selector));
         integrationManagementHarness.acceptIntegrationAdmin(integration);
         vm.stopPrank();
     }
@@ -105,7 +107,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         Structs.FunctionProtectionStatusUpdate[] memory updates = new Structs.FunctionProtectionStatusUpdate[](0);
         vm.startPrank(_randomAddress());
-        vm.expectRevert(bytes("TODO: Not admin"));
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin.selector)));
         integrationManagementHarness.updateFunctionProtectionStatus(integration, updates);
         vm.stopPrank();
     }
@@ -127,7 +129,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         Structs.FunctionProtectionStatusUpdate[] memory updates = new Structs.FunctionProtectionStatusUpdate[](0);
         vm.startPrank(admin);
-        vm.expectRevert(bytes("TODO: NotRegistered"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationRegistrationNotComplete.selector);
         integrationManagementHarness.updateFunctionProtectionStatus(integration, updates);
         vm.stopPrank();
     }
@@ -139,7 +141,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     // fails if admin address is zero
     function test_RevertsWhen_AdminAddressIsZeroAddress() public {
         address admin = address(0);
-        vm.expectRevert(bytes("TODO: zero address"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIntegrationAdmin.selector);
         integrationManagementHarness.initiateIntegrationRegistration(admin);
     }
 
@@ -152,7 +154,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationAdmin(integration, admin);
 
         vm.startPrank(integration);
-        vm.expectRevert(bytes("TODO: Already registered"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationAdminAlreadyInitialized.selector);
         integrationManagementHarness.initiateIntegrationRegistration(admin);
         vm.stopPrank();
     }

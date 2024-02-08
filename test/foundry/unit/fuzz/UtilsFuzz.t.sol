@@ -104,7 +104,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     // fails when the target contract is an EOA
     function testFuzz_RevertsWhen_TargetIsEOA(uint256 addressSeed) public {
         address target = address(uint160(uint256(keccak256(abi.encodePacked(addressSeed)))));
-        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, target));
         utilsHarness.assertIsContract(target);
     }
 

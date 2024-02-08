@@ -8,7 +8,7 @@ import { BaseTest } from "../../BaseTest.t.sol";
 import { MockRouter } from "../../../mocks/MockRouter.t.sol";
 import { ModuleBaseHarness } from "../../harnesses/ModuleBaseHarness.sol";
 import { ICube3Module } from "../../../../src/interfaces/ICube3Module.sol";
-
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { ModuleBaseEvents } from "../../../../src/modules/ModuleBaseEvents.sol";
 
 contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {

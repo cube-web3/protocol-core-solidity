@@ -32,4 +32,37 @@ library ProtocolErrors {
  
    /// @notice Throws when the data returned by the module is not 32 bytes in length.
    error Cube3Router_ModuleReturnDataInvalidLength(uint256 size);
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                         Router : IntegrationManagement                      //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the caller is not the integration's admin account.
+    error Cube3Router_CallerNotIntegrationAdmin();
+
+    /// @notice Throws when the caller is not the integration's pending admin account.
+    error Cube3Router_CallerNotPendingIntegrationAdmin();
+
+    /// @notice Throws when the calling integration's status is still PENDING.
+    error Cube3Router_IntegrationRegistrationNotComplete();
+
+    /// @notice Throws when the calling integration's registration status is not PENDING.
+    error Cube3Router_IntegrationRegistrationStatusNotPending();
+
+    /// @notice Throws when the calling integration's registration status is REVOKED.
+    error Cube3Router_IntegrationRegistrationRevoked();
+
+    /// @notice Throws when the integration admin address is the Zero Address.
+    error Cube3Router_InvalidIntegrationAdmin();
+
+    /// @notice Throws when the integration admin address has already been set, indicating
+    /// that the integration has already been pre-registered.
+    error Cube3Router_IntegrationAdminAlreadyInitialized();
+
+    /// @notice Throws when the integration address provided is the zero address.
+    error Cube3Router_InvalidIntegrationProvided();
+
+    /// @notice Throws when attempting to use a registrar signature that has already been used to register
+    /// an integration.
+    error Cube3Router_RegistrarSignatureAlreadyUsed();
 }

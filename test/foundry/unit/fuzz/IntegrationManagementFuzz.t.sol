@@ -113,7 +113,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(_randomAddress());
-        vm.expectRevert(bytes("TODO: Not admin"));
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin.selector)));
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -149,7 +149,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(admin);
-        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, integration));
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -170,7 +170,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(admin);
-        vm.expectRevert(bytes("GK13: not PENDING"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationRegistrationStatusNotPending.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -196,7 +196,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
         integrationManagementHarness.setUsedRegistrationSignatureHash(keccak256(registrarSignature));
         vm.startPrank(admin);
-        vm.expectRevert("CR13: registrar reuse");
+        vm.expectRevert(ProtocolErrors.Cube3Router_RegistrarSignatureAlreadyUsed.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );

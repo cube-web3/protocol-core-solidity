@@ -7,7 +7,7 @@ import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
 
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { ProtocolManagement } from "../../../../src/abstracts/ProtocolManagement.sol";
 
 contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
