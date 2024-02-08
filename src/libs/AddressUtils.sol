@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
+import {ProtocolErrors} from "./ProtocolErrors.sol";
 library AddressUtils {
     /**
      * @dev Ensures the target address is a contract. This is done by checking the length
@@ -15,6 +16,14 @@ library AddressUtils {
         assembly {
             size := extcodesize(target)
         }
-        if (size == 0) revert("TODO: Not a contract");
+        if (size == 0) revert ProtocolErrors.Cube3Protocol_TargetNotAContract(target);
+    }
+
+    function assertIsEOAorConstructorCall(address target) internal view {
+        uint256 size;
+        assembly {
+            size := extcodesize(target)
+        }
+        if (size > 0) revert ProtocolErrors.Cube3Protocol_TargetIsContract(target);
     }
 }

@@ -6,6 +6,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 
 import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
 
+import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
 import { MockTarget } from "../../../mocks/MockContract.t.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
@@ -148,7 +149,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(admin);
-        vm.expectRevert(bytes("TODO: Not a contract"));
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );

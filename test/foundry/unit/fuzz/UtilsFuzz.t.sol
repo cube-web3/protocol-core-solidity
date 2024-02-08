@@ -9,6 +9,7 @@ import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
 
+import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
 
 // TODO: use same as script
@@ -103,7 +104,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     // fails when the target contract is an EOA
     function testFuzz_RevertsWhen_TargetIsEOA(uint256 addressSeed) public {
         address target = address(uint160(uint256(keccak256(abi.encodePacked(addressSeed)))));
-        vm.expectRevert(bytes("TODO: Not a contract"));
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
         utilsHarness.assertIsContract(target);
     }
 

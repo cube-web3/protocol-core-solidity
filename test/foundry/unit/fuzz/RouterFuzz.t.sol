@@ -6,8 +6,9 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 import { BaseTest } from "../../BaseTest.t.sol";
 
 import { RouterHarness } from "../../harnesses/RouterHarness.sol";
-import {MockModule} from "../../../mocks/MockModule.t.sol";
+import { MockModule } from "../../../mocks/MockModule.t.sol";
 
+import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
 import { ICube3Router } from "../../../../src/interfaces/ICube3Router.sol";
 
 import { Structs } from "../../../../src/common/Structs.sol";
@@ -56,7 +57,7 @@ contract Router_Fuzz_Unit_Test is BaseTest {
         address module = _randomAddress();
         bytes memory moduleCalldata = new bytes(byteLength);
 
-        vm.expectRevert(bytes("CR04: invalid response length"));
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleReturnDataInvalidLength.selector, 0));
         routerHarness.executeModuleFunctionCall(module, moduleCalldata);
     }
 
@@ -76,7 +77,7 @@ contract Router_Fuzz_Unit_Test is BaseTest {
         vm.expectRevert();
         routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
     }
-    
+
     // fails if module call reverts
     function testFuzz_RevertsWhen_ModuleCallReverts(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
@@ -84,32 +85,35 @@ contract Router_Fuzz_Unit_Test is BaseTest {
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.executeMockModuleFunction.selector, arg);
         mockModule.updateForceRevert(true);
         vm.expectRevert(bytes("Forced Revert"));
-        routerHarness.executeModuleFunctionCall(address(mockModule),moduleCalldata);
-
+        routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
     }
 
     // fails if return data is not 32 bytes
     function testFuzz_RevertsWhen_ReturnDataLengthNot32Bytes(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
-        bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataLength.selector, arg);
-        vm.expectRevert(bytes("CR04: invalid response length"));
-        routerHarness.executeModuleFunctionCall(address(mockModule),moduleCalldata);
+        bytes memory moduleCalldata =
+            abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataLength.selector, arg);
+        // we know the mock module returns 64 bytes: bytes32 + uint256
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleReturnDataInvalidLength.selector, 64));
+        routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
     }
 
     // fails if return data is not bytes32 value of MODULE_CALL_SUCCEEDED
     function testFuzz_RevertsWhen_ReturnDataNotMatchingExpected(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
-        bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataType.selector, arg);
-        vm.expectRevert(bytes("tODO: Module failed"));
-        routerHarness.executeModuleFunctionCall(address(mockModule),moduleCalldata);
+        bytes memory moduleCalldata =
+            abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataType.selector, arg);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleReturnedInvalidData.selector);
+        routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
     }
     // Succeeds if the module returns MODULE_CALL_SUCCEEDED
+
     function testFuzz_SucceedsWhen_ReturnDataMatchesExpected(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.executeMockModuleFunction.selector, arg);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit MockModuleCallSucceededWithArgs(arg);
-        bytes32 resp = routerHarness.executeModuleFunctionCall(address(mockModule),moduleCalldata);
+        bytes32 resp = routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
         assertEq(resp, PROCEED_WITH_CALL, "invalid return");
     }
-}  
+}
