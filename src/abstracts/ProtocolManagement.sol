@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ERC165CheckerUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
 import { Structs } from "../common/Structs.sol";
 import { RouterStorage } from "./RouterStorage.sol";
@@ -26,7 +25,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
     function setProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         // Checks: the registry, if provided, supports the ICube3Registry interface.
         if (registry != address(0)) {
-            if (!ERC165CheckerUpgradeable.supportsInterface(registry, type(ICube3Registry).interfaceId)) {
+            if (!ERC165Checker.supportsInterface(registry, type(ICube3Registry).interfaceId)) {
                 revert ProtocolErrors.Cube3Router_NotValidRegistryInterface();
             }
         }
@@ -86,7 +85,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
 
         // TODO: should be module base
         // Checks: the deployed module supports the ICube3Module interface.
-        if (!ERC165CheckerUpgradeable.supportsInterface(moduleAddress, type(ICube3Module).interfaceId)) {
+        if (!ERC165Checker.supportsInterface(moduleAddress, type(ICube3Module).interfaceId)) {
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();
         }
 

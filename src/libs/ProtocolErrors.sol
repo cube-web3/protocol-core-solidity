@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 /// @title CUBE3 Protocol Errors
 /// @notice Defines errors for the CUBE3 Protocol.

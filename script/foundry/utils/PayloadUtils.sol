@@ -1,10 +1,10 @@
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
-
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { Structs } from "../../../src/common/Structs.sol";
 
 contract PayloadUtils is Test {
@@ -24,14 +24,14 @@ contract PayloadUtils is Test {
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = signatureHash.toEthSignedMessageHash();
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
         signature = abi.encodePacked(r, s, v);
 
         assertTrue(signature.length == 65, "invalid signature length");
 
-        (address signedHashAddress, ECDSA.RecoverError error) = ethSignedHash.tryRecover(signature);
+        (address signedHashAddress, ECDSA.RecoverError error, ) = ethSignedHash.tryRecover(signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

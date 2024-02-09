@@ -1,7 +1,7 @@
 pragma solidity >=0.8.19 < 0.8.24;
 
 import "forge-std/Test.sol";
-
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
@@ -226,12 +226,12 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = signatureHash.toEthSignedMessageHash();
+        bytes32 ethSignedHash =  MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
         signature = abi.encodePacked(r, s, v);
 
-        (, ECDSA.RecoverError error) = ethSignedHash.tryRecover(signature);
+        (, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

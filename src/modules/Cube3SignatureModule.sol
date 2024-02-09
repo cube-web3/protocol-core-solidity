@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ICube3SignatureModule } from "../interfaces/ICube3SignatureModule.sol";
 import { ICube3Registry } from "../interfaces/ICube3Registry.sol";

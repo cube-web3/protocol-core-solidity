@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 /// @title CUBE3 Signing Authority Registry.
 /// @author CUBE3.ai

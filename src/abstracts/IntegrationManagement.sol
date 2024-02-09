@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-
-import { ERC165CheckerUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
 import { Structs } from "../common/Structs.sol";
