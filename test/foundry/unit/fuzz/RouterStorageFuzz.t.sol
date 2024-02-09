@@ -192,7 +192,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         // delete the module
         vm.expectEmit(true, true, true, true);
         emit RouterModuleDeprecated(moduleId, moduleAddress, version);
-        routerStorageHarness.deleteInstalledModule(moduleId, moduleAddress, version);
+        routerStorageHarness.deleteInstalledModule(moduleId);
         assertEq(address(0), routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
     }
 
@@ -204,5 +204,21 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         emit UsedRegistrationSignatureHash(signatureHash);
         routerStorageHarness.setUsedRegistrationSignatureHash(signatureHash);
         assertTrue(routerStorageHarness.getRegistrarSignatureHashExists(signatureHash), "hash mismatch");
+    }
+
+    // Setting the module version deprecated succeeds and emits the correct event
+    function testFuzz_SucceedsWhen_DeprecatingExistingModule(uint256 moduleIdSeed) public {
+        bytes16 moduleId = bytes16(bytes32(moduleIdSeed));
+        address module = _randomAddress();
+        string memory version = "moduleVersion-0.0.1";
+        routerStorageHarness.setModuleInstalled(moduleId, module, version);
+        assertEq(module, routerStorageHarness.getModuleAddressById(moduleId), "installed module not set");
+
+        // note: the module address is only deleted when the module is deprecated via the router.
+        vm.expectEmit(true,true,true,true);
+        emit RouterModuleDeprecated(moduleId, module, version);
+        routerStorageHarness.setModuleVersionDeprecated(moduleId, version);
+
+        assertTrue(routerStorageHarness.getIsModuleVersionDeprecated(moduleId), "not deprecated");
     }
 }

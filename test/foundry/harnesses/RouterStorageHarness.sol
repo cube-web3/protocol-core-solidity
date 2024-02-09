@@ -42,6 +42,10 @@ contract RouterStorageHarness is RouterStorage {
         _setUsedRegistrationSignatureHash(signatureHash);
     }
 
+    function setModuleVersionDeprecated(bytes16 moduleId, string memory version) public {
+        _setModuleVersionDeprecated(moduleId, version);
+    }
+
     /*//////////////////////////////////////////////////////////////
         DELETE
     //////////////////////////////////////////////////////////////*/
@@ -50,7 +54,7 @@ contract RouterStorageHarness is RouterStorage {
         _deleteIntegrationPendingAdmin(integration);
     }
 
-    function deleteInstalledModule(bytes16 moduleId, address deprecatedModuleAddress, string memory version) public {
-        _deleteInstalledModule(moduleId, deprecatedModuleAddress, version);
+    function deleteInstalledModule(bytes16 moduleId) public {
+        _deleteInstalledModule(moduleId);
     }
 }

@@ -104,7 +104,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         }
 
         // Checks: the module hasn't been deprecated. Prevents reinstallation of a deprecated version.
-        if (ICube3Module(moduleAddress).isDeprecated()) {
+        if (ICube3Module(moduleAddress).isDeprecated() || getIsModuleVersionDeprecated(moduleId)) {
             revert ProtocolErrors.Cube3Router_CannotInstallDeprecatedModule();
         }
 
@@ -124,7 +124,8 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         // Interactions: call into the module to deprecate it.
         try ICube3Module(moduleToDeprecate).deprecate() returns (string memory version) {
             // TODO: should add to deprecateedMapping?
-            _deleteInstalledModule(moduleId, moduleToDeprecate, version);
+            _setModuleVersionDeprecated(moduleId, version);
+            _deleteInstalledModule(moduleId);
         } catch {
             revert ProtocolErrors.Cube3Router_ModuleDeprecationFailed();
         }
