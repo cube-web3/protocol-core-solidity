@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { Structs } from "./Structs.sol";
 
@@ -21,6 +21,8 @@ abstract contract ProtocolEvents {
     /// @param moduleAddress The contract address of the module that was deprecated.
     /// @param version The human-readable version of the deprecated module.
     event RouterModuleDeprecated(bytes32 indexed moduleId, address indexed moduleAddress, string indexed version);
+
+    event RouterModuleRemoved(bytes16 indexed moduleId);
 
     event Cube3ProtocolContractsUpdated(address indexed gateKeeper, address indexed registry);
 

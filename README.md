@@ -64,3 +64,9 @@ forge selectors list
 ```
 
 All have been uploaded to SamCZSun's signature database.
+
+## Coverage
+
+```
+forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage
+```

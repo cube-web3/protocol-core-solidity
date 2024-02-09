@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
-
+pragma solidity >= 0.8.19 < 0.8.24;
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { ICube3Router } from "../interfaces/ICube3Router.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
-
 import { ModuleBaseEvents } from "./ModuleBaseEvents.sol";
-
-import {ProtocolErrors} from "../libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "../libs/ProtocolErrors.sol";
 import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 /// @dev See {ICube3Module}
@@ -54,7 +51,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
         moduleVersion = version;
 
         // Use the 128 most significant bits of the keccak256 hash of the version string. This
-        // allows for efficient packing of the routing information. Modules are purpose-built 
+        // allows for efficient packing of the routing information. Modules are purpose-built
         // smart contracts containing unique functionality, so it's not feasible to produce enough
         // modules to ever cause a collision despite using bytes16.
         moduleId = bytes16(keccak256(abi.encode(moduleVersion)));
@@ -64,7 +61,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
         cube3router = ICube3Router(cubeRouterProxy);
 
         // Checks: for an existing version so we don't deploy two modules with the same version
-        if(cube3router.getModuleAddressById(moduleId) != address(0)) {
+        if (cube3router.getModuleAddressById(moduleId) != address(0)) {
             revert ProtocolErrors.Cube3Module_ModuleVersionExists();
         }
 
@@ -118,12 +115,11 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @dev Checks for the presence of the single "-" separating name and version number
     /// @dev Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
     function _isValidVersionSchema(string memory version_) internal pure returns (bool) {
-        
         // check the length of the version string does not exceed 32 bytes.
         if (bytes(version_).length < 9 || bytes(version_).length > 32) {
             return false;
         }
-        
+
         uint256 versionSeparatorCount;
         uint256 dashCount;
 

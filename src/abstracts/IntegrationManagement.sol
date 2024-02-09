@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-
-import { ERC165CheckerUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
 import { Structs } from "../common/Structs.sol";
 import { RouterStorage } from "./RouterStorage.sol";
 import { SignatureUtils } from "../libs/SignatureUtils.sol";
 import { AddressUtils } from "../libs/AddressUtils.sol";
+
+import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 import { ProtocolErrors } from "../libs/ProtocolErrors.sol";
 
@@ -108,7 +107,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     ///      access to the protocol until `registerIntegrationWithCube3` is called by the integration admin, for
     ///      which a registrarSignature is required and must be signed by the integration's signing authority via CUBE3.
     /// @dev Only a contract who initiated registration can complete registration via codesize check.
-    function initiateIntegrationRegistration(address admin_) external returns (bool) {
+    function initiateIntegrationRegistration(address admin_) external returns (bytes32) {
         // Checks: the integration admin account provided is a valid address.
         if (admin_ == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegrationAdmin();
@@ -126,7 +125,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         _setIntegrationRegistrationStatus(msg.sender, Structs.RegistrationStatusEnum.PENDING);
 
         // TODO: might be expecting another value
-        return true;
+        return PRE_REGISTRATION_SUCCEEDED;
     }
 
     /// @dev Can only be called by the integration admin set in `initiateIntegrationRegistration`.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { Structs } from "../common/Structs.sol";
 import { ProtocolEvents } from "../common/ProtocolEvents.sol";
@@ -14,29 +14,30 @@ struct Cube3State {
     //////////////////////////////////////////////////////////////*/
 
     // stores module IDs mapped to their corresponding module contract addresses
-    mapping(bytes16 => address) idToModules;
+    mapping(bytes16 moduleId => address module) idToModules;
     /*//////////////////////////////////////////////////////////////
         INTEGRATION MANAGER STORAGE
     //////////////////////////////////////////////////////////////*/
 
     // mapping of integration_address => pending_admin_address, used as part of a two step
     // transfer of admin privileges for an integration
-    mapping(address => address) integrationToPendingAdmin;
+    mapping(address integration => address pendingAdmin) integrationToPendingAdmin;
     // mapping of integration_address => integration_state, where an integration's state stores
     // its admin address and registration status
-    mapping(address => Structs.IntegrationState) integrationToState;
+    mapping(address integration => Structs.IntegrationState state) integrationToState;
     // mapping of integration_address => (mapping of function_selector => protection_status)
-    mapping(address => mapping(bytes4 => bool)) integrationToFunctionProtectionStatus;
+    mapping(address integration => mapping(bytes4 selector => bool isProtected)) integrationToFunctionProtectionStatus;
     // store a hash of the used registrar signature to prevent re-registration in the event of a revocation
     // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked
     // integration
-    mapping(bytes32 => bool) usedRegistrarSignatureHashes; // abi.encode(signature) => used
+    mapping(bytes32 signature => bool used) usedRegistrarSignatureHashes;
+    mapping(bytes16 moduleId => bool deprecated) deprecatedModules;
 }
 
 /// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
 ///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
 ///      can only be accessed via dedicated getter and setter functions.
-abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
+abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -97,6 +98,11 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         return _state().protocolConfig.registry;
     }
 
+    // TODO: test
+    function getIsModuleVersionDeprecated(bytes16 moduleId) public view returns (bool) {
+        return _state().deprecatedModules[moduleId];
+    }
+
     /*//////////////////////////////////////////////////////////////
         SETTERS
     //////////////////////////////////////////////////////////////*/
@@ -141,6 +147,11 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         emit UsedRegistrationSignatureHash(signatureHash);
     }
 
+    function _setModuleVersionDeprecated(bytes16 moduleId, string memory version) internal {
+        _state().deprecatedModules[moduleId] = true;
+        emit RouterModuleDeprecated(moduleId, _state().idToModules[moduleId], version);
+    }
+
     /*//////////////////////////////////////////////////////////////
         DELETE
     //////////////////////////////////////////////////////////////*/
@@ -151,14 +162,9 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         emit IntegrationPendingAdminRemoved(integration, pendingAdmin);
     }
 
-    function _deleteInstalledModule(
-        bytes16 moduleId,
-        address deprecatedModuleAddress,
-        string memory version
-    )
-        internal
-    {
+    /// @dev event is emitted by `_setModuleVersionDeprecated`
+    function _deleteInstalledModule(bytes16 moduleId) internal {
         delete _state().idToModules[moduleId];
-        emit RouterModuleDeprecated(moduleId, deprecatedModuleAddress, version);
+        emit RouterModuleRemoved(moduleId);
     }
 }

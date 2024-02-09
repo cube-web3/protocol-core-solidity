@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ERC165CheckerUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
+import { ERC165Checker } from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
 import { Structs } from "../common/Structs.sol";
 import { RouterStorage } from "./RouterStorage.sol";
@@ -26,7 +25,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
     function setProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         // Checks: the registry, if provided, supports the ICube3Registry interface.
         if (registry != address(0)) {
-            if (!ERC165CheckerUpgradeable.supportsInterface(registry, type(ICube3Registry).interfaceId)) {
+            if (!ERC165Checker.supportsInterface(registry, type(ICube3Registry).interfaceId)) {
                 revert ProtocolErrors.Cube3Router_NotValidRegistryInterface();
             }
         }
@@ -86,11 +85,11 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
 
         // TODO: should be module base
         // Checks: the deployed module supports the ICube3Module interface.
-        if (!ERC165CheckerUpgradeable.supportsInterface(moduleAddress, type(ICube3Module).interfaceId)) {
+        if (!ERC165Checker.supportsInterface(moduleAddress, type(ICube3Module).interfaceId)) {
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();
         }
 
-        // Checks: the module has not already been installed.
+        // Checks: the module being installed insn't a duplicate.
         if (getModuleAddressById(moduleId) != address(0)) {
             revert ProtocolErrors.Cube3Router_ModuleAlreadyInstalled();
         }
@@ -105,7 +104,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         }
 
         // Checks: the module hasn't been deprecated. Prevents reinstallation of a deprecated version.
-        if (ICube3Module(moduleAddress).isDeprecated()) {
+        if (ICube3Module(moduleAddress).isDeprecated() || getIsModuleVersionDeprecated(moduleId)) {
             revert ProtocolErrors.Cube3Router_CannotInstallDeprecatedModule();
         }
 
@@ -125,7 +124,8 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         // Interactions: call into the module to deprecate it.
         try ICube3Module(moduleToDeprecate).deprecate() returns (string memory version) {
             // TODO: should add to deprecateedMapping?
-            _deleteInstalledModule(moduleId, moduleToDeprecate, version);
+            _setModuleVersionDeprecated(moduleId, version);
+            _deleteInstalledModule(moduleId);
         } catch {
             revert ProtocolErrors.Cube3Router_ModuleDeprecationFailed();
         }

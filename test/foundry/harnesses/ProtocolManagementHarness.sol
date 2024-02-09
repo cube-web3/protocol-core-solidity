@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ProtocolManagement } from "../../../src/abstracts/ProtocolManagement.sol";
 
@@ -19,5 +19,9 @@ contract ProtocolManagementHarness is ProtocolManagement {
 
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function setModuleInstalled(bytes16 moduleId, address module, string memory version) external {
+        _setModuleInstalled(moduleId, module, version);
     }
 }

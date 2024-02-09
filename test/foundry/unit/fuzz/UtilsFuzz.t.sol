@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -28,6 +28,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         PAYLOAD UTILS
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: fix this
     function testFuzz_SucceedsWhen_PayloadDataIsValid(uint256 calldataSize, uint256 modulePayloadSize) public {
         calldataSize = bound(calldataSize, 32, 4096);
         modulePayloadSize = bound(modulePayloadSize, 32, 4096);
@@ -235,7 +236,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignature.selector);
+        vm.expectRevert(ECDSA.ECDSAInvalidSignature.selector);
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 
@@ -259,7 +260,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignatureLength.selector);
+        vm.expectRevert(abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, signatureLength));
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 

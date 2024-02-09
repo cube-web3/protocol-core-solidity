@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
@@ -109,6 +109,19 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
         moduleBaseHarness.deprecate();
     }
 
+    // succeesd when calling `deprecate` as the router
+    function test_SucceedsWhen_CallingDeprecateAsRouter() public {
+        moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE, PAYLOAD_SIZE);
+
+        vm.startPrank(address(mockRouter));
+        vm.expectEmit(true, true, true, true);
+        emit ModuleDeprecated(moduleBaseHarness.moduleId(), VERSION_ONE);
+        string memory version = moduleBaseHarness.deprecate();
+        assertEq(keccak256(abi.encode(version)), keccak256(abi.encode(VERSION_ONE)), "version mismatch");
+        assertTrue(moduleBaseHarness.isDeprecated(), "not deprecated");
+        vm.stopPrank();
+    }
+
     /*//////////////////////////////////////////////////////////////
             ERC165
     //////////////////////////////////////////////////////////////*/
@@ -130,6 +143,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
         assertTrue(moduleBaseHarness.isValidVersionSchema("version-1.1.1"), "invalid version");
         assertTrue(moduleBaseHarness.isValidVersionSchema("version-v9.11.2"), "invalid version");
 
+        assertFalse(moduleBaseHarness.isValidVersionSchema("v-0.1.1"), "invalid version");
         assertFalse(moduleBaseHarness.isValidVersionSchema("version-0.1"), "invalid version");
         assertFalse(moduleBaseHarness.isValidVersionSchema("version-1"), "invalid version");
         assertFalse(moduleBaseHarness.isValidVersionSchema("version-1.0"), "invalid version");

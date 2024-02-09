@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import { BaseTest } from "../../BaseTest.t.sol";
 import { Structs } from "../../../../src/common/Structs.sol";
@@ -26,15 +26,24 @@ contract Utils_Concrete_Unit_Test is BaseTest {
     // fails when target contract is a contract under construction
     function test_RevertsWhen_TargetContractIsAContractUnderConstruction() public {
         MockTarget mockTarget = new MockTarget();
+
+        // precompute the address of the MockCaller, as this will be the target contract that reverts
+        address precomputed = computeCreateAddress(address(this), vm.getNonce(address(this)));
+
         // we expect the assertion to fail, even though target is a contract calling the `assertIsContract`,
         // due to the call taking place during the contract's deployment, therefore the code size is 0
-        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, precomputed));
         MockCaller mockCaller = new MockCaller(address(mockTarget));
     }
 
-    // succeeds when the target contract is a contract
-    function test_SucceedsWhen_TargetContractIsAContract() public {
+    // succeeds when the target address is a contract
+    function test_SucceedsWhen_TargetIsAContract() public {
         MockTarget mockTarget = new MockTarget();
         assertTrue(utilsHarness.assertIsContract(address(mockTarget)));
+    }
+
+    // succeeds when the target address is not a contract
+    function test_SucceedsWhen_TargetIsNotContract() public {
+        assertTrue(utilsHarness.assertIsEOAorConstructorCall(_randomAddress()));
     }
 }

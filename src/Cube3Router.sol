@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import {
     AccessControlUpgradeable,
     ERC165Upgradeable
 } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ERC165CheckerUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165CheckerUpgradeable.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-
 import { ICube3Router } from "./interfaces/ICube3Router.sol";
 import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
-
 import { ProtocolManagement } from "./abstracts/ProtocolManagement.sol";
 import { IntegrationManagement } from "./abstracts/IntegrationManagement.sol";
 import { PayloadUtils } from "./libs/PayloadUtils.sol";
@@ -32,8 +28,7 @@ contract Cube3Router is
     AccessControlUpgradeable,
     UUPSUpgradeable,
     ProtocolManagement,
-    IntegrationManagement,
-    ProtocolConstants
+    IntegrationManagement
 {
     using AddressUtils for address;
     using PayloadUtils for bytes;
@@ -88,10 +83,11 @@ contract Cube3Router is
     /// @dev Adds access control logic to the {upgradeTo} function
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 
-    /// @dev returns the proxy's current implementation address
-    function getImplementation() external view returns (address) {
-        return _getImplementation();
-    }
+    /// TODO: maybe use ERC1967Utils
+    // /// @dev returns the proxy's current implementation address
+    // function getImplementation() external view returns (address) {
+    //     return _getImplementation();
+    // }
 
     /*//////////////////////////////////////////////////////////////
             ROUTING

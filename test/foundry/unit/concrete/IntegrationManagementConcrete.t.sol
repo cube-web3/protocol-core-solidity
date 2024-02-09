@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
+
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 
 import { BaseTest } from "../../BaseTest.t.sol";
 import { Structs } from "../../../../src/common/Structs.sol";
-
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
 
 import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
@@ -194,7 +196,11 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startPrank(account);
-        vm.expectRevert(bytes(_constructAccessControlErrorString(account, CUBE3_INTEGRATION_MANAGER_ROLE)));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_INTEGRATION_MANAGER_ROLE
+            )
+        );
         integrationManagementHarness.batchUpdateIntegrationRegistrationStatus(integrations, statuses);
         vm.stopPrank();
     }
@@ -207,7 +213,11 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_UpdatingIntegrationRegistration_AsNonIntegrationManager() public {
         address account = _randomAddress();
         vm.startPrank(account);
-        vm.expectRevert(bytes(_constructAccessControlErrorString(account, CUBE3_INTEGRATION_MANAGER_ROLE)));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_INTEGRATION_MANAGER_ROLE
+            )
+        );
         integrationManagementHarness.updateIntegrationRegistrationStatus(
             _randomAddress(), Structs.RegistrationStatusEnum.REGISTERED
         );
@@ -233,7 +243,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
     // fails if the integration is the zero address
     function test_RevertsWhen_IntegrationAddressIsZeroAddress() public {
-        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIntegrationAdmin.selector);
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_InvalidIntegration.selector);
         integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(
             address(0), Structs.RegistrationStatusEnum.REGISTERED
         );

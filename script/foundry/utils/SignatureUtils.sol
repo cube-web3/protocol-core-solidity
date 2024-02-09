@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ICube3Router } from "../../../src/interfaces/ICube3Router.sol";
 
 abstract contract SignatureUtils is Script {
@@ -34,12 +34,12 @@ abstract contract SignatureUtils is Script {
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = signatureHash.toEthSignedMessageHash();
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
         signature = abi.encodePacked(r, s, v);
 
-        (, ECDSA.RecoverError error) = ethSignedHash.tryRecover(signature);
+        (, ECDSA.RecoverError error,) = ECDSA.tryRecover(ethSignedHash, signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

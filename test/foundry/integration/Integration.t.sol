@@ -3,25 +3,17 @@ pragma solidity >=0.8.19 < 0.8.24;
 import "forge-std/Test.sol";
 
 import { Demo } from "../../demo/Demo.sol";
-import { BaseTest } from "../BaseTest.t.sol";
+import { IntegrationSetup } from "./IntegrationSetup.t.sol";
 
 import { Structs } from "../../../src/common/Structs.sol";
 
-contract IntegrationTest is BaseTest {
-    function setUp() public {
-        // deploy and configure cube protocol
-        _createCube3Accounts();
-        _deployProtocol();
-        _installSignatureModuleInRouter();
+contract IntegrationTest is IntegrationSetup {
+    function setUp() public override {
+        super.setUp();
+    }
 
-        vm.startPrank(demoDeployer);
-        demo = new Demo(address(cubeRouterProxy));
-        vm.stopPrank();
-
-        _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
-
-        // // complete the registration
-        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
+    function test_test() public {
+        assertTrue(true);
     }
 
     function testMint() public {
