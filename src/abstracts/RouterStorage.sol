@@ -31,14 +31,13 @@ struct Cube3State {
     // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked
     // integration
     mapping(bytes32 signature => bool used) usedRegistrarSignatureHashes;
-
     mapping(bytes16 moduleId => bool deprecated) deprecatedModules;
 }
 
 /// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
 ///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
 ///      can only be accessed via dedicated getter and setter functions.
-abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
+abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -100,7 +99,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
     }
 
     // TODO: test
-    function getIsModuleVersionDeprecated(bytes16 moduleId) public view returns(bool) {
+    function getIsModuleVersionDeprecated(bytes16 moduleId) public view returns (bool) {
         return _state().deprecatedModules[moduleId];
     }
 
@@ -164,11 +163,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
     }
 
     /// @dev event is emitted by `_setModuleVersionDeprecated`
-    function _deleteInstalledModule(
-        bytes16 moduleId
-    )
-        internal
-    {
+    function _deleteInstalledModule(bytes16 moduleId) internal {
         delete _state().idToModules[moduleId];
         emit RouterModuleRemoved(moduleId);
     }

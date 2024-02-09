@@ -108,7 +108,6 @@ library ProtocolErrors {
     //                         Signature Utils                                     //
     /////////////////////////////////////////////////////////////////////////////////
 
-
     /// @notice Throws when the signer recoverd from the signature is the zero address.
     error Cube3SignatureUtils_SignerZeroAddress();
 

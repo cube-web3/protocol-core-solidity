@@ -8,6 +8,9 @@ import { BitmapUtils } from "../../../src/libs/BitmapUtils.sol";
 
 import { Structs } from "../../../src/common/Structs.sol";
 
+/// note: For the purposes of coverage, we utilze the <library>.<function>(...args) approach, rather than
+/// "using <library> for <type>" with the target passed implicitly as the first arg, which coverage doesn't recognize.
+
 contract UtilsHarness {
     using PayloadUtils for bytes;
     using SignatureUtils for bytes;
@@ -19,19 +22,19 @@ contract UtilsHarness {
         pure
         returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
     {
-        return integrationCalldata.parseRoutingInfoAndPayload();
+        return PayloadUtils.parseRoutingInfoAndPayload(integrationCalldata);
     }
 
     function extractBytes16Bitmap(uint256 bitmap) external pure returns (bytes16 moduleId) {
-        return bitmap.extractBytes16Bitmap();
+        return BitmapUtils.extractBytes16Bitmap(bitmap);
     }
 
     function extractUint32FromBitmap(uint256 bitmap, uint8 offset) external pure returns (uint32 value) {
-        return bitmap.extractUint32FromBitmap(offset);
+        return BitmapUtils.extractUint32FromBitmap(bitmap, offset);
     }
 
     function extractBytes4FromBitmap(uint256 bitmap, uint8 offset) external pure returns (bytes4 value) {
-        return bitmap.extractBytes4FromBitmap(offset);
+        return BitmapUtils.extractBytes4FromBitmap(bitmap, offset);
     }
 
     function parseIntegrationFunctionCallSelector(bytes calldata integrationCalldata)
@@ -39,11 +42,17 @@ contract UtilsHarness {
         pure
         returns (bytes4 selector)
     {
-        return integrationCalldata.parseIntegrationFunctionCallSelector();
+        return PayloadUtils.parseIntegrationFunctionCallSelector(integrationCalldata);
     }
 
     function assertIsContract(address target) public view returns (bool) {
-        target.assertIsContract();
+        AddressUtils.assertIsContract(target);
+        return true;
+    }
+
+    // TODO: test
+    function assertIsEOAorConstructorCall(address target) public view returns (bool) {
+        AddressUtils.assertIsEOAorConstructorCall(target);
         return true;
     }
 
@@ -56,7 +65,7 @@ contract UtilsHarness {
         pure
         returns (bool)
     {
-        signature.assertIsValidSignature(digest, signer);
+        SignatureUtils.assertIsValidSignature(signature, digest, signer);
         return true;
     }
 }

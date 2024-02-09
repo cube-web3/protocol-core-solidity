@@ -4,7 +4,7 @@ import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { Structs } from "../../../src/common/Structs.sol";
 
 contract PayloadUtils is Test {
@@ -31,7 +31,7 @@ contract PayloadUtils is Test {
 
         assertTrue(signature.length == 65, "invalid signature length");
 
-        (address signedHashAddress, ECDSA.RecoverError error, ) = ethSignedHash.tryRecover(signature);
+        (address signedHashAddress, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

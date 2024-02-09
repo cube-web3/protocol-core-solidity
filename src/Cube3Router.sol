@@ -28,8 +28,7 @@ contract Cube3Router is
     AccessControlUpgradeable,
     UUPSUpgradeable,
     ProtocolManagement,
-    IntegrationManagement,
-    ProtocolConstants
+    IntegrationManagement
 {
     using AddressUtils for address;
     using PayloadUtils for bytes;

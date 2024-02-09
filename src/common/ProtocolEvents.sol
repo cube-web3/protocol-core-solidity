@@ -23,7 +23,7 @@ abstract contract ProtocolEvents {
     event RouterModuleDeprecated(bytes32 indexed moduleId, address indexed moduleAddress, string indexed version);
 
     event RouterModuleRemoved(bytes16 indexed moduleId);
-    
+
     event Cube3ProtocolContractsUpdated(address indexed gateKeeper, address indexed registry);
 
     event UsedRegistrationSignatureHash(bytes32 indexed hash);

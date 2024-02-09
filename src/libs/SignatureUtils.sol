@@ -3,11 +3,10 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ProtocolErrors } from "./ProtocolErrors.sol";
 
 library SignatureUtils {
-
     // TODO: dev
     function assertIsValidSignature(bytes memory signature, bytes32 digest, address signer) internal pure {
         // generate a EIP-191 comaptible eth signed message hash

@@ -6,7 +6,7 @@ abstract contract ProtocolConstants {
     bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("CUBE3_MODULE_CALL_SUCCEEDED");
 
     // Returned by the router when the pre-registration of the integration is successful.
-    bytes32 private constant PRE_REGISTRATION_SUCCEEDED = keccak256("CUBE3_PRE_REGISTRATION_SUCCEEDED");
+    bytes32 public constant PRE_REGISTRATION_SUCCEEDED = keccak256("CUBE3_PRE_REGISTRATION_SUCCEEDED");
 
     // Returned by a module when the module's internal logic execution fails.
     bytes32 public constant MODULE_CALL_FAILED = keccak256("CUBE3_MODULE_CALL_FAILED");

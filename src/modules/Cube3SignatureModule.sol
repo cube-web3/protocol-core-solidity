@@ -104,16 +104,16 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         bytes32 signatureDigest = keccak256(
             abi.encode(
                 // Utilize the chainid, which is included to prevent replay attacks across different chains.
-                _getChainID(), 
+                _getChainID(),
                 // Includes the integration's: address, msg.sender, msg.value, and a hash of the
                 // integration's calldata (which excludes the CUBE3 payload).
-                integrationData, 
+                integrationData,
                 // Including the module's contract address ensures the payload is intended for this module.
-                address(this), 
+                address(this),
                 // If a module exposes funcitonality via different functions, ensure the correct one is used.
-                msg.sig, 
+                msg.sig,
                 // If shouldTrackNonce is false, nonce is expected to be zero.
-                userNonce, 
+                userNonce,
                 // The block timestamp after which the signature is no longer considered valid.
                 signatureModulePayload.expirationTimestamp
             )

@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ICube3Router } from "../../../src/interfaces/ICube3Router.sol";
 
 abstract contract SignatureUtils is Script {
@@ -39,7 +39,7 @@ abstract contract SignatureUtils is Script {
 
         signature = abi.encodePacked(r, s, v);
 
-        (, ECDSA.RecoverError error,) = ECDSA.tryRecover(ethSignedHash,signature);
+        (, ECDSA.RecoverError error,) = ECDSA.tryRecover(ethSignedHash, signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

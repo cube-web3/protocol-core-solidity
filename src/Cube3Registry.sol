@@ -4,7 +4,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
 
-import {ProtocolErrors} from "./libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
 import { ProtocolAdminRoles } from "./common/ProtocolAdminRoles.sol";
 
 /// @dev See {ICube3Registry}
@@ -121,7 +121,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
     function _revokeSigningAuthorityForIntegration(address _integration) internal {
         // Retrieve the integration's signing authority from storage.
         address revokedSigner = integrationToSigningAuthority[_integration];
-        
+
         // Checks: make sure the integration has a signing authority.
         if (revokedSigner == address(0)) {
             revert ProtocolErrors.Cube3Registry_NonExistentSigningAuthority();

@@ -215,7 +215,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         assertEq(module, routerStorageHarness.getModuleAddressById(moduleId), "installed module not set");
 
         // note: the module address is only deleted when the module is deprecated via the router.
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit RouterModuleDeprecated(moduleId, module, version);
         routerStorageHarness.setModuleVersionDeprecated(moduleId, version);
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import { BaseTest } from "../../BaseTest.t.sol";
 import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
@@ -53,7 +53,11 @@ contract Registry_Concrete_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startBroadcast(account);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector,account, CUBE3_KEY_MANAGER_ROLE));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+            )
+        );
         registryHarness.setClientSigningAuthority(integrationContract, clientSigningAuthority);
     }
 
@@ -88,7 +92,11 @@ contract Registry_Concrete_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startBroadcast(account);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector,account, CUBE3_KEY_MANAGER_ROLE));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+            )
+        );
         registryHarness.batchSetSigningAuthority(integrations, signingAuthorities);
     }
 
@@ -123,7 +131,11 @@ contract Registry_Concrete_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startBroadcast(account);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector,account, CUBE3_KEY_MANAGER_ROLE));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+            )
+        );
         registryHarness.revokeSigningAuthorityForIntegration(integrationContract);
     }
 
@@ -155,7 +167,11 @@ contract Registry_Concrete_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startBroadcast(account);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector,account, CUBE3_KEY_MANAGER_ROLE));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+            )
+        );
         registryHarness.batchRevokeSigningAuthoritiesForIntegrations(integrations);
     }
 

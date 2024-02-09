@@ -36,9 +36,14 @@ contract Utils_Concrete_Unit_Test is BaseTest {
         MockCaller mockCaller = new MockCaller(address(mockTarget));
     }
 
-    // succeeds when the target contract is a contract
-    function test_SucceedsWhen_TargetContractIsAContract() public {
+    // succeeds when the target address is a contract
+    function test_SucceedsWhen_TargetIsAContract() public {
         MockTarget mockTarget = new MockTarget();
         assertTrue(utilsHarness.assertIsContract(address(mockTarget)));
+    }
+
+    // succeeds when the target address is not a contract
+    function test_SucceedsWhen_TargetIsNotContract() public {
+        assertTrue(utilsHarness.assertIsEOAorConstructorCall(_randomAddress()));
     }
 }

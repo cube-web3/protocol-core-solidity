@@ -1,7 +1,8 @@
-pragma solidity >=0.8.19 < 0.8.24;
+// SPDX-License-Identifier: MIT
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import "forge-std/Test.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
@@ -10,14 +11,9 @@ import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
 import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
 import { Cube3Router } from "../../src/Cube3Router.sol";
-
 import { Cube3Registry } from "../../src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
-
 import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
-
-import { Demo } from "../demo/Demo.sol";
-
 import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
 import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
 import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
@@ -25,8 +21,9 @@ import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness
 import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
 import { ProtocolConstants } from "../../src/common/ProtocolConstants.sol";
 import { TestUtils } from "../utils/TestUtils.t.sol";
-
 import { TestEvents } from "../utils/TestEvents.t.sol";
+
+import { Demo } from "../demo/Demo.sol";
 
 struct Accounts {
     address deployer;
@@ -40,8 +37,6 @@ struct Accounts {
 
 contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
-
-    Demo public demo;
 
     // Test-specific contracts
     RouterStorageHarness routerStorageHarness;
@@ -84,15 +79,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         _deployTestingContracts();
         _deployProtocol();
         _installSignatureModuleInRouter();
-
-        vm.startPrank(demoDeployer);
-        demo = new Demo(address(cubeRouterProxy));
-        vm.stopPrank();
-
-        _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
-
-        // complete the registration
-        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
     }
 
     // ============= TESTS
@@ -166,41 +152,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         vm.stopPrank();
     }
 
-    function _setDemoSigningAuthorityAsKeyManager(address loan, uint256 pvtKey) internal {
-        vm.startPrank(keyManager);
-        // set the signing authority
-        registry.setClientSigningAuthority(loan, vm.addr(pvtKey));
-        vm.stopPrank();
-    }
-
-    function _completeRegistrationAndEnableFnProtectionAsDemoDeployer(uint256 demoAuthPvtKey) internal {
-        vm.startPrank(demoDeployer);
-
-        // deploy the contract
-        // ICube3Data.FunctionProtectionStatusUpdate[] memory fnProtectionData =
-        //     new ICube3Data.FunctionProtectionStatusUpdate[](1);
-        // fnProtectionData[0] = ICube3Data.FunctionProtectionStatusUpdate({fnSelector: selector, protectionEnabled:
-        // true});
-
-        bytes4[] memory fnSelectors = new bytes4[](6);
-        fnSelectors[0] = Demo.mint.selector;
-        fnSelectors[1] = Demo.protected.selector;
-        fnSelectors[2] = Demo.dynamic.selector;
-        fnSelectors[3] = Demo.noArgs.selector;
-        fnSelectors[4] = Demo.bytesProtected.selector;
-        fnSelectors[5] = Demo.payableProtected.selector;
-
-        bytes memory registrationSignature =
-            _generateRegistrarSignature(address(cubeRouterProxy), address(demo), demoAuthPvtKey);
-
-        emit log_named_bytes("registrationSignature", registrationSignature);
-
-        ICube3Router(address(cubeRouterProxy)).registerIntegrationWithCube3(
-            address(demo), registrationSignature, fnSelectors
-        );
-        vm.stopPrank();
-    }
-
     // ============== UTILS
 
     function _generateRegistrarSignature(
@@ -226,7 +177,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash =  MessageHashUtils.toEthSignedMessageHash(signatureHash);
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
         signature = abi.encodePacked(r, s, v);
