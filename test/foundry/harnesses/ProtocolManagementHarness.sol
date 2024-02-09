@@ -20,4 +20,8 @@ contract ProtocolManagementHarness is ProtocolManagement {
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
+
+    function setModuleInstalled(bytes16 moduleId, address module, string memory version) external {
+        _setModuleInstalled(moduleId, module, version);
+    }
 }

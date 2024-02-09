@@ -184,9 +184,12 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
 
         bytes16 altModuleId = altMockModule.moduleId();
+
+        // overwrite the module with a different version
+        protocolManagementHarness.setModuleInstalled(altModuleId, address(0),"noduleVersion-0.0.2");
         vm.startPrank(cube3Accounts.protocolAdmin);
 
-        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIdForModule.selector);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleVersionNotMatchingID.selector);
         protocolManagementHarness.installModule(address(mockModule), altModuleId);
     }
 

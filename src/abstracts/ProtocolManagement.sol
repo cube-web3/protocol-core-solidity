@@ -89,7 +89,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();
         }
 
-        // Checks: the module has not already been installed.
+        // Checks: the module being installed insn't a duplicate.
         if (getModuleAddressById(moduleId) != address(0)) {
             revert ProtocolErrors.Cube3Router_ModuleAlreadyInstalled();
         }

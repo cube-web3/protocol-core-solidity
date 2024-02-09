@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
-
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { BaseTest } from "../../BaseTest.t.sol";
 import { Structs } from "../../../../src/common/Structs.sol";
@@ -90,7 +90,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         updates[0].fnSelector = bytes4(bytes32(keccak256(abi.encode(selectorSeed))));
         updates[0].protectionEnabled = true;
         vm.startPrank(admin);
-        vm.expectRevert(bytes("TODO: RegistrationRevoked"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationRegistrationRevoked.selector);
         integrationManagementHarness.updateFunctionProtectionStatus(integration, updates);
         vm.stopPrank();
     }
@@ -133,7 +133,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
         integrationManagementHarness.setIntegrationAdmin(address(0), admin);
         vm.startPrank(admin);
-        vm.expectRevert(bytes("TODO zero address"));
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_InvalidIntegration.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             address(0), registrarSignature, enabledByDefaultFnSelectors
         );
@@ -271,7 +271,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
-        vm.expectRevert("TODO: InvalidSignature");
+        vm.expectRevert(ECDSA.ECDSAInvalidSignature.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, new bytes(65), enabledByDefaultFnSelectors
         );
