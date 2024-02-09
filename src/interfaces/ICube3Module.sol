@@ -33,7 +33,7 @@ interface ICube3Module {
     /// @dev Deprecation event emitted by the router, see {Cube3RouterLogic-deprecateModule}.
     /// @dev Once a module has been deprecated it cannot be reinstalled in the router.
     /// @return The deprecation status and human-readable module version
-    function deprecate() external returns (bool, string memory);
+    function deprecate() external returns (string memory);
 
     /// @notice Gets the ID of the module
     /// @dev computes the keccak256 hash of the abi.encoded moduleVersion

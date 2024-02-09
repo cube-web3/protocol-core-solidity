@@ -6,6 +6,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 
 import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
 
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { MockTarget } from "../../../mocks/MockContract.t.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
@@ -112,7 +113,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(_randomAddress());
-        vm.expectRevert(bytes("TODO: Not admin"));
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin.selector)));
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -148,7 +149,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(admin);
-        vm.expectRevert(bytes("TODO: Not a contract"));
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, integration));
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -169,7 +170,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
 
         vm.startPrank(admin);
-        vm.expectRevert(bytes("GK13: not PENDING"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationRegistrationStatusNotPending.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -195,7 +196,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
         integrationManagementHarness.setUsedRegistrationSignatureHash(keccak256(registrarSignature));
         vm.startPrank(admin);
-        vm.expectRevert("CR13: registrar reuse");
+        vm.expectRevert(ProtocolErrors.Cube3Router_RegistrarSignatureAlreadyUsed.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -219,7 +220,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             integration, Structs.RegistrationStatusEnum.PENDING
         );
         vm.startPrank(admin);
-        vm.expectRevert("TODO: No Registry");
+        vm.expectRevert(ProtocolErrors.Cube3Router_RegistryNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -243,7 +244,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         );
         integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
         vm.startPrank(admin);
-        vm.expectRevert("TODO: No Registrar");
+        vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationSigningAuthorityNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
@@ -418,7 +419,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         }
 
         for (uint256 i; i < numRegistrations; i++) {
-            vm.expectRevert("GK06: same status");
+            vm.expectRevert(ProtocolErrors.Cube3Router_CannotSetStatusToCurrentStatus.selector);
             integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(integrations[i], statuses[i]);
             vm.stopPrank();
         }

@@ -19,6 +19,7 @@ import { PayloadUtils } from "./libs/PayloadUtils.sol";
 import { SignatureUtils } from "./libs/SignatureUtils.sol";
 
 import { AddressUtils } from "./libs/AddressUtils.sol";
+import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
 import { Structs } from "./common/Structs.sol";
 import { ProtocolConstants } from "./common/ProtocolConstants.sol";
 import { RouterStorage } from "./abstracts/RouterStorage.sol";
@@ -38,9 +39,10 @@ contract Cube3Router is
     using PayloadUtils for bytes;
     using SignatureUtils for bytes32;
 
+    // TODO: test this
     /// @dev The implementation should only be initialized in the constructor of the proxy
     modifier onlyConstructor() {
-        require(address(this).code.length == 0, "CR02: not in constructor");
+        address(this).assertIsEOAorConstructorCall();
         _;
     }
 
@@ -61,8 +63,12 @@ contract Cube3Router is
     // TODO: test this
     /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
-        // Checks: registry is a valid contract account
-        require(registry != address(0), "Registry ZeroAddress");
+        // Checks: registry is not the zero address
+        if (registry == address(0)) {
+            // TODO: test
+            revert ProtocolErrors.Cube3Router_InvalidRegistry();
+        }
+        // Checks: the registry is a valid contract.
         registry.assertIsContract();
 
         __AccessControl_init();
@@ -125,7 +131,9 @@ contract Cube3Router is
         // Checks: The module ID is mapped to an installed module.  Including the module address in the payload
         // as opposed to the module ID that needs to be retrieved from storage, could lead to spoofing.
         address module = getModuleAddressById(moduleId);
-        require(module != address(0), "CR03: non-existent module");
+        if (module == address(0)) {
+            revert ProtocolErrors.Cube3Router_ModuleNotInstalled(moduleId);
+        }
 
         // create the calldata for the module call
         bytes memory moduleCalldata = abi.encodeWithSelector(
@@ -174,11 +182,9 @@ contract Cube3Router is
         return false;
     }
 
-
     /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
     ///      not return the expected success value.
     function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
-        
         // Interactions: Makes the call to the desired module, calldataa includes the relevant information about the
         // originating function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);
@@ -194,6 +200,7 @@ contract Cube3Router is
             }
         }
 
+        // TODO: what happens when returning a large byte array?
         // Interactions: A CUBE3 module will always return the bytes32 value for keccak256("MODULE_CALL_SUCCEEDED").
         // This statement operates like an assertion, whereby any result other than success will result in a revert.
         if (returnOrRevertData.length == 32) {
@@ -201,10 +208,10 @@ contract Cube3Router is
             if (abi.decode(returnOrRevertData, (bytes32)) == MODULE_CALL_SUCCEEDED) {
                 return PROCEED_WITH_CALL;
             } else {
-                revert("tODO: Module failed");
+                revert ProtocolErrors.Cube3Router_ModuleReturnedInvalidData();
             }
         } else {
-            revert("CR04: invalid response length");
+            revert ProtocolErrors.Cube3Router_ModuleReturnDataInvalidLength(returnOrRevertData.length);
         }
     }
     /*//////////////////////////////////////////////////////////////

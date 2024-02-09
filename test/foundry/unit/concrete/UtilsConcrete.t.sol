@@ -6,7 +6,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
-
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
 
 // TODO: use same as script
@@ -28,7 +28,7 @@ contract Utils_Concrete_Unit_Test is BaseTest {
         MockTarget mockTarget = new MockTarget();
         // we expect the assertion to fail, even though target is a contract calling the `assertIsContract`,
         // due to the call taking place during the contract's deployment, therefore the code size is 0
-        vm.expectRevert(bytes("TODO: Not a contract"));
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector);
         MockCaller mockCaller = new MockCaller(address(mockTarget));
     }
 

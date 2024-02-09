@@ -6,6 +6,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { ProtocolManagement } from "../../../../src/abstracts/ProtocolManagement.sol";
 
 contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
@@ -58,7 +59,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         bytes memory harnessCalldata =
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
 
-        vm.expectRevert(bytes("CR03: non-existent module"));
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
     }
 
@@ -70,9 +71,10 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
     function testFuzz_RevertsWhen_DeprecatingNonExistentModule(uint256 moduleSeed) public {
         bytes16 nonExistentModuleId = bytes16(bytes32(moduleSeed));
 
-        address nonExistentModule = _randomAddress();
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(bytes("CR09: non-existent version"));
+        vm.expectRevert(
+            abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, nonExistentModuleId)
+        );
         protocolManagementHarness.deprecateModule(nonExistentModuleId);
     }
 

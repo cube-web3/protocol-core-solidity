@@ -9,6 +9,7 @@ import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
 
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
 
 // TODO: use same as script
@@ -103,7 +104,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     // fails when the target contract is an EOA
     function testFuzz_RevertsWhen_TargetIsEOA(uint256 addressSeed) public {
         address target = address(uint160(uint256(keccak256(abi.encodePacked(addressSeed)))));
-        vm.expectRevert(bytes("TODO: Not a contract"));
+        vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, target));
         utilsHarness.assertIsContract(target);
     }
 
@@ -219,7 +220,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(bytes("CR12: invalid signer"));
+        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSigner.selector);
         utilsHarness.assertIsValidSignature(signature, digest, _randomAddress());
     }
 
@@ -234,7 +235,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(bytes("TODO: InvalidSignature"));
+        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignature.selector);
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 
@@ -258,7 +259,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(bytes("TODO: InvalidSigLength"));
+        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignatureLength.selector);
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 
@@ -273,7 +274,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 altDigest = keccak256(_getRandomBytes(dataLength + 1));
 
-        vm.expectRevert(bytes("CR12: invalid signer"));
+        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSigner.selector);
         utilsHarness.assertIsValidSignature(signature, altDigest, _randomAddress());
     }
 
@@ -291,7 +292,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(bytes("CR12: invalid signer"));
+        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSigner.selector);
         utilsHarness.assertIsValidSignature(altSignature, digest, signer);
     }
 }

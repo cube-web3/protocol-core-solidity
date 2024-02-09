@@ -6,11 +6,13 @@ import { ICube3Router } from "../interfaces/ICube3Router.sol";
 import { ICube3Module } from "../interfaces/ICube3Module.sol";
 
 import { ModuleBaseEvents } from "./ModuleBaseEvents.sol";
+
+import {ProtocolErrors} from "../libs/ProtocolErrors.sol";
 import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 /// @dev See {ICube3Module}
 abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, ProtocolConstants {
-    // interface wrapping the Cube3RouterProxy for convenience
+    // interface wrapping the CUBE3 Router proxy contract for convenience.
     ICube3Router internal immutable cube3router;
 
     /// @inheritdoc	ICube3Module
@@ -29,28 +31,44 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     //////////////////////////////////////////////////////////////*/
 
     /// @dev During construction, the module makes a call to the router to ensure the version supplied has
-    ///      not already been installed.
+    /// not already been installed.
     /// @dev The `version` string should be validated for correctness prior to deployment.
     /// @param cubeRouterProxy Contract address of the Cube3Router proxy.
     /// @param version Human-readable module version, where minimum valid length is 9 bytes and max valid length is 32
     /// bytes: `xxx-x.x.x`
     constructor(address cubeRouterProxy, string memory version, uint256 payloadSize) {
-        require(cubeRouterProxy != address(0), "CM03: invalid proxy");
-        require(bytes(version).length >= 9 && bytes(version).length <= 32, "CM04: invalid version");
-        require(_isValidVersionSchema(version), "CM05: invalid schema");
+        // Checks: The address provided for the Router proxy is not null.
+        if (cubeRouterProxy == address(0)) {
+            revert ProtocolErrors.Cube3Module_InvalidRouter();
+        }
+
+        // Checks: The version string conforms to the schema: {xxx-x.x.x}
+        if (!_isValidVersionSchema(version)) {
+            revert ProtocolErrors.Cube3Module_DoesNotConformToVersionSchema();
+        }
+
+        // TODO: probably remove this
         require(payloadSize > 0, "TODO: invalid payload size");
 
+        // Assign the module version.
         moduleVersion = version;
 
-        // use the 128 most significant bits of the keccak256 hash of the version string
+        // Use the 128 most significant bits of the keccak256 hash of the version string. This
+        // allows for efficient packing of the routing information. Modules are purpose-built 
+        // smart contracts containing unique functionality, so it's not feasible to produce enough
+        // modules to ever cause a collision despite using bytes16.
         moduleId = bytes16(keccak256(abi.encode(moduleVersion)));
+
         expectedPayloadSize = payloadSize;
 
         cube3router = ICube3Router(cubeRouterProxy);
 
-        // check for an existing version so we don't deploy two of the same version
-        require(cube3router.getModuleAddressById(moduleId) == address(0), "CM01: version already registered");
+        // Checks: for an existing version so we don't deploy two modules with the same version
+        if(cube3router.getModuleAddressById(moduleId) != address(0)) {
+            revert ProtocolErrors.Cube3Module_ModuleVersionExists();
+        }
 
+        // Logs: the deployment details of the module.
         emit ModuleDeployed(cubeRouterProxy, moduleId, version);
     }
 
@@ -60,7 +78,9 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
 
     /// @dev Restricts function calls to the address of the Router Proxy
     modifier onlyCube3Router() {
-        require(msg.sender == address(cube3router), "CM02: only router");
+        if (msg.sender != address(cube3router)) {
+            revert ProtocolErrors.Cube3Module_OnlyRouterAsCaller();
+        }
         _;
     }
 
@@ -72,11 +92,11 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @inheritdoc	ICube3Module
     /// @dev Can be overridden in the event additional logic needs to be executed during deprecation.
     /// @dev Overriden function MUST use `onlyCube3Router` modifier.
-    function deprecate() external virtual onlyCube3Router returns (bool, string memory) {
+    function deprecate() external virtual onlyCube3Router returns (string memory) {
         isDeprecated = true;
         string memory version = moduleVersion; // gas-saving
         emit ModuleDeprecated(moduleId, version);
-        return (true, version);
+        return version;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -98,6 +118,12 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @dev Checks for the presence of the single "-" separating name and version number
     /// @dev Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
     function _isValidVersionSchema(string memory version_) internal pure returns (bool) {
+        
+        // check the length of the version string does not exceed 32 bytes.
+        if (bytes(version_).length < 9 || bytes(version_).length > 32) {
+            return false;
+        }
+        
         uint256 versionSeparatorCount;
         uint256 dashCount;
 
