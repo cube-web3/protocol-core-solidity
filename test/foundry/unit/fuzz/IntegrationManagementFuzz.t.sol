@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { BaseTest } from "../../BaseTest.t.sol";
 import { Structs } from "../../../../src/common/Structs.sol";
 
@@ -337,7 +338,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
         address account = _randomAddress();
         vm.startPrank(account);
-        vm.expectRevert(bytes(_constructAccessControlErrorString(account, CUBE3_INTEGRATION_MANAGER_ROLE)));
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector,account, CUBE3_INTEGRATION_MANAGER_ROLE));
         integrationManagementHarness.batchUpdateIntegrationRegistrationStatus(integrations, statuses);
         vm.stopPrank();
     }
