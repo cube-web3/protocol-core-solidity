@@ -1,0 +1,56 @@
+[profile.default]
+src = 'src'
+test = 'test/foundry'
+libs = ['lib']
+out = 'out'
+cache_path = 'forge-cache'
+evm_version = "shanghai"
+verbosity = 2
+optimizer = true
+optimizer_runs = 1000
+
+# do not use for computationally expensive tests
+[profile.intense.fuzz]
+runs = 10000
+
+
+[profile.backwards_compatible]
+evm_version = "paris"
+
+# For saving deployment addresses
+# fs_permissions = [{ access = "read-write", path = "./deployments"}]
+
+build_info = true
+extra_output = ["storageLayout"]
+
+[fmt]
+bracket_spacing = true
+int_types = "long"
+line_length = 120
+multiline_func_header = "all"
+number_underscore = "thousands"
+quote_style = "double"
+tab_width = 4
+wrap_comments = true
+
+[doc]
+ignore = ["**/*.t.sol"]
+out = "docs"
+repository = "https://github.com/cube-web3/protocol-core-solidity"
+
+# comment out if you notice any weird behavior
+# sparse_mode = true
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+]
+auto_detect_remappings = false
+
+
+[rpc_endpoints]
+goerli = "${GOERLI_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
+[etherscan]
+goerli = { key = "${ETHERSCAN_API_KEY}" }
+sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

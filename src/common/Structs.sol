@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 // TODO: rename structs and enums
 // TODO: maybe DataSchema
-contract Structs {
+abstract contract Structs {
     /// @notice  Defines the state of the integration's registration status.
-    /// @dev     RegistrationStatus refers to the integration's relationship with the CUBE3 protocol.
-    /// @dev     An integration can only register with the protocol by receiving a registration signature from the CUBE3 service off-chain.
-    /// @param   UNREGISTERED The integration technically does not exist as it has not been pre-registered with the protocol.
+    /// @dev     RegistrationStatusEnum refers to the integration's relationship with the CUBE3 protocol.
+    /// @dev     An integration can only register with the protocol by receiving a registration signature from the CUBE3
+    /// service off-chain.
+    /// @param   UNREGISTERED The integration technically does not exist as it has not been pre-registered with the
+    /// protocol.
     /// @param   PENDING The integration has been pre-registered with the protocol, but has not completed registration.
-    /// @param   REGISTERED The integration has completed registration with the protocol using the signature provided by the off-chain CUBE3 service
+    /// @param   REGISTERED The integration has completed registration with the protocol using the signature provided by
+    /// the off-chain CUBE3 service
     ///          and is permissioned to update the protection status of functions.
     /// @param   REVOKED The integration no longer has the ability to enable function protection.
-    enum RegistrationStatus {
+    enum RegistrationStatusEnum {
         UNREGISTERED,
         PENDING,
         REGISTERED,
@@ -23,24 +26,7 @@ contract Structs {
     // TODO: Look into using a bloom filter here
     struct IntegrationState {
         address admin; // 20 bytes
-        RegistrationStatus registrationStatus; // 1 byte
-    }
-
-    /// @notice Struct used to update an integration's authorization status.
-    /// @param integrationOrProxy The address of the integration or its proxy contract.
-    /// @param integrationOrImplementation The address of the integration or its implementation contract.
-    struct IntegrationProtection {
-        address integrationOrProxy;
-        address integrationOrImplementation;
-    }
-
-    /// @notice Struct used to update an integration's registration status.
-    /// @param integrationOrProxy The address of the integration or its proxy contract.
-    /// @param integrationOrImplementation The address of the integration or its implementation contract.
-    struct IntegrationRegistration {
-        address integrationOrProxy;
-        address integrationOrImplementation;
-        RegistrationStatus registrationStatus;
+        RegistrationStatusEnum registrationStatus; // 1 byte
     }
 
     struct FunctionProtectionStatusUpdate {

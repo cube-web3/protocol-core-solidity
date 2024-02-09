@@ -1,27 +1,48 @@
-pragma solidity ^0.8.19;
+// SPDX-License-Identifier: MIT
+pragma solidity >= 0.8.19 < 0.8.24;
 
 import "forge-std/Test.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import {ECDSA} from "@openzeppelin/src/utils/cryptography/ECDSA.sol";
-import {ERC1967Proxy} from "@openzeppelin/src/proxy/ERC1967/ERC1967Proxy.sol";
+import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
 
-import {DeployUtils} from "../../script/foundry/utils/DeployUtils.sol";
+import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
-import {PayloadUtils} from "../../script/foundry/utils/PayloadUtils.sol";
+import { Cube3Router } from "../../src/Cube3Router.sol";
+import { Cube3Registry } from "../../src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
+import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
+import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
+import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
+import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
 
-import {Cube3Router} from "../../src/Cube3Router.sol";
+import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "../../src/common/ProtocolConstants.sol";
+import { TestUtils } from "../utils/TestUtils.t.sol";
+import { TestEvents } from "../utils/TestEvents.t.sol";
 
-import {Cube3Registry} from "../../src/Cube3Registry.sol";
-import {Cube3SignatureModule} from "../../src/modules/Cube3SignatureModule.sol";
+import { Demo } from "../demo/Demo.sol";
 
-import {ICube3Router} from "../../src/interfaces/ICube3Router.sol";
+struct Accounts {
+    address deployer;
+    address keyManager;
+    address protocolAdmin;
+    address integrationManager;
+    address backupSigner;
+    address demoSigningAuthority;
+    address demoDeployer;
+}
 
-import {Demo} from "./demo/Demo.sol";
-
-contract BaseTest is DeployUtils, PayloadUtils {
+contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
 
-    Demo public demo;
+    // Test-specific contracts
+    RouterStorageHarness routerStorageHarness;
+    ProtocolManagementHarness protocolManagementHarness;
+
+    Accounts cube3Accounts;
 
     // cube
     uint256 internal deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
@@ -33,7 +54,8 @@ contract BaseTest is DeployUtils, PayloadUtils {
     uint256 internal cubeAdminPvtKey = 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a; // anvil [2]
     address internal cube3admin;
 
-    uint256 internal cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil [4]
+    uint256 internal cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil
+        // [4]
     address internal cube3integrationAdmin;
 
     uint256 internal backupSignerPvtKey = 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97; // anvil[8]
@@ -45,41 +67,49 @@ contract BaseTest is DeployUtils, PayloadUtils {
     uint256 internal demoDeployerPrivateKey = uint256(420);
     address internal demoDeployer;
 
-    address internal user = vm.addr(42069);
+    address internal user = vm.addr(42_069);
 
     string internal version = "signature-0.0.1";
 
+    // TODO: change to setUp
     function initProtocol() internal {
         // deploy and configure cube protocol
-        _createAccounts();
+        _createCube3Accounts();
+
+        _deployTestingContracts();
         _deployProtocol();
         _installSignatureModuleInRouter();
-
-        vm.startPrank(demoDeployer);
-        demo = new Demo(address(cubeRouterProxy));
-        vm.stopPrank();
-
-        _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
-
-        // complete the registration
-        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
     }
 
     // ============= TESTS
 
     // ============= CUBE
 
-    function _createAccounts() internal {
-        backupSigner = vm.addr(backupSignerPvtKey);
-        deployer = vm.addr(deployerPvtKey);
-        cube3integrationAdmin = vm.addr(cube3integrationAdminPvtKey);
-        keyManager = vm.addr(keyManagerPvtKey);
-        cube3admin = vm.addr(cubeAdminPvtKey);
-        demoSigningAuthority = vm.addr(demoSigningAuthorityPvtKey);
-        demoDeployer = vm.addr(demoDeployerPrivateKey);
+    function _createCube3Accounts() internal {
+        cube3Accounts = Accounts({
+            backupSigner: vm.addr(backupSignerPvtKey),
+            deployer: vm.addr(deployerPvtKey),
+            integrationManager: vm.addr(cube3integrationAdminPvtKey),
+            keyManager: vm.addr(keyManagerPvtKey),
+            protocolAdmin: vm.addr(cubeAdminPvtKey),
+            demoSigningAuthority: vm.addr(demoSigningAuthorityPvtKey),
+            demoDeployer: vm.addr(demoDeployerPrivateKey)
+        });
+        // backupSigner = vm.addr(backupSignerPvtKey);
+        // deployer = vm.addr(deployerPvtKey);
+        // cube3integrationAdmin = vm.addr(cube3integrationAdminPvtKey);
+        // keyManager = vm.addr(keyManagerPvtKey);
+        // cube3admin = vm.addr(cubeAdminPvtKey);
+        // demoSigningAuthority = vm.addr(demoSigningAuthorityPvtKey);
+        // demoDeployer = vm.addr(demoDeployerPrivateKey);
 
         // labels
         vm.label(demoSigningAuthority, "Laon Signing Authority");
+    }
+
+    function _deployTestingContracts() internal {
+        routerStorageHarness = new RouterStorageHarness();
+        protocolManagementHarness = new ProtocolManagementHarness();
     }
 
     function _deployProtocol() internal {
@@ -122,43 +152,13 @@ contract BaseTest is DeployUtils, PayloadUtils {
         vm.stopPrank();
     }
 
-    function _setDemoSigningAuthorityAsKeyManager(address loan, uint256 pvtKey) internal {
-        vm.startPrank(keyManager);
-        // set the signing authority
-        registry.setClientSigningAuthority(loan, vm.addr(pvtKey));
-        vm.stopPrank();
-    }
-
-    function _completeRegistrationAndEnableFnProtectionAsDemoDeployer(uint256 demoAuthPvtKey) internal {
-        vm.startPrank(demoDeployer);
-
-        // deploy the contract
-        // ICube3Data.FunctionProtectionStatusUpdate[] memory fnProtectionData =
-        //     new ICube3Data.FunctionProtectionStatusUpdate[](1);
-        // fnProtectionData[0] = ICube3Data.FunctionProtectionStatusUpdate({fnSelector: selector, protectionEnabled: true});
-
-        bytes4[] memory fnSelectors = new bytes4[](6);
-        fnSelectors[0] = Demo.mint.selector;
-        fnSelectors[1] = Demo.protected.selector;
-        fnSelectors[2] = Demo.dynamic.selector;
-        fnSelectors[3] = Demo.noArgs.selector;
-        fnSelectors[4] = Demo.bytesProtected.selector;
-        fnSelectors[5] = Demo.payableProtected.selector;
-
-        bytes memory registrationSignature =
-            _generateRegistrarSignature(address(cubeRouterProxy), address(demo), demoAuthPvtKey);
-
-        emit log_named_bytes("registrationSignature", registrationSignature);
-
-        ICube3Router(address(cubeRouterProxy)).registerIntegrationWithCube3(
-            address(demo), registrationSignature, fnSelectors
-        );
-        vm.stopPrank();
-    }
-
     // ============== UTILS
 
-    function _generateRegistrarSignature(address router, address integration, uint256 signingAuthPvtKey)
+    function _generateRegistrarSignature(
+        address router,
+        address integration,
+        uint256 signingAuthPvtKey
+    )
         internal
         returns (bytes memory)
     {
@@ -168,17 +168,21 @@ contract BaseTest is DeployUtils, PayloadUtils {
             _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
     }
 
-    function _createSignature(bytes memory encodedSignatureData, uint256 pvtKeyToSignWith)
-        private
+    // TODO: move to ustils
+    function _createSignature(
+        bytes memory encodedSignatureData,
+        uint256 pvtKeyToSignWith
+    )
+        internal
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = signatureHash.toEthSignedMessageHash();
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
         signature = abi.encodePacked(r, s, v);
 
-        (, ECDSA.RecoverError error) = ethSignedHash.tryRecover(signature);
+        (, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
         if (error != ECDSA.RecoverError.NoError) {
             revert("No Matchies");
         }

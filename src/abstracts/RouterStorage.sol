@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
-import {Structs} from "../common/Structs.sol";
-import {Events} from "../common/Events.sol";
+import { Structs } from "../common/Structs.sol";
+import { ProtocolEvents } from "../common/ProtocolEvents.sol";
 
-import {AdminRoles} from "../common/AdminRoles.sol";
+import { ProtocolAdminRoles } from "../common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "../common/ProtocolConstants.sol";
 
 struct Cube3State {
     Structs.ProtocolConfig protocolConfig;
@@ -13,49 +14,40 @@ struct Cube3State {
     //////////////////////////////////////////////////////////////*/
 
     // stores module IDs mapped to their corresponding module contract addresses
-    mapping(bytes16 => address) idToModules;
-
+    mapping(bytes16 moduleId => address module) idToModules;
     /*//////////////////////////////////////////////////////////////
         INTEGRATION MANAGER STORAGE
     //////////////////////////////////////////////////////////////*/
 
     // mapping of integration_address => pending_admin_address, used as part of a two step
     // transfer of admin privileges for an integration
-    mapping(address => address) integrationToPendingAdmin;
+    mapping(address integration => address pendingAdmin) integrationToPendingAdmin;
     // mapping of integration_address => integration_state, where an integration's state stores
     // its admin address and registration status
-    mapping(address => Structs.IntegrationState) integrationToState;
+    mapping(address integration => Structs.IntegrationState state) integrationToState;
     // mapping of integration_address => (mapping of function_selector => protection_status)
-    mapping(address => mapping(bytes4 => bool)) integrationToFunctionProtectionStatus;
+    mapping(address integration => mapping(bytes4 selector => bool isProtected)) integrationToFunctionProtectionStatus;
     // store a hash of the used registrar signature to prevent re-registration in the event of a revocation
-    // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked integration
-    mapping(bytes32 => bool) usedRegistrarSignatureHashes; // abi.encode(signature) => used
+    // replaces the need for an onchain blacklist, as the CUBE3 service will not issue a registarSignature to a revoked
+    // integration
+    mapping(bytes32 signature => bool used) usedRegistrarSignatureHashes;
+    mapping(bytes16 moduleId => bool deprecated) deprecatedModules;
 }
 
-abstract contract RouterStorage is Events, AdminRoles {
-    /*//////////////////////////////////////////////////////////////
-        RETURN VALUES
-    //////////////////////////////////////////////////////////////*/
-
-    // Returned by a module when the module successfuly executes its internal logic.
-    bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("MODULE_CALL_SUCCEEDED");
-
-    // Returned by a module when the module's internal logic execution fails.
-    bytes32 public constant MODULE_CALL_FAILED = keccak256("MODULE_CALL_FAILED");
-
-    // Returned by the router if the module call succeeds, the integration is not registered, the protocol is paused, or the function is not protected.
-    bytes32 public constant PROCEED_WITH_CALL = keccak256("PROCEED_WITH_CALL");
-
+/// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
+///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
+///      can only be accessed via dedicated getter and setter functions.
+abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    // keccak256(abi.encode(uint256(keccak256("cube3.router.storage")) - 1)) & ~bytes32(uint256(0xff));
+    // keccak256(abi.encode(uint256(keccak256("cube3.storage")) - 1)) & ~bytes32(uint256(0xff));
     bytes32 private constant CUBE3_ROUTER_STORAGE_LOCATION =
-        0x965086ef32785f3c2d215dde11368175b9856558874805a1f295cdb684eea500;
+        0xd26911dcaedb68473d1e75486a92f0a8e6ef3479c0c1c4d6684d3e2888b6b600;
 
-    /// @custom:storage-location cube3.router.storage
-    function _state() internal pure returns (Cube3State storage state) {
+    /// @custom:storage-location cube3.storage
+    function _state() private pure returns (Cube3State storage state) {
         assembly {
             state.slot := CUBE3_ROUTER_STORAGE_LOCATION
         }
@@ -65,14 +57,13 @@ abstract contract RouterStorage is Events, AdminRoles {
         GETTERS
     //////////////////////////////////////////////////////////////*/
 
-
     /// @notice Gets the protection status of an integration contract's function using the selector.
     function getIsIntegrationFunctionProtected(address integration, bytes4 fnSelector) public view returns (bool) {
         return _state().integrationToFunctionProtectionStatus[integration][fnSelector];
     }
 
     /// @notice gets whether the integration has had its registration status revoked
-    function getIntegrationStatus(address integration) public view returns (Structs.RegistrationStatus) {
+    function getIntegrationStatus(address integration) public view returns (Structs.RegistrationStatusEnum) {
         return _state().integrationToState[integration].registrationStatus;
     }
 
@@ -107,6 +98,11 @@ abstract contract RouterStorage is Events, AdminRoles {
         return _state().protocolConfig.registry;
     }
 
+    // TODO: test
+    function getIsModuleVersionDeprecated(bytes16 moduleId) public view returns (bool) {
+        return _state().deprecatedModules[moduleId];
+    }
+
     /*//////////////////////////////////////////////////////////////
         SETTERS
     //////////////////////////////////////////////////////////////*/
@@ -114,17 +110,21 @@ abstract contract RouterStorage is Events, AdminRoles {
     function _setProtocolConfig(address registry, bool isPaused) internal {
         _state().protocolConfig = Structs.ProtocolConfig(registry, isPaused);
         emit ProtocolConfigUpdated(registry, isPaused);
+        if (registry == address(0)) {
+            emit ProtocolRegistryRemoved();
+        }
     }
 
-    function _setPendingIntegrationAdmin(address integration, address pendingAdmin) internal {
+    /// @dev `currentAdmin` should always be `msg.sender`.
+    function _setPendingIntegrationAdmin(address integration, address currentAdmin, address pendingAdmin) internal {
         _state().integrationToPendingAdmin[integration] = pendingAdmin;
-        emit IntegrationAdminTransferStarted(msg.sender, pendingAdmin);
+        emit IntegrationAdminTransferStarted(integration, currentAdmin, pendingAdmin);
     }
 
     function _setIntegrationAdmin(address integration, address newAdmin) internal {
         address oldAdmin = _state().integrationToState[integration].admin;
         _state().integrationToState[integration].admin = newAdmin;
-        emit IntegrationAdminTransferred(oldAdmin, newAdmin);
+        emit IntegrationAdminTransferred(integration, oldAdmin, newAdmin);
     }
 
     function _setFunctionProtectionStatus(address integration, bytes4 fnSelector, bool isEnabled) internal {
@@ -132,7 +132,7 @@ abstract contract RouterStorage is Events, AdminRoles {
         emit FunctionProtectionStatusUpdated(integration, fnSelector, isEnabled);
     }
 
-    function _setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatus status) internal {
+    function _setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal {
         _state().integrationToState[integration].registrationStatus = status;
         emit IntegrationRegistrationStatusUpdated(integration, status);
     }
@@ -147,18 +147,24 @@ abstract contract RouterStorage is Events, AdminRoles {
         emit UsedRegistrationSignatureHash(signatureHash);
     }
 
+    function _setModuleVersionDeprecated(bytes16 moduleId, string memory version) internal {
+        _state().deprecatedModules[moduleId] = true;
+        emit RouterModuleDeprecated(moduleId, _state().idToModules[moduleId], version);
+    }
+
     /*//////////////////////////////////////////////////////////////
         DELETE
     //////////////////////////////////////////////////////////////*/
 
     function _deleteIntegrationPendingAdmin(address integration) internal {
+        address pendingAdmin = _state().integrationToPendingAdmin[integration];
         delete _state().integrationToPendingAdmin[integration];
+        emit IntegrationPendingAdminRemoved(integration, pendingAdmin);
     }
 
-    function _deleteInstalledModule(bytes16 moduleId, address deprecatedModuleAddress, string memory version)
-        internal
-    {
+    /// @dev event is emitted by `_setModuleVersionDeprecated`
+    function _deleteInstalledModule(bytes16 moduleId) internal {
         delete _state().idToModules[moduleId];
-        emit RouterModuleDeprecated(moduleId, deprecatedModuleAddress, version);
+        emit RouterModuleRemoved(moduleId);
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
-import {Structs} from "../common/Structs.sol";
+import { Structs } from "../common/Structs.sol";
 
 /// @title CUBE3 Router
 /// @author CUBE3.ai
@@ -9,7 +9,8 @@ import {Structs} from "../common/Structs.sol";
 ///         routes transactions to the designated security modules that plugin to the CUBE3 Protocol.
 /// @dev Integration contracts need to register with the router to be eligible to have
 ///      transactions routed to modules.
-/// @dev The CUBE3_PROTOCOL_ADMIN_ROLE can set the protection status of a deliquent integration to BYPASS, or to REVOKED for a malicious contract.
+/// @dev The CUBE3_PROTOCOL_ADMIN_ROLE can set the protection status of a deliquent integration to BYPASS, or to REVOKED
+/// for a malicious contract.
 /// @dev The CUBE3_PROTOCOL_ADMIN_ROLE can install and deprecate modules to extend the functionality
 ///      of the router.
 /// @dev Contract is upgradeable via the Universal Upgradeable Proxy Standard (UUPS).
@@ -53,7 +54,8 @@ interface ICube3Router {
     /// @notice Routes transactions from any Cube3Integration integration to a designated CUBE3 module.
     /// @dev Can only be called by integration contracts that have registered with the router.
     /// @dev A successful module function's execution should always return TRUE.
-    /// @dev A failed module function's execution, or not meeting the conditions layed out in the module, should always revert.
+    /// @dev A failed module function's execution, or not meeting the conditions layed out in the module, should always
+    /// revert.
     /// @dev Makes a low-level call to the module that includes all relevent data.
     /// @param integrationMsgSender The msgSender of the originating Cube3Integration function.
     /// @param integrationSelf The Cube3Integration integration contract address, passes by itself as the _self ref.
@@ -67,7 +69,9 @@ interface ICube3Router {
         uint256 integrationMsgValue,
         uint256 cube3PayloadLength,
         bytes calldata integrationMsgData
-    ) external returns (bool);
+    )
+        external
+        returns (bool);
 
     /// @notice Registers the calling contract's address as an integration.
     /// @dev Cannot be called by a contract's constructor as the `supportsInterface` callback would fail.
@@ -78,7 +82,10 @@ interface ICube3Router {
     /// @dev Unauthorized contracts can be revoked manually by an admin, see {setIntegrationAuthorizationStatus}.
     /// @param integrationSelf The contract address of the integration contract being registered.
     /// @param registrarSignature The registration signature provided by the integration's signing authority.
-    function initiate2StepIntegrationRegistration(address integrationSelf, bytes calldata registrarSignature)
+    function initiate2StepIntegrationRegistration(
+        address integrationSelf,
+        bytes calldata registrarSignature
+    )
         external
         returns (bool success);
 
@@ -88,23 +95,15 @@ interface ICube3Router {
     /// @dev If the integration is a standalone contract (not using a proxy), the `integrationOrProxy` and
     ///      `integrationOrImplementation` parameters will be the same address.
     /// @param integrationOrProxy The contract address of the integration contract (or its proxy).
-    /// @param integrationOrImplementation The contract address of the integration's implementation contract (or itself if not a proxy).
+    /// @param integrationOrImplementation The contract address of the integration's implementation contract (or itself
+    /// if not a proxy).
     /// @param registrationStatus The registration status status to set.
     function setIntegrationRegistrationStatus(
         address integrationOrProxy,
         address integrationOrImplementation,
-        Structs.RegistrationStatus registrationStatus
-    ) external;
-
-    /// @notice Sets the ProtectionStatus and RegistrationStatus of multiple integrations.
-    /// @dev Can only be called by a CUBE3 admin.
-    /// @dev An event is emitted for each integration that is updated, so gas costs rise proportionally with the number of integrations.
-    /// @param integrationProtectionStates An array of structs containing the integration addresses and their new ProtectionStatus.
-    /// @param integrationRegistrationStates An array of structs containing the integration addresses and their new RegistrationStatus.
-    function batchUpdateIntegrationState(
-        Structs.IntegrationProtection[] calldata integrationProtectionStates,
-        Structs.IntegrationRegistration[] calldata integrationRegistrationStates
-    ) external;
+        Structs.RegistrationStatusEnum registrationStatus
+    )
+        external;
 
     /// @notice Sets the CUBE3 protocol contract addresses.
     /// @dev Performs checks using {supportsInterface} to ensure the correct addresses are passed in.
@@ -144,7 +143,10 @@ interface ICube3Router {
     /// @param integrationOrProxy The contract address of the integration (or its proxy) contract being queried.
     /// @param integrationOrImplementation The contract address of the integration's implementation contract.
     /// @return Whether the provided integration is actively protected.
-    function isProtectedIntegration(address integrationOrProxy, address integrationOrImplementation)
+    function isProtectedIntegration(
+        address integrationOrProxy,
+        address integrationOrImplementation
+    )
         external
         view
         returns (bool);
@@ -161,11 +163,12 @@ interface ICube3Router {
         address integration,
         bytes calldata registrarSignature,
         bytes4[] calldata enabledByDefaultFnSelectors
-    ) external;
+    )
+        external;
 
     function getRegistryAddress() external view returns (address);
 
-    function fetchSigningAuthorityForIntegrationFromRegistry(address integration)
+    function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         external
         view
         returns (address registry, address authority);

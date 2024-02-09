@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity >= 0.8.19 < 0.8.24;
 
 /// @title CUBE3 Module base contract.
 /// @author CUBE3.ai
@@ -13,17 +13,6 @@ interface ICube3Module {
     /*//////////////////////////////////////////////////////////////
             EVENTS
     //////////////////////////////////////////////////////////////*/
-
-    /// @notice Emitted when a new Cube Module is deployed.
-    /// @param routerAddress The address of the Cube3RouterProxy.
-    /// @param moduleId The computed ID of the module.
-    /// @param version The human-readble module version.
-    event ModuleDeployed(address indexed routerAddress, bytes32 indexed moduleId, string indexed version);
-
-    /// @notice Emitted when the module is deprecated.
-    /// @param moduleId The computed ID of the module.
-    /// @param version  The human-readable module version.
-    event ModuleDeprecated(bytes32 indexed moduleId, string indexed version);
 
     /*//////////////////////////////////////////////////////////////
             FUNCTIONS
@@ -44,7 +33,7 @@ interface ICube3Module {
     /// @dev Deprecation event emitted by the router, see {Cube3RouterLogic-deprecateModule}.
     /// @dev Once a module has been deprecated it cannot be reinstalled in the router.
     /// @return The deprecation status and human-readable module version
-    function deprecate() external returns (bool, string memory);
+    function deprecate() external returns (string memory);
 
     /// @notice Gets the ID of the module
     /// @dev computes the keccak256 hash of the abi.encoded moduleVersion

@@ -20,7 +20,7 @@ CUBE3's Blockchain RASP Product, a W3AF (Web3 Application Firewall) is a securit
 ## Acknowledgements
 
 - The CUBE3 Protocol relies on the operation and availability of the off-chain CUBE3 services. The CUBE3 services are provided by [CUBE3](https://cube3.io/), a company that provides security services for smart contracts and Web3 applications. From this standpoint, the CUBE3 Protocol is not fully decentralized, and thus provides mechanisms for integrations to detach themselves from the protocol.
-- The Protocol cannot intentionally revert an integration's transactions. A delinquent or malicious integration can only be denied access to the modules by having the router return early.
+- The Protocol cannot intentionally revert an integration's transactions. A delinquent or malicious integration can only be denied access to the modules by having the router return early and bypassing the functionality of the modules.
 
 ## Architecture
 
@@ -44,6 +44,29 @@ The registry stores the signing authority for each customer integration. A signi
 
 #### Modules
 
-Application-specific smart contracts that provide dedicated per-contract functionality to CUBE3’s on-chain protocol. The Cube3Router is responsible for routing transactions to designated modules, which will be covered in more detail in the Payload Routing section.
+Application-specific smart contracts that provide dedicated per-contract functionality to CUBE3’s on-chain protocol. The `Cube3Router` is responsible for routing transactions to designated modules, which will be covered in more detail in the Payload Routing section.
 
 ## Routing
+
+# Glossay
+
+- Integration
+- Signature Authority
+- Router
+-
+
+## Debugging
+
+Find selectors using:
+
+```
+forge selectors list
+```
+
+All have been uploaded to SamCZSun's signature database.
+
+## Coverage
+
+```
+forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage
+```
