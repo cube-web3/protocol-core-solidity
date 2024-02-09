@@ -204,14 +204,14 @@ contract Registry_Concrete_Unit_Test is BaseTest {
     // fails when the integration is the zero address
     function test_RevertsWhen_IntegrationToZeroAddress() public {
         address clientSigningAuthority = _randomAddress();
-        vm.expectRevert(bytes("CRG06 invalid integration"));
+        vm.expectRevert(ProtocolErrors.Cube3Protocol_InvalidIntegration.selector);
         registryHarness.wrappedSetSigningAuthority(address(0), clientSigningAuthority);
     }
 
     // fails when the authority is the zero address
     function test_RevertsWhen_SettingClientAuthorityToZeroAddress() public {
         address integrationContract = _randomAddress();
-        vm.expectRevert(bytes("CRG07: invalid signing authority"));
+        vm.expectRevert(ProtocolErrors.Cube3Registry_InvalidSigningAuthority.selector);
         registryHarness.wrappedSetSigningAuthority(integrationContract, address(0));
     }
 
@@ -238,7 +238,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
     // fails when revoking the authority for an integration that does not exist
     function test_RevertsWhen_RevokingAuthorityForNonExistentIntegration() public {
         address integrationContract = _randomAddress();
-        vm.expectRevert(bytes("CRG08: integration not present"));
+        vm.expectRevert(ProtocolErrors.Cube3Registry_NonExistentSigningAuthority.selector);
         registryHarness.wrappedRevokeSigningAuthorityForIntegration(integrationContract);
     }
     // succeeds when revoking an existing integration

@@ -143,7 +143,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // TODO: test
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {
-            revert ProtocolErrors.Cube3Router_InvalidIntegration();
+            revert ProtocolErrors.Cube3Protocol_InvalidIntegration();
         }
 
         // Checks: the account that pre-registered is not an EOA.
@@ -220,7 +220,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // TODO: test this
         // Checks: the array lengths are equal.
         if (numIntegrations != statuses.length) {
-            revert ProtocolErrors.Cube3Router_ArrayLengthMismatch();
+            revert ProtocolErrors.Cube3Protocol_ArrayLengthMismatch();
         }
 
         // Interactions: updates the registration status for each integration in the array.
@@ -277,7 +277,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     {
         // Checks: the integration address is valid.
         if (integration == address(0)) {
-            revert ProtocolErrors.Cube3Router_InvalidIntegration();
+            revert ProtocolErrors.Cube3Protocol_InvalidIntegration();
         }
 
         // Checks: whether the status is the same as the current status.

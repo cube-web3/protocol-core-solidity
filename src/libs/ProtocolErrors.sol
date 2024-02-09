@@ -16,7 +16,10 @@ library ProtocolErrors {
     error Cube3Protocol_TargetIsContract(address target);
 
     /// @notice Throws when the arrays passed as arguments are not the same length.
-    error Cube3Router_ArrayLengthMismatch();
+    error Cube3Protocol_ArrayLengthMismatch();
+
+    /// @notice Throws when the integration address provided is the zero address.
+    error Cube3Protocol_InvalidIntegration();
 
     /////////////////////////////////////////////////////////////////////////////////
     //                                   Router                                    //
@@ -59,9 +62,6 @@ library ProtocolErrors {
     /// @notice Throws when the integration admin address has already been set, indicating
     /// that the integration has already been pre-registered.
     error Cube3Router_IntegrationAdminAlreadyInitialized();
-
-    /// @notice Throws when the integration address provided is the zero address.
-    error Cube3Router_InvalidIntegration();
 
     /// @notice Throws when attempting to use a registrar signature that has already been used to register
     /// an integration.
@@ -124,6 +124,18 @@ library ProtocolErrors {
     //                            Generic Module                                   //
     /////////////////////////////////////////////////////////////////////////////////
 
+    /// @notice Throws when the address provided for the Router proxy is the zero address.
+    error Cube3Module_InvalidRouter();
+
+    /// @notice Throws when the version string does not match the required schema.
+    error Cube3Module_DoesNotConformToVersionSchema();
+
+    /// @notice Throws when attempting to deploy a module with a version that already exists.
+    error Cube3Module_ModuleVersionExists();
+
+    /// @notice Throws when the caller is not the CUBE3 Router.
+    error Cube3Module_OnlyRouterAsCaller();
+
     /////////////////////////////////////////////////////////////////////////////////
     //                         Signature Module                                    //
     /////////////////////////////////////////////////////////////////////////////////
@@ -136,4 +148,14 @@ library ProtocolErrors {
 
     /// @notice Throws when the timestamp contained in the module payload is in the past.
     error Cube3SignatureModule_ExpiredSignature();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                         Registry                                   //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the signing authority address provided is the zero address.
+    error Cube3Registry_InvalidSigningAuthority();
+
+    /// @notice Throws when the signing authority retrieved from storage doesn't exist.
+    error Cube3Registry_NonExistentSigningAuthority();
 }
