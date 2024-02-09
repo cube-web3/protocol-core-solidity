@@ -216,11 +216,23 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
             deprecateModule
     //////////////////////////////////////////////////////////////*/
 
-    // succeeds depracting an existing module
+    // succeeds depracting an existing module, which removes the module
+    // and emits the correct events
     function test_SucceedsWhen_DeprecatingExistingModule() public {
         bytes16 moduleId = _installModuleAsAdmin();
         vm.startPrank(cube3Accounts.protocolAdmin);
+
+        // the deprecation event is emitted
+        vm.expectEmit(true, true, true, true);
+        emit RouterModuleDeprecated(moduleId, address(mockModule), MODULE_VERSION);
+
+        // the removal event is emiited
+        vm.expectEmit(true, true, true, true);
+        emit RouterModuleRemoved(moduleId);
+
         protocolManagementHarness.deprecateModule(moduleId);
+        assertTrue(protocolManagementHarness.getIsModuleVersionDeprecated(moduleId), "module not deprecated");
+        assertEq(address(0), protocolManagementHarness.getModuleAddressById(moduleId), "module not removed");
     }
 
     // fails deprecating a module which reverts in {deprecate}

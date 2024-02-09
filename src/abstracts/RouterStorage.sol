@@ -148,7 +148,6 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         emit UsedRegistrationSignatureHash(signatureHash);
     }
 
-    // TODO: test this
     function _setModuleVersionDeprecated(bytes16 moduleId, string memory version) internal {
         _state().deprecatedModules[moduleId] = true;
         emit RouterModuleDeprecated(moduleId, _state().idToModules[moduleId], version);
@@ -171,5 +170,6 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles {
         internal
     {
         delete _state().idToModules[moduleId];
+        emit RouterModuleRemoved(moduleId);
     }
 }
