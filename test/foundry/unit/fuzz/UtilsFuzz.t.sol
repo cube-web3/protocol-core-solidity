@@ -235,7 +235,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignature.selector);
+        vm.expectRevert(ECDSA.ECDSAInvalidSignature.selector);
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 
@@ -259,7 +259,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         bytes32 digest = keccak256(encodedSignatureData);
 
-        vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSignatureLength.selector);
+        vm.expectRevert(abi.encodeWithSelector(ECDSA.ECDSAInvalidSignatureLength.selector, signatureLength));
         utilsHarness.assertIsValidSignature(signature, digest, signer);
     }
 

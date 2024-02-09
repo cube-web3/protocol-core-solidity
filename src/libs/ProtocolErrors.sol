@@ -108,11 +108,6 @@ library ProtocolErrors {
     //                         Signature Utils                                     //
     /////////////////////////////////////////////////////////////////////////////////
 
-    /// @notice Throws when the signature is invalid.
-    error Cube3SignatureUtils_InvalidSignature();
-
-    /// @notice Throws when the signature length is not 65 bytes.
-    error Cube3SignatureUtils_InvalidSignatureLength();
 
     /// @notice Throws when the signer recoverd from the signature is the zero address.
     error Cube3SignatureUtils_SignerZeroAddress();
