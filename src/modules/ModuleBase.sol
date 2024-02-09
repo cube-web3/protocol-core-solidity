@@ -72,11 +72,11 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @inheritdoc	ICube3Module
     /// @dev Can be overridden in the event additional logic needs to be executed during deprecation.
     /// @dev Overriden function MUST use `onlyCube3Router` modifier.
-    function deprecate() external virtual onlyCube3Router returns (bool, string memory) {
+    function deprecate() external virtual onlyCube3Router returns (string memory) {
         isDeprecated = true;
         string memory version = moduleVersion; // gas-saving
         emit ModuleDeprecated(moduleId, version);
-        return (true, version);
+        return version;
     }
 
     /*//////////////////////////////////////////////////////////////

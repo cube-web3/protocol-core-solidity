@@ -6,7 +6,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 
 import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
 
-import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { MockTarget } from "../../../mocks/MockContract.t.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";

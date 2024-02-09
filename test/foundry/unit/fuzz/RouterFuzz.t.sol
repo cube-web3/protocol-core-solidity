@@ -8,7 +8,7 @@ import { BaseTest } from "../../BaseTest.t.sol";
 import { RouterHarness } from "../../harnesses/RouterHarness.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 
-import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { ICube3Router } from "../../../../src/interfaces/ICube3Router.sol";
 
 import { Structs } from "../../../../src/common/Structs.sol";

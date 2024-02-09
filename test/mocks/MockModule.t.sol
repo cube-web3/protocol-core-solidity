@@ -61,12 +61,12 @@ contract MockModule is ModuleBase, TestEvents {
   revert("FAILED");
  }
 
- function deprecate() external override returns(bool, string memory) {
+ function deprecate() external override returns(string memory) {
    if (preventDeprecation) {
-      return(false, "");
+      revert("deprecation failed");
    }
 
-   return (true, moduleVersion);
+   return (moduleVersion);
  }
 
 }

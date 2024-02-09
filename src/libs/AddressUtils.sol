@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {ProtocolErrors} from "./ProtocolErrors.sol";
+import { ProtocolErrors } from "./ProtocolErrors.sol";
+
 library AddressUtils {
     /**
      * @dev Ensures the target address is a contract. This is done by checking the length

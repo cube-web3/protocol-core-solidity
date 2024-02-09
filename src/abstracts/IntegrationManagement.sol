@@ -24,14 +24,14 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     //////////////////////////////////////////////////////////////*/
 
     modifier onlyIntegrationAdmin(address integration) {
-        if(getIntegrationAdmin(integration) != msg.sender) {
+        if (getIntegrationAdmin(integration) != msg.sender) {
             revert ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin();
         }
         _;
     }
 
     modifier onlyPendingIntegrationAdmin(address integration) {
-        if(getIntegrationPendingAdmin(integration) != msg.sender) {
+        if (getIntegrationPendingAdmin(integration) != msg.sender) {
             revert ProtocolErrors.Cube3Router_CallerNotPendingIntegrationAdmin();
         }
         _;
@@ -110,15 +110,15 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     /// @dev Only a contract who initiated registration can complete registration via codesize check.
     function initiateIntegrationRegistration(address admin_) external returns (bool) {
         // Checks: the integration admin account provided is a valid address.
-        if(admin_ == address(0)) {
+        if (admin_ == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegrationAdmin();
         }
 
         // Checks: the admin is the zero address, meaning the integration has not been registered previously.
-        if(getIntegrationAdmin(msg.sender) != address(0)) {
+        if (getIntegrationAdmin(msg.sender) != address(0)) {
             revert ProtocolErrors.Cube3Router_IntegrationAdminAlreadyInitialized();
         }
-        
+
         // Effects: set the admin account for the integration.
         _setIntegrationAdmin(msg.sender, admin_);
 
@@ -142,7 +142,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     {
         // TODO: test
         // Checks: the integration being registered is a valid address.
-        if(integration == address(0)) {
+        if (integration == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegration();
         }
 
@@ -150,7 +150,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         integration.assertIsContract();
 
         // Checks: the integration has been pre-registered and the status is in the PENDING state
-        if(getIntegrationStatus(integration) != Structs.RegistrationStatusEnum.PENDING) {
+        if (getIntegrationStatus(integration) != Structs.RegistrationStatusEnum.PENDING) {
             revert ProtocolErrors.Cube3Router_IntegrationRegistrationStatusNotPending();
         }
 
@@ -160,14 +160,15 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         bytes32 registrarSignatureHash = keccak256(registrarSignature);
 
         // Checks: the signature has not been used before to register an integrationq
-        if(getRegistrarSignatureHashExists(registrarSignatureHash)) {
+        if (getRegistrarSignatureHashExists(registrarSignatureHash)) {
             revert ProtocolErrors.Cube3Router_RegistrarSignatureAlreadyUsed();
         }
 
         // TODO: what about the case of multiple registrars
         // Checks: the registry and registrar are valid accounts.
-        (address registry, address integrationSigningAuthority) = fetchRegistryAndSigningAuthorityForIntegration(integration);
-        
+        (address registry, address integrationSigningAuthority) =
+            fetchRegistryAndSigningAuthorityForIntegration(integration);
+
         // Checks: the registry has been set.
         if (registry == address(0)) {
             revert ProtocolErrors.Cube3Router_RegistryNotSet();
@@ -179,7 +180,8 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
 
         // Generate the digest with the integration-specific data. Using `chainid` prevents replay across chains.
-        bytes32 registrationDigest = keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
+        bytes32 registrationDigest =
+            keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
 
         // Checks: uses ECDSA recovery to validates the signature.  Reverts if the registrarSignature is invalid.
         registrarSignature.assertIsValidSignature(registrationDigest, integrationSigningAuthority);
@@ -277,7 +279,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegration();
         }
-        
+
         // Checks: whether the status is the same as the current status.
         if (status == getIntegrationStatus(integration)) {
             revert ProtocolErrors.Cube3Router_CannotSetStatusToCurrentStatus();

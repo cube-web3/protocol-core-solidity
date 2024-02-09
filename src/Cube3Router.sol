@@ -19,7 +19,7 @@ import { PayloadUtils } from "./libs/PayloadUtils.sol";
 import { SignatureUtils } from "./libs/SignatureUtils.sol";
 
 import { AddressUtils } from "./libs/AddressUtils.sol";
-import { ProtocolErrors} from "./libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
 import { Structs } from "./common/Structs.sol";
 import { ProtocolConstants } from "./common/ProtocolConstants.sol";
 import { RouterStorage } from "./abstracts/RouterStorage.sol";
@@ -64,7 +64,7 @@ contract Cube3Router is
     /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
         // Checks: registry is not the zero address
-        if(registry == address(0)) {
+        if (registry == address(0)) {
             // TODO: test
             revert ProtocolErrors.Cube3Router_InvalidRegistry();
         }
@@ -131,7 +131,7 @@ contract Cube3Router is
         // Checks: The module ID is mapped to an installed module.  Including the module address in the payload
         // as opposed to the module ID that needs to be retrieved from storage, could lead to spoofing.
         address module = getModuleAddressById(moduleId);
-        if(module == address(0)) {
+        if (module == address(0)) {
             revert ProtocolErrors.Cube3Router_ModuleNotInstalled(moduleId);
         }
 
@@ -182,11 +182,9 @@ contract Cube3Router is
         return false;
     }
 
-
     /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
     ///      not return the expected success value.
     function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
-        
         // Interactions: Makes the call to the desired module, calldataa includes the relevant information about the
         // originating function call.
         (bool success, bytes memory returnOrRevertData) = module.call(moduleCalldata);

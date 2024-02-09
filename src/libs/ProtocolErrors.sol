@@ -5,36 +5,34 @@ pragma solidity 0.8.19;
 /// @notice Defines errors for the CUBE3 Protocol.
 
 library ProtocolErrors {
-
     /////////////////////////////////////////////////////////////////////////////////
-    //                                  Shared Protocol                            //
-    /////////////////////////////////////////////////////////////////////////////////
-
-   /// @notice Throws when the target address is not an EOA or a contract under construction.
-   error Cube3Protocol_TargetNotAContract(address target);
-
-   /// @notice Throws when the target address is a contract.
-   error Cube3Protocol_TargetIsContract(address target);
-
-   /// @notice Throws when the arrays passed as arguments are not the same length.
-   error Cube3Router_ArrayLengthMismatch();
-
-
-    /////////////////////////////////////////////////////////////////////////////////
-    //                                       Router                                //
+    //                               Shared Protocol                               //
     /////////////////////////////////////////////////////////////////////////////////
 
-   /// @notice Throws when the provided registry address is the Zero address. 
-   error Cube3Router_InvalidRegistry();
+    /// @notice Throws when the target address is not an EOA or a contract under construction.
+    error Cube3Protocol_TargetNotAContract(address target);
 
-   /// @notice Throws when the module address being retrieved using the ID doesn't exist.
-   error Cube3Router_ModuleNotInstalled(bytes16 moduleId);
+    /// @notice Throws when the target address is a contract.
+    error Cube3Protocol_TargetIsContract(address target);
 
-   /// @notice Throws when the module returns data that doesn't match the expected MODULE_CALL_SUCCEEDED hash.
-   error Cube3Router_ModuleReturnedInvalidData();
- 
-   /// @notice Throws when the data returned by the module is not 32 bytes in length.
-   error Cube3Router_ModuleReturnDataInvalidLength(uint256 size);
+    /// @notice Throws when the arrays passed as arguments are not the same length.
+    error Cube3Router_ArrayLengthMismatch();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                                   Router                                    //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the provided registry address is the Zero address.
+    error Cube3Router_InvalidRegistry();
+
+    /// @notice Throws when the module address being retrieved using the ID doesn't exist.
+    error Cube3Router_ModuleNotInstalled(bytes16 moduleId);
+
+    /// @notice Throws when the module returns data that doesn't match the expected MODULE_CALL_SUCCEEDED hash.
+    error Cube3Router_ModuleReturnedInvalidData();
+
+    /// @notice Throws when the data returned by the module is not 32 bytes in length.
+    error Cube3Router_ModuleReturnDataInvalidLength(uint256 size);
 
     /////////////////////////////////////////////////////////////////////////////////
     //                         Router : IntegrationManagement                      //
@@ -74,4 +72,68 @@ library ProtocolErrors {
 
     /// @notice Throws when the integration's signing authority has not been set, ie returns the Zero Address.
     error Cube3Router_IntegrationSigningAuthorityNotSet();
+
+    /// @notice Throws when setting the registration status to its current status.
+    error Cube3Router_CannotSetStatusToCurrentStatus();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                         Router : ProtocolManagement                         //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the contract at the address provided does not support the CUBE3 Registry interface.
+    error Cube3Router_NotValidRegistryInterface();
+
+    /// @notice Throws when the zero address is provided when installing a module.
+    error Cube3Router_InvalidAddressForModule();
+
+    /// @notice Throws when empty bytes are provided for the ID when installing a module.
+    error Cube3Router_InvalidIdForModule();
+
+    /// @notice Throws when the module being installed is does not support the interface.
+    error Cube3Router_ModuleInterfaceNotSupported();
+
+    /// @notice Throws when the module ID provided is already installed.
+    error Cube3Router_ModuleAlreadyInstalled();
+
+    /// @notice Throws when the module ID does not match the hashed version.
+    error Cube3Router_ModuleVersionNotMatchingID();
+
+    /// @notice Throws when the module contract beign installed has been deprecated.
+    error Cube3Router_CannotInstallDeprecatedModule();
+
+    /// @notice Throws when deprecating a module fails.
+    error Cube3Router_ModuleDeprecationFailed();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                         Signature Utils                                     //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the signature is invalid.
+    error Cube3SignatureUtils_InvalidSignature();
+
+    /// @notice Throws when the signature length is not 65 bytes.
+    error Cube3SignatureUtils_InvalidSignatureLength();
+
+    /// @notice Throws when the signer recoverd from the signature is the zero address.
+    error Cube3SignatureUtils_SignerZeroAddress();
+
+    /// @notice Throws when the signer recovered from the message hash does not match the expected signer
+    error Cube3SignatureUtils_InvalidSigner();
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                            Generic Module                                   //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //                         Signature Module                                    //
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// @notice Throws when the signing authority and univeral signer are null.
+    error Cube3SignatureModule_NullSigningAuthority();
+
+    /// @notice Throws when the expected nonce does not match the user's nonce in storage.
+    error Cube3SignatureModule_InvalidNonce();
+
+    /// @notice Throws when the timestamp contained in the module payload is in the past.
+    error Cube3SignatureModule_ExpiredSignature();
 }

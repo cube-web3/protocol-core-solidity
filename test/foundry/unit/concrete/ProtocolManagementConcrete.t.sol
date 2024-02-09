@@ -79,7 +79,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(cube3Accounts.protocolAdmin);
 
         // set the config
-        vm.expectRevert(bytes("CR22: interface not supported"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_NotValidRegistryInterface.selector);
         protocolManagementHarness.setProtocolConfig(_randomAddress(), true);
         vm.stopPrank();
     }
@@ -147,14 +147,14 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_ModuleAddressIsZeroAddress() public {
         bytes16 moduleId = bytes16(bytes32(keccak256("unusedId")));
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(bytes("CR14: invalid module"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidAddressForModule.selector);
         protocolManagementHarness.installModule(address(0), moduleId);
     }
 
     // fails when the moduleId is invalid
     function test_RevertsWhen_ModuleIdIsInvalid() public {
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(bytes("CR15: invalid id"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIdForModule.selector);
         protocolManagementHarness.installModule(address(mockModule), bytes16(0));
     }
 
@@ -162,7 +162,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_InvalidModuleAddressIsPassed() public {
         bytes16 moduleId = bytes16(bytes32(keccak256("unusedId")));
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(bytes("CR18: interface not supported"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported.selector);
         protocolManagementHarness.installModule(_randomAddress(), moduleId);
     }
 
@@ -171,7 +171,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         _installModuleAsAdmin();
         vm.startPrank(cube3Accounts.protocolAdmin);
         bytes16 moduleId = mockModule.moduleId();
-        vm.expectRevert(bytes("CR07: module version exists"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleAlreadyInstalled.selector);
         protocolManagementHarness.installModule(address(mockModule), moduleId);
         vm.stopPrank();
     }
@@ -186,7 +186,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         bytes16 altModuleId = altMockModule.moduleId();
         vm.startPrank(cube3Accounts.protocolAdmin);
 
-        vm.expectRevert(bytes("CR15: invalid id"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidIdForModule.selector);
         protocolManagementHarness.installModule(address(mockModule), altModuleId);
     }
 
@@ -205,7 +205,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         bytes16 duplicateId = duplicate.moduleId();
 
         // attempt to reinstall it
-        vm.expectRevert(bytes("CR16: module deprecated"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_CannotInstallDeprecatedModule.selector);
         protocolManagementHarness.installModule(address(mockModule), duplicateId);
     }
 
@@ -226,7 +226,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         mockModule.updatePreventDeprecation(true);
 
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(bytes("CR17: deprecation unsuccessful"));
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleDeprecationFailed.selector);
         protocolManagementHarness.deprecateModule(moduleId);
     }
 
