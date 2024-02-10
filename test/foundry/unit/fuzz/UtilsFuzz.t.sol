@@ -201,18 +201,19 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     )
         public
     {
-        locationSeed = bound(locationSeed, 0, 255);
-        retrievalSeed = bound(retrievalSeed, 0, 255);
-        vm.assume(locationSeed != retrievalSeed);
-        vm.assume(locationSeed % 32 == 0);
-        vm.assume(retrievalSeed % 32 == 0);
+        locationSeed = bound(locationSeed, 0, 255-32);
+        retrievalSeed = bound(retrievalSeed, 32, 255);
+        locationSeed = _toMultipleOf32(locationSeed);
+        retrievalSeed = _toMultipleOf32(retrievalSeed);
+         
         valueSeed = bound(valueSeed, 1, type(uint32).max);
         uint32 value = uint32(valueSeed);
         uint8 location = uint8(locationSeed);
         uint8 retrieval = uint8(retrievalSeed);
-
+           vm.assume(location != retrieval);
         uint256 bitmap = uint256(0);
         bitmap = PayloadCreationUtils.addUint32ToBitmap(bitmap, value, location);
+        emit log_named_uint("bitmap", bitmap);
         uint32 derivedValue = utilsHarness.extractUint32FromBitmap(bitmap, retrieval);
         assertNotEq(derivedValue, value, "value not matching");
     }
@@ -333,5 +334,13 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         }
 
         return newData;
+    }
+
+    function _toMultipleOf32(uint256 value) internal pure returns (uint256) {
+        if (value % 32 == 0) {
+            return value; // Already a multiple of 32
+        } else {
+            return ((value / 32) + 1) * 32;
+        }
     }
 }
