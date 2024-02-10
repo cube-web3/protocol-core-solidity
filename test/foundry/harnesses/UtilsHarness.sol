@@ -50,7 +50,6 @@ contract UtilsHarness {
         return true;
     }
 
-    // TODO: test
     function assertIsEOAorConstructorCall(address target) public view returns (bool) {
         AddressUtils.assertIsEOAorConstructorCall(target);
         return true;

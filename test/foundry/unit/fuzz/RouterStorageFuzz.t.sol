@@ -191,7 +191,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
 
         // delete the module
         vm.expectEmit(true, true, true, true);
-        emit RouterModuleDeprecated(moduleId, moduleAddress, version);
+        emit RouterModuleRemoved(moduleId);
         routerStorageHarness.deleteInstalledModule(moduleId);
         assertEq(address(0), routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
     }

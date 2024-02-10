@@ -97,7 +97,7 @@ contract PayloadUtils is Test {
         );
 
         // don't track the nonce for now
-        (bytes memory modulePayload, uint32 modulePadding) = _encodeModulePayload(
+        (bytes memory modulePayload, uint32 modulePadding) = _encodeModulePayloadAndPadToNextFullWord(
             false, userNonce, expirationTimestamp, _createPayloadSignature(encodedSignatureData, signingAuthPvtKey)
         );
         // emit log_named_bytes("modulePayload", modulePayload);
@@ -164,7 +164,7 @@ contract PayloadUtils is Test {
         return tempBytes;
     }
 
-    function _encodeModulePayload(
+    function _encodeModulePayloadAndPadToNextFullWord(
         bool trackNonce,
         uint256 nonce,
         uint256 expirationTimestamp,

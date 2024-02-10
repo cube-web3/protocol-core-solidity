@@ -20,7 +20,7 @@ interface ICube3SignatureModule {
 
     /// @notice Defines the structure of the cube3SecurePayload and its contents for the Cube3 Signature Module.
     /// @dev The `cube3SecurePayload` is passed in as function parameter to all Cube3Integration integration functions.
-    struct Cube3SignatureModulePayload {
+    struct SignatureModulePayloadData {
         uint256 expirationTimestamp;
         bool shouldTrackNonce;
         uint256 nonce;

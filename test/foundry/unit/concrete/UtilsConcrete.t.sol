@@ -42,8 +42,17 @@ contract Utils_Concrete_Unit_Test is BaseTest {
         assertTrue(utilsHarness.assertIsContract(address(mockTarget)));
     }
 
-    // succeeds when the target address is not a contract
-    function test_SucceedsWhen_TargetIsNotContract() public {
-        assertTrue(utilsHarness.assertIsEOAorConstructorCall(_randomAddress()));
+    // succeeds when the target address is an EOA
+    function test_SucceedssWhen_TargetIsAnEoa() public {
+        utilsHarness.assertIsEOAorConstructorCall(_randomAddress());
+    }
+
+    // fails when the target address is a contract
+    function test_RevertsWhen_TargetIsAContract() public {
+        MockTarget mockTarget = new MockTarget();
+        vm.expectRevert(
+            abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetIsContract.selector, address(mockTarget))
+        );
+        utilsHarness.assertIsEOAorConstructorCall(address(mockTarget));
     }
 }
