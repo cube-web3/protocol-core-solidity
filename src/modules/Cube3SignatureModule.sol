@@ -31,7 +31,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
 
     /// @notice Initializes the Signature module.
     /// @dev Passes the `cubeRouterProxy` address and `version` string to the {Cube3Module} constructor.
-    /// @param cube3RouterProxy The address of the Cube3Router proxy.
+    /// @param cube3RouterProxy The address of the Cube3RouterImpl proxy.
     /// @param version Human-readable module version used to generate the module's ID
     /// @param backupSigner Backup payload signer in the event the registry is removed
     constructor(
@@ -157,7 +157,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         signer = cube3registry.getSigningAuthorityForIntegration(integration);
     }
 
-    /// @dev Makes an external call to the Cube3Router to retrieve the registry address.
+    /// @dev Makes an external call to the Cube3RouterImpl to retrieve the registry address.
     function _fetchRegistryFromRouter() internal view returns (ICube3Registry) {
         return ICube3Registry(cube3router.getRegistryAddress());
     }

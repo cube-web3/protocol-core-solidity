@@ -10,7 +10,7 @@ import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
 
 import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
-import { Cube3Router } from "../../src/Cube3Router.sol";
+import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
 import { Cube3Registry } from "../../src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
@@ -100,16 +100,16 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
 
         // ============ router
         // deploy the implementation
-        routerImplAddr = address(new Cube3Router());
+        routerImplAddr = address(new Cube3RouterImpl());
 
         vm.label(routerImplAddr, "Cube3RouterImpl");
 
         // deploy the proxy
-        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3Router.initialize, (address(registry))));
+        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, (address(registry))));
         vm.label(address(cubeRouterProxy), "CubeRouterProxy");
 
         // create a wrapper interface (for convenience)
-        wrappedRouterProxy = Cube3Router(payable(address(cubeRouterProxy)));
+        wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
         _addAccessControlAndRevokeDeployerPermsForRouter(cube3Accounts.protocolAdmin, cube3Accounts.integrationManager, cube3Accounts.deployer);
 
         // =========== signature module

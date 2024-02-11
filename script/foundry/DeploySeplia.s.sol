@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { Cube3Router } from "../../src/Cube3Router.sol";
+import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
 import { Cube3Registry } from "../../src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 

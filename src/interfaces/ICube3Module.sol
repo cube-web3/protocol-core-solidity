@@ -8,7 +8,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 /// @dev    Any module that inherits this contract should never make use of `selfdestruct` or
 ///         delegatecall to a contract that might, as it could potentially render the router proxy
 ///         inoperable.
-/// @notice Provides the module with connectivity to the Cube3Router and manages the module's versioning.
+/// @notice Provides the module with connectivity to the Cube3RouterImpl and manages the module's versioning.
 interface ICube3Module {
     /*//////////////////////////////////////////////////////////////
             EVENTS
@@ -29,7 +29,7 @@ interface ICube3Module {
     function isDeprecated() external view returns (bool);
 
     /// @notice Deprecates the module.
-    /// @dev Only callable by the Cube3Router.
+    /// @dev Only callable by the Cube3RouterImpl.
     /// @dev Deprecation event emitted by the router, see {Cube3RouterLogic-deprecateModule}.
     /// @dev Once a module has been deprecated it cannot be reinstalled in the router.
     /// @return The deprecation status and human-readable module version

@@ -31,7 +31,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @dev During construction, the module makes a call to the router to ensure the version supplied has
     /// not already been installed.
     /// @dev The `version` string should be validated for correctness prior to deployment.
-    /// @param cubeRouterProxy Contract address of the Cube3Router proxy.
+    /// @param cubeRouterProxy Contract address of the Cube3RouterImpl proxy.
     /// @param version Human-readable module version, where minimum valid length is 9 bytes and max valid length is 32
     /// bytes: `xxx-x.x.x`
     constructor(address cubeRouterProxy, string memory version, uint256 payloadSize) {

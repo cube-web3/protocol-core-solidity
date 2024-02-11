@@ -23,7 +23,7 @@ import { RouterStorage } from "./abstracts/RouterStorage.sol";
 /// @dev See {ICube3Router}
 /// @dev All storage variables are defined in RouterStorage.sol and accessed via dedicated getter and setter functions
 
-contract Cube3Router is
+contract Cube3RouterImpl is
     ContextUpgradeable,
     AccessControlUpgradeable,
     UUPSUpgradeable,
@@ -60,7 +60,6 @@ contract Cube3Router is
     function initialize(address registry) public initializer onlyConstructor {
         // Checks: registry is not the zero address
         if (registry == address(0)) {
-            // TODO: test
             revert ProtocolErrors.Cube3Router_InvalidRegistry();
         }
         // Checks: the registry is a valid contract.

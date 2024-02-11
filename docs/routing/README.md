@@ -1,13 +1,13 @@
 # Routing
 
-The CUBE3 Core Protocol has been designed with extendability and extensibility in mind. The protocol leverages a modular approach in favor of simplicity over patterns such as the diamond beacon proxy. At the core of this modular design is the routing system, facilitated by the `Cube3Router`. The Router has two primary responsibilities:
+The CUBE3 Core Protocol has been designed with extendability and extensibility in mind. The protocol leverages a modular approach in favor of simplicity over patterns such as the diamond beacon proxy. At the core of this modular design is the routing system, facilitated by the `Cube3RouterImpl`. The Router has two primary responsibilities:
 
 1. Function Protection
 2. Payload Routing
 
 Function protection is covered in other areas of the docs (TODO: reference). This document will focus on the payload routing system.
 
-Functionality offered by the CUBE3 protocol is accessed via modules. Modules are purpose-built smart contracts that encapsulate a specific set of functionality. The `Cube3Router` is responsible for routing payloads to the appropriate module, based on the routing information contained within the payload. The routing system is designed to be flexible and extensible, allowing for the addition of new modules and functionality without the need to modify the core protocol. The CUBE3 payload, provided off-chain by CUBE3, contains all the data necessary to route the payload to its desired destination. In this way, the protocol's Router is conceptually similar to a traditional network router. A network router routes packets to their destination based on the packet's destination address contained within the packet's header. The CUBE3 Router routes payloads to their destination (modules) based on the payload's routing information, however, unlike a traditional datagram, the CUBE3 protocol's payload is stored at the end of the data (like a footer). This makes the payload easier to parse on-chain, due to it having a known size. Having to parse the routing information from the beginning of the module adds complexity due to the nature of the ABI encoding for function calls.
+Functionality offered by the CUBE3 protocol is accessed via modules. Modules are purpose-built smart contracts that encapsulate a specific set of functionality. The `Cube3RouterImpl` is responsible for routing payloads to the appropriate module, based on the routing information contained within the payload. The routing system is designed to be flexible and extensible, allowing for the addition of new modules and functionality without the need to modify the core protocol. The CUBE3 payload, provided off-chain by CUBE3, contains all the data necessary to route the payload to its desired destination. In this way, the protocol's Router is conceptually similar to a traditional network router. A network router routes packets to their destination based on the packet's destination address contained within the packet's header. The CUBE3 Router routes payloads to their destination (modules) based on the payload's routing information, however, unlike a traditional datagram, the CUBE3 protocol's payload is stored at the end of the data (like a footer). This makes the payload easier to parse on-chain, due to it having a known size. Having to parse the routing information from the beginning of the module adds complexity due to the nature of the ABI encoding for function calls.
 
 It's important to understand the information hierachy of the CUBE3 payload. The CUBE3 payload, which is passed as the last argument to any function protected with the `cube3Protected` modifier, contains two pieces of information: The `Module Payload` and the `Routing Bitmap`.
 
@@ -16,7 +16,7 @@ It's important to understand the information hierachy of the CUBE3 payload. The 
 
 Conceptually, parsing the necessary data to route data to a module is a 3 step process:
 
-1. Extract the CUBE3 payload from the original integration function's calldata. This is passed to the `Cube3Router` as the `bytes calldata integrationCalldata` argument in the `routeToModule` function.
+1. Extract the CUBE3 payload from the original integration function's calldata. This is passed to the `Cube3RouterImpl` as the `bytes calldata integrationCalldata` argument in the `routeToModule` function.
 2. Extract the `Module Payload` and the `Routing Bitmap` from the `CUBE3 Payload`.
 3. Extract and generate a keccak256 hash of the integration function's calldata to generate a digest. This digest is then passed along to the module, along with the original call's `msg.value` and `msg.sender`. This allows any module, if desired, to validate that the metadata of the call submitted on chain matches the data provided to CUBE3 off-chain.
 

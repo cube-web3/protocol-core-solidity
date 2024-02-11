@@ -8,7 +8,7 @@ import { IntegrationTest } from "../IntegrationTest.t.sol";
 import {MockRouter} from "../../mocks/MockRouter.t.sol";
 import {MockRegistry} from "../../mocks/MockRegistry.t.sol";
 
-import {Cube3Router} from "../../../src/Cube3Router.sol";
+import {Cube3RouterImpl} from "../../../src/Cube3RouterImpl.sol";
 
 import {ProtocolErrors} from "../../../src/libs/ProtocolErrors.sol";
 
@@ -19,7 +19,7 @@ contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
 ERC1967Proxy public uupsIntegrationProxy;
 DemoUpgradeableUUPS public demoUUPS;
 DemoUpgradeableUUPS public wrappedDemoUUPS;
-Cube3Router public cube3RouterImpl;
+Cube3RouterImpl public cube3RouterImpl;
 ERC1967Proxy public routerProxy;
 
 MockRouter mockRouter;
@@ -35,22 +35,24 @@ address integrationAdmin;
  }
 
  function _deployCube3ProxyAndImplementation() internal {
-    cube3RouterImpl = new Cube3Router();
+    cube3RouterImpl = new Cube3RouterImpl();
     routerProxy = new ERC1967Proxy(
         address(cube3RouterImpl), 
-        abi.encodeCall(Cube3Router.initialize, (address(mockRegistry)))
+        abi.encodeCall(Cube3RouterImpl.initialize, (address(mockRegistry)))
     );
  }
 
  // fails when initializing the router implementation with a null registry address
  function test_RevertsWhen_InitializingRouterImplementationWithNullRegistry() public {
-    cube3RouterImpl = new Cube3Router();
+    cube3RouterImpl = new Cube3RouterImpl();
     vm.expectRevert(ProtocolErrors.Cube3Router_InvalidRegistry.selector);
     routerProxy = new ERC1967Proxy(
         address(cube3RouterImpl), 
-        abi.encodeCall(Cube3Router.initialize, (address(0)))
+        abi.encodeCall(Cube3RouterImpl.initialize, (address(0)))
     );
  }
+
+ // fails when initializing the router implementation with an EOA as the registry
 
     function test_SucceedsWhen_DeployingProxyAndInitializingCube3Router() public {
         _deployCube3ProxyAndImplementation();

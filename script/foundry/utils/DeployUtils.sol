@@ -4,7 +4,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { Cube3Router } from "../../../src/Cube3Router.sol";
+import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
 
 import { Cube3Registry } from "../../../src/Cube3Registry.sol";
 
@@ -35,7 +35,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
     address internal routerImplAddr;
     address internal routerProxyAddr;
     ERC1967Proxy internal cubeRouterProxy;
-    Cube3Router internal wrappedRouterProxy;
+    Cube3RouterImpl internal wrappedRouterProxy;
 
     // Registr
     Cube3Registry internal registry;
@@ -79,11 +79,11 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
 
         // ============ router
         // deploy the implementation
-        routerImplAddr = address(new Cube3Router());
+        routerImplAddr = address(new Cube3RouterImpl());
         // deploy the proxy
-        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3Router.initialize, address(registry)));
+        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, address(registry)));
         // create a wrapper interface (for convenience)
-        wrappedRouterProxy = Cube3Router(payable(address(cubeRouterProxy)));
+        wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
 
         // =========== signature module

@@ -274,7 +274,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     }
 
     /// @dev Updates the integration status for an integration or an integration's proxy.
-    /// @dev Only accessible by the Cube3Router contract, allowing changes from, and to, any state
+    /// @dev Only accessible by the Cube3RouterImpl contract, allowing changes from, and to, any state
     /// @dev Prevents the status from being set to the same value.
     function _updateIntegrationRegistrationStatus(
         address integration,

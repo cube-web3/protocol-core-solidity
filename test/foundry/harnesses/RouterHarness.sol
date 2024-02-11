@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { Cube3Router } from "../../../src/Cube3Router.sol";
+import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
 
 import { Structs } from "../../../src/common/Structs.sol";
 
-/// @notice Testing harness for the Cube3Router contract for exposing internal fuctions for testing.
-contract RouterHarness is Cube3Router {
+/// @notice Testing harness for the Cube3RouterImpl contract for exposing internal fuctions for testing.
+contract RouterHarness is Cube3RouterImpl {
     /*//////////////////////////////////////////////////////////////
             STORAGE HELPERS
     //////////////////////////////////////////////////////////////*/

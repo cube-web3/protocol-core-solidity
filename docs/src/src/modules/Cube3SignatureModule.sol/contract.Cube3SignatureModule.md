@@ -46,7 +46,7 @@ constructor(
 
 | Name                  | Type      | Description                                                    |
 | --------------------- | --------- | -------------------------------------------------------------- |
-| `cube3RouterProxy`    | `address` | The address of the Cube3Router proxy.                          |
+| `cube3RouterProxy`    | `address` | The address of the Cube3RouterImpl proxy.                      |
 | `version`             | `string`  | Human-readable module version used to generate the module's ID |
 | `backupSigner`        | `address` | Backup payload signer in the event the registry is removed     |
 | `expectedPayloadSize` | `uint256` |                                                                |
@@ -85,7 +85,7 @@ function _fetchSigningAuthorityFromRegistry(
 
 ### \_fetchRegistryFromRouter
 
-_Makes an external call to the Cube3Router to retrieve the registry address._
+_Makes an external call to the Cube3RouterImpl to retrieve the registry address._
 
 ```solidity
 function _fetchRegistryFromRouter() private view returns (ICube3Registry);
