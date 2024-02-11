@@ -63,6 +63,19 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
     }
 
+        // fails when the module doesn't exist
+    function testFuzz_RevertsWhen_CalledModuleNotInstalled_AsAdmin(uint256 moduleSeed) public {
+        moduleSeed = bound(moduleSeed, 1, type(uint256).max);
+        bytes16 moduleId = bytes16(bytes32(keccak256(abi.encode(moduleSeed))));
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunctionThatReverts.selector);
+        bytes memory harnessCalldata =
+            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector);
+        (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
+    }
+
     /*//////////////////////////////////////////////////////////////
             deprecateModule
     //////////////////////////////////////////////////////////////*/

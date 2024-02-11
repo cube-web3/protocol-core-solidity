@@ -122,7 +122,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     }
 
     // fails when called by an admin, with a valid module, but the module fn reverts
-    function test_RevertsWhen_CalledByAnAdminWithValidModuleAndModuleReverts() public {
+    function test_RevertsWhen_WithValidModuleAndModuleReverts_AsAdmin() public {
         bytes16 moduleId = _installModuleAsAdmin();
 
         vm.startPrank(cube3Accounts.protocolAdmin);
@@ -133,6 +133,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.expectRevert(bytes("FAILED"));
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
     }
+
 
     /*//////////////////////////////////////////////////////////////
             installModule
