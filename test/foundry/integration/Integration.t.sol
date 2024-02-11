@@ -3,11 +3,11 @@ pragma solidity >=0.8.19 < 0.8.24;
 import "forge-std/Test.sol";
 
 import { Demo } from "../../demo/Demo.sol";
-import { IntegrationSetup } from "./IntegrationSetup.t.sol";
+import { IntegrationTest } from "../IntegrationTest.t.sol";
 
 import { Structs } from "../../../src/common/Structs.sol";
 
-contract IntegrationTest is IntegrationSetup {
+contract Integration_Standlone_Concrete is IntegrationTest {
     function setUp() public override {
         super.setUp();
     }

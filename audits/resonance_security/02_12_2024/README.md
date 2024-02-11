@@ -138,7 +138,7 @@ The Protection contracts are included as a dependency in this repo and utilized 
 
 The protocol will be deployed on multiple chains, including Ethereum mainnet and various L2s. There is no cross-chain message passing or function execution. All interactions with the protocol on a specific chain are isolated to that chain. Some target EVM chains, such as Avalanche, do not yet support Solidity `>0.8.19` or the `PUSH0` opcode. This was taken into consideration when designing V2 of the protocol.
 
-For chains that do not support `PUSH0`, ie that support `solc < 0.8.20`, the contracts are compiled with `paris` as the EVM target version. This way, we can use the latest solidity features available in `> 0.8.20` for networks that support it, and still deploy to networks that do not.
+For chains that do not support `PUSH0`, ie that support `solc < 0.8.20`, the contracts are compiled with `paris` as the EVM target version. This way, we can use the latest solidity features available in `> 0.8.20` for networks that support it, and still deploy to networks that do not. This can be achieved with foundry using the flag: `--evm-version paris` when compiling and deploying.
 
 TODO: update this
 The following protocol contracts are in scope for this audit (including SLOC):
