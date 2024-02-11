@@ -1,11 +1,12 @@
 # Structs
+
 [Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/07ba602bddefe3eb8d740b07000837f7ec2fa9f5/src/common/Structs.sol)
 
-
 ## Structs
-### IntegrationState
-Defines the state of the integration's state in relation to the protocol.
 
+### IntegrationState
+
+Defines the state of the integration's state in relation to the protocol.
 
 ```solidity
 struct IntegrationState {
@@ -32,10 +33,10 @@ struct ProtocolConfig {
 }
 ```
 
-### IntegrationCallMetadata
+### TopLevelCallComponents
 
 ```solidity
-struct IntegrationCallMetadata {
+struct TopLevelCallComponents {
     address msgSender;
     address integration;
     uint256 msgValue;
@@ -44,14 +45,15 @@ struct IntegrationCallMetadata {
 ```
 
 ## Enums
+
 ### RegistrationStatusEnum
+
 Defines the state of the integration's registration status.
 
-*RegistrationStatusEnum refers to the integration's relationship with the CUBE3 protocol.*
+_RegistrationStatusEnum refers to the integration's relationship with the CUBE3 protocol._
 
-*An integration can only register with the protocol by receiving a registration signature from the CUBE3
-service off-chain.*
-
+_An integration can only register with the protocol by receiving a registration signature from the CUBE3
+service off-chain._
 
 ```solidity
 enum RegistrationStatusEnum {
@@ -61,4 +63,3 @@ enum RegistrationStatusEnum {
     REVOKED
 }
 ```
-

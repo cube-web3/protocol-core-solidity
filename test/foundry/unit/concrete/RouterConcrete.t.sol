@@ -14,7 +14,7 @@ import { Structs } from "../../../../src/common/Structs.sol";
 contract Router_Concrete_Unit_Test is BaseTest {
     RouterHarness routerHarness;
 
-    function setUp() public {
+    function setUp() public override {
         routerHarness = new RouterHarness();
     }
 

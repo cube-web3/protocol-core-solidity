@@ -8,10 +8,8 @@ import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {
     uint256 constant HALF_MAX_UINT = type(uint256).max / 2;
 
-    function setUp() public {
-        // BaseTest.setUp();
-        // initProtocol();
-        _deployTestingContracts();
+    function setUp() public override {
+        _deployTestingHarnessContracts();
     }
 
     // Setting the protocol config succeeds and emits the correct event
@@ -191,7 +189,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
 
         // delete the module
         vm.expectEmit(true, true, true, true);
-        emit RouterModuleDeprecated(moduleId, moduleAddress, version);
+        emit RouterModuleRemoved(moduleId);
         routerStorageHarness.deleteInstalledModule(moduleId);
         assertEq(address(0), routerStorageHarness.getModuleAddressById(moduleId), "module address mismatch");
     }

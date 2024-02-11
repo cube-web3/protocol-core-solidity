@@ -48,7 +48,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         external
         onlyRole(CUBE3_KEY_MANAGER_ROLE)
     {
-        // Store the length in memory so we're not continually reading from calldata for each iteration.
+        // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 lenIntegrations = integrations.length;
 
         // TODO: test
@@ -74,7 +74,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         external
         onlyRole(CUBE3_KEY_MANAGER_ROLE)
     {
-        // Store the length in memory so we're not continually reading from calldata for each iteration.
+        // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 len = integrationsToRevoke.length;
         for (uint256 i; i < len;) {
             // Effects: revoke the signing authority for the integration at the current index.
@@ -139,11 +139,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function getSignatureAuthorityForIntegration(address integration) external view returns (address) {
-        return integrationToSigningAuthority[integration];
-    }
-
-    function getSignatureAuthority(address integration) external view returns (address) {
+    function getSigningAuthorityForIntegration(address integration) external view returns (address) {
         return integrationToSigningAuthority[integration];
     }
 }

@@ -20,7 +20,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
     UtilsHarness utilsHarness;
 
-    function setUp() public {
+    function setUp() public override {
         utilsHarness = new UtilsHarness();
     }
 
@@ -28,50 +28,67 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         PAYLOAD UTILS
     //////////////////////////////////////////////////////////////*/
 
+    event log_named_bytes16(string name, bytes16 value);
     // TODO: fix this
-    function testFuzz_SucceedsWhen_PayloadDataIsValid(uint256 calldataSize, uint256 modulePayloadSize) public {
-        calldataSize = bound(calldataSize, 32, 4096);
-        modulePayloadSize = bound(modulePayloadSize, 32, 4096);
+
+    function testFuzz_SucceedsWhen_PayloadDataIsValid(
+        uint256 calldataSize,
+        uint256 modulePayloadSize,
+        uint256 idSeed,
+        uint256 nonce
+    )
+        public
+    {
+        calldataSize = bound(calldataSize, 32, 256);
+        idSeed = bound(idSeed, 1, type(uint256).max);
         vm.assume(calldataSize % 32 == 0);
 
-        // create arbitrary length calldata and attach the module payload + bitmap,
-        // we dont care that these are empty bytes
-        bytes memory emptyBytes = new bytes(PayloadCreationUtils.SIGNATURE_MODULE_PAYLOAD_SIZE);
-        bytes memory mockCalldata = _getRandomBytes(calldataSize);
-        bytes memory mockCalldataWithEmptyPayload = abi.encode(mockCalldata, emptyBytes);
+        bool shouldTrackNonce = nonce % 2 == 0;
 
-        // The 64 bytes accounts for What? // TODO
-        bytes memory mockSlicedCalldata = PayloadCreationUtils.sliceBytes(
-            mockCalldataWithEmptyPayload,
-            0,
-            mockCalldataWithEmptyPayload.length - PayloadCreationUtils.SIGNATURE_MODULE_PAYLOAD_SIZE - 64
+        bytes16 mockModuleId = bytes16(bytes32(idSeed));
+        emit log_named_bytes16("module id", mockModuleId);
+
+        bytes4 mockSelector = bytes4(keccak256(abi.encode(idSeed)));
+        emit log_named_bytes4("mockSelector", mockSelector);
+
+        // mock the calldata for the integration function call (without the CUBE3 payload), which needs to fit into
+        // full words to match abi encoded data
+        bytes memory mockSlicedCalldata = _getRandomBytes(calldataSize);
+
+        // create the digest of the "original" function call's selector + args
+        bytes32 calldataDigest = keccak256(mockSlicedCalldata);
+        emit log_named_bytes32("calldataDigest", calldataDigest);
+
+        Structs.TopLevelCallComponents memory callMetadata = Structs.TopLevelCallComponents({
+            msgSender: _randomAddress(),
+            integration: _randomAddress(),
+            msgValue: 0,
+            calldataDigest: calldataDigest
+        });
+
+        // bytes memory signature = _createPayloadSignature(signatureData, pvtKey);
+        bytes memory signature = _getRandomBytes(65);
+
+        // create the module payload
+        (bytes memory modulePayloadWithPadding, uint32 padding) = _encodeModulePayloadAndPadToNextFullWord(
+            shouldTrackNonce, // whether to track the nonce
+            block.timestamp + 1 hours,
+            shouldTrackNonce ? nonce + 1 : 0,
+            signature
         );
-        bytes32 mockCalldataDigest = keccak256(mockSlicedCalldata);
 
-        bytes memory mockModulePayload = _getRandomBytes(modulePayloadSize);
+        emit log_named_uint32("length", uint32(modulePayloadWithPadding.length));
+        emit log_named_uint32("padding", padding);
 
-        bytes16 mockModuleID = bytes16(bytes32(keccak256(abi.encode(calldataSize))));
-        bytes4 moduleSelector = bytes4(bytes32(keccak256(abi.encode(modulePayloadSize))));
-        uint32 modulePadding = PayloadCreationUtils.calculateRequiredModulePayloadPadding(modulePayloadSize);
+        // create the routing bitmap
+        uint256 routingBitmap =
+            _createRoutingFooterBitmap(mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding);
+        emit log_named_uint("routing bitmap", routingBitmap);
 
-        // create the bitmap containing the routing data
-        uint256 routingBitmap = PayloadCreationUtils.createRoutingFooterBitmap(
-            mockModuleID, moduleSelector, uint32(mockModulePayload.length), modulePadding
+        // normal abi.encoding adds the length as the first word of modulePayloadWithPadding, so we need to simulate it
+        bytes memory combined = abi.encodePacked(
+            mockSlicedCalldata, uint256(modulePayloadWithPadding.length), modulePayloadWithPadding, routingBitmap
         );
-
-        // pad the module payload to the next full word
-        bytes memory packedModulePayload =
-            PayloadCreationUtils.createPaddedModulePayload(mockModulePayload, modulePadding);
-
-        // assertEq(mockCube3Payload.length, PayloadCreationUtils.SIGNATURE_MODULE_PAYLOAD_SIZE, "payload size
-        // mismatch");
-        // emit log_named_bytes("mockCube3Payload", mockCube3Payload);
-
-        // combine the module payload and the routing bitmap
-        bytes memory mockCube3Payload = abi.encodePacked(packedModulePayload, routingBitmap);
-
-        // create the mock function calldata, where the payload is the final arg
-        bytes memory combined = abi.encodePacked(mockCalldata, mockCube3Payload);
 
         // perform the test
         (
@@ -81,10 +98,17 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
             bytes32 derivedOriginalCalldataDigest
         ) = utilsHarness.parseRoutingInfoAndPayload(combined);
 
-        assertEq(derivedSelector, moduleSelector, "selector not matching");
-        assertEq(derivedModuleID, mockModuleID, "module id not matching");
-        assertEq(keccak256(derivedModulePayload), keccak256(mockModulePayload), "module payload not matching");
-        assertEq(mockCalldataDigest, derivedOriginalCalldataDigest, "digest not matching");
+        // confirm the data that's parsed is correct
+        assertEq(derivedSelector, mockSelector, "selector not matching");
+        assertEq(derivedModuleID, mockModuleId, "module id not matching");
+
+        // the actual module payload has the padding removed from the module payload
+        assertEq(
+            keccak256(derivedModulePayload),
+            keccak256(_removeBytesFromEnd(modulePayloadWithPadding, padding)),
+            "module payload not matching"
+        );
+        assertEq(calldataDigest, derivedOriginalCalldataDigest, "digest not matching");
     }
 
     function testFuzz_SucceedsWhen_ExtractingIntegrationFunctionSelector(
@@ -177,18 +201,20 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     )
         public
     {
-        locationSeed = bound(locationSeed, 0, 255);
-        retrievalSeed = bound(retrievalSeed, 0, 255);
-        vm.assume(locationSeed != retrievalSeed);
-        vm.assume(locationSeed % 32 == 0);
-        vm.assume(retrievalSeed % 32 == 0);
+        locationSeed = bound(locationSeed, 0, 255 - 32);
+        retrievalSeed = bound(retrievalSeed, 32, 255);
+        locationSeed = _toMultipleOf32(locationSeed);
+        retrievalSeed = _toMultipleOf32(retrievalSeed);
+
         valueSeed = bound(valueSeed, 1, type(uint32).max);
         uint32 value = uint32(valueSeed);
         uint8 location = uint8(locationSeed);
         uint8 retrieval = uint8(retrievalSeed);
+        vm.assume(location != retrieval);
 
         uint256 bitmap = uint256(0);
         bitmap = PayloadCreationUtils.addUint32ToBitmap(bitmap, value, location);
+        emit log_named_uint("bitmap", bitmap);
         uint32 derivedValue = utilsHarness.extractUint32FromBitmap(bitmap, retrieval);
         assertNotEq(derivedValue, value, "value not matching");
     }
@@ -295,5 +321,27 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         vm.expectRevert(ProtocolErrors.Cube3SignatureUtils_InvalidSigner.selector);
         utilsHarness.assertIsValidSignature(altSignature, digest, signer);
+    }
+
+    // Removes `lengthToRemove` bytes from the end of a `bytes memory data`
+    function _removeBytesFromEnd(bytes memory data, uint256 lengthToRemove) internal returns (bytes memory) {
+        require(lengthToRemove <= data.length, "Cannot remove more bytes than the data contains");
+
+        uint256 newLength = data.length - lengthToRemove;
+        bytes memory newData = new bytes(newLength);
+
+        for (uint256 i = 0; i < newLength; i++) {
+            newData[i] = data[i];
+        }
+
+        return newData;
+    }
+
+    function _toMultipleOf32(uint256 value) internal pure returns (uint256) {
+        if (value % 32 == 0) {
+            return value; // Already a multiple of 32
+        } else {
+            return ((value / 32) + 1) * 32;
+        }
     }
 }

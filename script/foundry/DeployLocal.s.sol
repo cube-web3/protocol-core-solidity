@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { Cube3Router } from "../../src/Cube3Router.sol";
+import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
 import { Cube3Registry } from "../../src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 
@@ -83,12 +83,12 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
 
     //     // ============ router
     //     // deploy the implementation
-    //     routerImplAddr = address(new Cube3Router());
+    //     routerImplAddr = address(new Cube3RouterImpl());
     //     // deploy the proxy
-    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3Router.initialize,
+    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize,
     // (address(registry))));
     //     // create a wrapper interface (for convenience)
-    //     wrappedRouterProxy = Cube3Router(payable(address(cubeRouterProxy)));
+    //     wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
     //     _addAccessControlAndRevokeDeployerPermsForRouter(cube3admin, cube3integrationAdmin, deployer);
 
     //     // =========== signature module
@@ -138,11 +138,11 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
 
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(DemoIntegrationERC721.safeMint.selector, 3, emptyBytes);
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(caller, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
 
         demo.safeMint(3, cube3SecurePayload);

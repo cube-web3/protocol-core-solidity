@@ -47,7 +47,7 @@ contract PayloadUtils is Test {
         Cube3SignatureModule signatureModule
     )
         internal
-        returns (Structs.IntegrationCallMetadata memory)
+        returns (Structs.TopLevelCallComponents memory)
     {
         // remove the payload so we can create a hash of the calldata without the payload,
         // note: because payload is type bytes, the slicedCalldata may contain some data about the payload,
@@ -64,7 +64,7 @@ contract PayloadUtils is Test {
         // emit log_named_bytes("slicedcalldata", slicedCalldata);
         // emit log_named_bytes32("calldatadigest", calldataDigest);
 
-        return Structs.IntegrationCallMetadata(caller, integration, msgValue, calldataDigest);
+        return Structs.TopLevelCallComponents(caller, integration, msgValue, calldataDigest);
     }
 
     event LogBytes16(bytes16 b);
@@ -76,20 +76,18 @@ contract PayloadUtils is Test {
         uint256 signingAuthPvtKey,
         uint256 expirationWindow,
         Cube3SignatureModule signatureModule,
-        Structs.IntegrationCallMetadata memory integrationCallInfo
+        Structs.TopLevelCallComponents memory topLevelCallComponents
     )
         internal
         returns (bytes memory)
     {
-        // bool trackNonce = false;
-
         uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = false ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
 
         // create the signature (ie what's usually handled by the risk API)
         bytes memory encodedSignatureData = abi.encode(
             block.chainid, // chain id
-            integrationCallInfo,
+            topLevelCallComponents,
             address(signatureModule), // module contract address
             Cube3SignatureModule.validateSignature.selector, // the module fn's signature
             userNonce,
@@ -97,22 +95,10 @@ contract PayloadUtils is Test {
         );
 
         // don't track the nonce for now
-        (bytes memory modulePayload, uint32 modulePadding) = _encodeModulePayload(
+        (bytes memory modulePayload, uint32 modulePadding) = _encodeModulePayloadAndPadToNextFullWord(
             false, userNonce, expirationTimestamp, _createPayloadSignature(encodedSignatureData, signingAuthPvtKey)
         );
-        // emit log_named_bytes("modulePayload", modulePayload);
 
-        // bytes4 selector = Cube3SignatureModule.validateSignature.selector;
-        // emit log_named_bytes4("selector", selector);
-
-        //  bytes16 moduleId16 = signatureModule.moduleId();
-
-        // bytes16 moduleId16 = bytes16(moduleId32Bytes);
-        // emit LogBytes16(moduleId16);
-        // uint128 moduleId16uint = uint128(moduleId16);
-        // emit log_named_uint("module id", moduleId16uint);
-        // emit log_named_uint("module payload length", modulePayload.length);
-        // emit log_named_uint("original calldata length", modulePayload.length+69);
         uint256 bitmap = _createRoutingFooterBitmap(
             signatureModule.moduleId(),
             Cube3SignatureModule.validateSignature.selector,
@@ -164,7 +150,7 @@ contract PayloadUtils is Test {
         return tempBytes;
     }
 
-    function _encodeModulePayload(
+    function _encodeModulePayloadAndPadToNextFullWord(
         bool trackNonce,
         uint256 nonce,
         uint256 expirationTimestamp,

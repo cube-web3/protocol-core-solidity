@@ -15,7 +15,7 @@ import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagem
 contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
 
-    function setUp() public {
+    function setUp() public override {
         integrationManagementHarness = new IntegrationManagementHarness();
     }
 

@@ -5,7 +5,7 @@ import { Structs } from "../common/Structs.sol";
 
 /// @title CUBE3 Router
 /// @author CUBE3.ai
-/// @notice The Cube3Router extracts routing data from the `cube3SecurePayload` header and
+/// @notice The Cube3RouterImpl extracts routing data from the `cube3SecurePayload` header and
 ///         routes transactions to the designated security modules that plugin to the CUBE3 Protocol.
 /// @dev Integration contracts need to register with the router to be eligible to have
 ///      transactions routed to modules.

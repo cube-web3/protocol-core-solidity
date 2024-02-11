@@ -1,43 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { BaseTest } from "../BaseTest.t.sol";
+import { BaseTest } from "./BaseTest.t.sol";
 
-import { Demo } from "../../demo/Demo.sol";
+import { Demo } from "../demo/Demo.sol";
 
-import { ICube3Router } from "../../../src/interfaces/ICube3Router.sol";
+import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
 
-abstract contract IntegrationSetup is BaseTest {
+abstract contract IntegrationTest is BaseTest {
     Demo demo;
 
-    function setUp() public virtual {
+    function setUp() public virtual override {
+        super.setUp();
+        _deployIntegrationDemos();
+        _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
+        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
+
         // deploy and configure cube protocol
-        _createCube3Accounts();
+        // _createCube3Accounts();
 
-        _deployProtocol();
+        // _deployProtocol();
 
-        _installSignatureModuleInRouter();
+        // _installSignatureModuleInRouter();
 
-        emit log_named_address("router proxy", address(cubeRouterProxy));
-        vm.startPrank(cube3Accounts.demoDeployer);
-        demo = new Demo(address(cubeRouterProxy));
-        vm.stopPrank();
+        // emit log_named_address("router proxy", address(cubeRouterProxy));
 
-        // _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
+        // // _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
+        // _deployIntegrationDemos();
 
         // // complete the registration
         // _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
     }
 
-    function _setDemoSigningAuthorityAsKeyManager(address loan, uint256 pvtKey) internal {
-        vm.startPrank(keyManager);
+    function _deployIntegrationDemos() internal {
+        vm.startPrank(cube3Accounts.demoDeployer);
+        demo = new Demo(address(cubeRouterProxy));
+        vm.stopPrank();
+    }
+
+    function _setDemoSigningAuthorityAsKeyManager(address integration, uint256 pvtKey) internal {
+        vm.startPrank(cube3Accounts.keyManager);
         // set the signing authority
-        registry.setClientSigningAuthority(loan, vm.addr(pvtKey));
+        registry.setClientSigningAuthority(integration, vm.addr(pvtKey));
         vm.stopPrank();
     }
 
     function _completeRegistrationAndEnableFnProtectionAsDemoDeployer(uint256 demoAuthPvtKey) internal {
-        vm.startPrank(demoDeployer);
+        vm.startPrank(cube3Accounts.demoDeployer);
 
         // deploy the contract
         // ICube3Data.FunctionProtectionStatusUpdate[] memory fnProtectionData =
