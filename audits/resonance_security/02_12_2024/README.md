@@ -189,5 +189,6 @@ TODO:
 - TODO: we dont check the payload length as it will cause a revert and an integration can disconnect on their side, or protection is off and saves gas from memory expansion
 - TODO: No error is thrown when a function is not protected, an integration admin could use the wrong selector, it's up to the integration to check that the protocol is being used.
 - TODO: revoking the registry will cause registrations to fail, but txs can continue if signed by the backup, if choosing not to pause.
+- TODO: It's possible for an integration admin to enable protection for a non-existent function, ie the router has no knowledge of whether or not the function exists on the integration contract. It's up to the integration to ensure that the function exists and is protected by the protocol.
 
 - TODO: cucrrently, revoking the registry will prevent new users from joining, but will not prevent existing users from using the protocol. the signature module will use a backup signer (which hsould be stored separate from teh registry/kms), so TXs can still be signed. However, the registration of new contracts will be paused (should be paused on the front-end anyway).

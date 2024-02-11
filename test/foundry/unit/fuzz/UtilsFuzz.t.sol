@@ -210,7 +210,8 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         uint32 value = uint32(valueSeed);
         uint8 location = uint8(locationSeed);
         uint8 retrieval = uint8(retrievalSeed);
-           vm.assume(location != retrieval);
+        vm.assume(location != retrieval);
+        
         uint256 bitmap = uint256(0);
         bitmap = PayloadCreationUtils.addUint32ToBitmap(bitmap, value, location);
         emit log_named_uint("bitmap", bitmap);

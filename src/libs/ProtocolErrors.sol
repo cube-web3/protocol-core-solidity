@@ -76,6 +76,9 @@ library ProtocolErrors {
     /// @notice Throws when setting the registration status to its current status.
     error Cube3Router_CannotSetStatusToCurrentStatus();
 
+    /// @notice Throws when attempting to set function protection status for the 0x00000000 selector.
+    error Cube3Router_InvalidFunctionSelector();
+
     /////////////////////////////////////////////////////////////////////////////////
     //                         Router : ProtocolManagement                         //
     /////////////////////////////////////////////////////////////////////////////////

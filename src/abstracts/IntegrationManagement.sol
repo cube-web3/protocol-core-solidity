@@ -139,7 +139,6 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         external
         onlyIntegrationAdmin(integration)
     {
-        // TODO: test
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Protocol_InvalidIntegration();
@@ -163,7 +162,6 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             revert ProtocolErrors.Cube3Router_RegistrarSignatureAlreadyUsed();
         }
 
-        // TODO: what about the case of multiple registrars
         // Checks: the registry and registrar are valid accounts.
         (address registry, address integrationSigningAuthority) =
             fetchRegistryAndSigningAuthorityForIntegration(integration);
@@ -188,11 +186,22 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         // Effects: marks the registration signature hash as used by setting the entry in the mapping to True.
         _setUsedRegistrationSignatureHash(registrarSignatureHash);
 
-        // Effects: Set the function protection status for each selector in the array.
+        // Place variables on the stack to save gas
         uint256 numSelectors = enabledByDefaultFnSelectors.length;
+        bytes4 tempSelector;
+
+        // Update the protection status for each selector provided in the array.
         if (numSelectors > 0) {
             for (uint256 i; i < numSelectors;) {
-                _setFunctionProtectionStatus(integration, enabledByDefaultFnSelectors[i], true);
+                tempSelector = enabledByDefaultFnSelectors[i];
+                
+                // Checks: the selector being set is not null.
+                if (tempSelector == bytes4(0)) {
+                    revert ProtocolErrors.Cube3Router_InvalidFunctionSelector();
+                }
+
+                // Effects: updates the function protection status of the integration's function using the selector.
+                _setFunctionProtectionStatus(integration, tempSelector , true);
                 unchecked {
                     ++i;
                 }
@@ -216,7 +225,6 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
     {
         uint256 numIntegrations = integrations.length;
 
-        // TODO: test this
         // Checks: the array lengths are equal.
         if (numIntegrations != statuses.length) {
             revert ProtocolErrors.Cube3Protocol_ArrayLengthMismatch();
