@@ -9,7 +9,7 @@ contract MockRegistry {
   signatureAuthorities[integration] = authority;
  }
 
- function getSignatureAuthorityForIntegration(address integration) external view returns (address) {
+ function getSigningAuthorityForIntegration(address integration) external view returns (address) {
   return signatureAuthorities[integration];
  }
 

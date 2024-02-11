@@ -154,7 +154,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         view
         returns (address signer)
     {
-        signer = cube3registry.getSignatureAuthorityForIntegration(integration);
+        signer = cube3registry.getSigningAuthorityForIntegration(integration);
     }
 
     /// @dev Makes an external call to the Cube3Router to retrieve the registry address.

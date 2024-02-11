@@ -270,7 +270,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         if (registry == address(0)) {
             return (address(0), address(0));
         }
-        authority = ICube3Registry(registry).getSignatureAuthorityForIntegration(integration);
+        authority = ICube3Registry(registry).getSigningAuthorityForIntegration(integration);
     }
 
     /// @dev Updates the integration status for an integration or an integration's proxy.

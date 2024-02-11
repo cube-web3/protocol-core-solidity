@@ -73,7 +73,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract),
+            registryHarness.getSigningAuthorityForIntegration(integrationContract),
             clientSigningAuthority,
             "incorrect authority"
         );
@@ -114,7 +114,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrations[0]),
+            registryHarness.getSigningAuthorityForIntegration(integrations[0]),
             signingAuthorities[0],
             "incorrect authority"
         );
@@ -152,7 +152,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract), address(0), "incorrect authority"
+            registryHarness.getSigningAuthorityForIntegration(integrationContract), address(0), "incorrect authority"
         );
     }
 
@@ -188,7 +188,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrations[0]), address(0), "incorrect authority"
+            registryHarness.getSigningAuthorityForIntegration(integrations[0]), address(0), "incorrect authority"
         );
     }
 
@@ -240,7 +240,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         registryHarness.wrappedSetSigningAuthority(integrationContract, clientSigningAuthority);
 
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract),
+            registryHarness.getSigningAuthorityForIntegration(integrationContract),
             clientSigningAuthority,
             "incorrect authority"
         );
@@ -264,7 +264,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
 
         registryHarness.wrappedSetSigningAuthority(integrationContract, clientSigningAuthority);
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract),
+            registryHarness.getSigningAuthorityForIntegration(integrationContract),
             clientSigningAuthority,
             "incorrect authority"
         );
@@ -273,7 +273,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         emit SigningAuthorityRevoked(integrationContract, clientSigningAuthority);
         registryHarness.wrappedRevokeSigningAuthorityForIntegration(integrationContract);
         assertEq(
-            registryHarness.getSignatureAuthorityForIntegration(integrationContract), address(0), "existing authority"
+            registryHarness.getSigningAuthorityForIntegration(integrationContract), address(0), "existing authority"
         );
     }
 }

@@ -88,5 +88,5 @@ interface ICube3Registry {
     ///      override signer is returned by default.
     /// @param integration The ingtegration contract's address.
     /// @return The signing authority (account address) of the authority's private-public keypair.
-    function getSignatureAuthorityForIntegration(address integration) external view returns (address);
+    function getSigningAuthorityForIntegration(address integration) external view returns (address);
 }
