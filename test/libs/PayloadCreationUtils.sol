@@ -90,6 +90,8 @@ Vm private constant vm = Vm(VM_ADDRESS);
         // add the cube payload length in the next 4 bytes
         bitmap = bitmap + (uint256(uint32(paddingNeeded)) << 192);
 
+        // TODO: figure out why this isn't working
+        
         // uint256 bitmap = createRoutingFooterBitmap(
         //     signatureModule.moduleId(),
         //     Cube3SignatureModule.validateSignature.selector,

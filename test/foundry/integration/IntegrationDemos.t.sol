@@ -14,11 +14,7 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         super.setUp();
     }
 
-    function test_test() public {
-        assertTrue(true);
-    }
-
-    function test_SucceedsWhen_MintingWithValidPayload() public {
+    function test_SucceedsWhen_MintingWithValidPayload_WithNoValue() public {
         address user = _randomAddress();
 
         vm.startPrank(user);
@@ -56,6 +52,8 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         vm.stopPrank();
     }
 
+    // TODO: add value to TX
+
     function test_SucceedsWhen_CallingProtecteDemoFunction() public {
         address user = _randomAddress();
 
@@ -72,17 +70,29 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
             abi.encodeWithSelector(Demo.protected.selector, newVal, newState, newBytes, emptyBytes);
 
         Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
+            PayloadCreationUtils.packageTopLevelCallComponents(
+                user, 
+                address(demo), 
+                0, 
+                calldataWithEmptyPayload, 
+                signatureModule.expectedPayloadSize()
+            );
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), 
+            user, 
+            demoSigningAuthorityPvtKey, 
+            1 days, 
+            true, 
+            signatureModule, 
+            topLevelCallComponents
         );
 
         demo.protected(newVal, newState, newBytes, cube3SecurePayload);
         vm.stopPrank();
     }
 
-    function testDynamic() public {
+    function test_SucceedsWhen_CallingProtecedFnWithDynamicTypedArgs() public {
 
         address user = _randomAddress();
 
@@ -100,17 +110,34 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory emptyBytes = new bytes(352); // payload length
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(Demo.dynamic.selector, vals, flag, str, emptyBytes);
-        Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
+            PayloadCreationUtils.packageTopLevelCallComponents(
+                user, 
+                address(demo), 
+                0, 
+                calldataWithEmptyPayload, 
+                signatureModule.expectedPayloadSize()
+            );
+
+
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), 
+            user, 
+            demoSigningAuthorityPvtKey, 
+            1 days, 
+            true, 
+            signatureModule, 
+            topLevelCallComponents
         );
+
         demo.dynamic(vals, flag, str, cube3SecurePayload);
         vm.stopPrank();
+
     }
 
-    function testBytes() public {
+    // Succeeds when calling a protected function that has dynamic types such as bytes as args
+    function test_SucceedsWhen_CallingProtectedFnWithBytesArgs() public {
 
         address user = _randomAddress();
 
@@ -132,16 +159,31 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
             Demo.bytesProtected.selector, firstBytes, newVal, secondBytes, uint256s, str, flag, emptyBytes
         );
         Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
+            PayloadCreationUtils.packageTopLevelCallComponents(
+                user, 
+                address(demo), 
+                0, 
+                calldataWithEmptyPayload, 
+                signatureModule.expectedPayloadSize()
+            );
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
+
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), 
+            user, 
+            demoSigningAuthorityPvtKey, 
+            1 days, 
+            true, 
+            signatureModule, 
+            topLevelCallComponents
         );
+
         demo.bytesProtected(firstBytes, newVal, secondBytes, uint256s, str, flag, cube3SecurePayload);
         vm.stopPrank();
     }
 
-    function testNoArgs() public {
+    // Succeeds when calling a protected function that has no arguments
+    function test_SucceedsWhen_CallingProtectedFnWithNoArgs() public {
 
         address user = _randomAddress();
         
@@ -151,10 +193,23 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory emptyBytes = new bytes(352); // payload length
         bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(Demo.noArgs.selector, emptyBytes);
         Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
+            PayloadCreationUtils.packageTopLevelCallComponents(
+                user, 
+                address(demo), 
+                0, 
+                calldataWithEmptyPayload, 
+                signatureModule.expectedPayloadSize()
+            );
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
+
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), 
+            user, 
+            demoSigningAuthorityPvtKey, 
+            1 days, 
+            true, 
+            signatureModule, 
+            topLevelCallComponents
         );
         demo.noArgs(cube3SecurePayload);
         vm.stopPrank();

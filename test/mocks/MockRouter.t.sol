@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-contract MockRouter {
+import {ProtocolConstants} from "../../src/common/ProtocolConstants.sol";
+
+contract MockRouter is ProtocolConstants {
 
  address public registry;
 
