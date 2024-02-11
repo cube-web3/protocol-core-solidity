@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {Vm} from "forge-std/Vm.sol";
+import { Vm } from "forge-std/Vm.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import {Structs} from "../../src/common/Structs.sol";
-import {Cube3SignatureModule} from "../../src/modules/Cube3SignatureModule.sol";
+import { Structs } from "../../src/common/Structs.sol";
+import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
 
 library PayloadCreationUtils {
-address private constant VM_ADDRESS =
-    address(bytes20(uint160(uint256(keccak256("hevm cheat code")))));
-Vm private constant vm = Vm(VM_ADDRESS);
+    address private constant VM_ADDRESS = address(bytes20(uint160(uint256(keccak256("hevm cheat code")))));
+    Vm private constant vm = Vm(VM_ADDRESS);
 
- uint256 constant SIGNATURE_MODULE_PAYLOAD_SIZE = 352;
+    uint256 constant SIGNATURE_MODULE_PAYLOAD_SIZE = 352;
 
-   /*
+    /*
      Creating a CUBE3 payload involves the following steps:
      - creating the signature by hashing the verifiable data and signing it
      - creating the module payload by packing the following:
@@ -30,22 +29,25 @@ Vm private constant vm = Vm(VM_ADDRESS);
        - modulePaddingUsed (uint32)
      - create the packedModulePayload by concatenating the modulePayload and the padding
      - combining packedModulePayload + routingBitmap by packing them to create the cube3Payload
-   */
+    */
 
     event log_bitmap(uint256 bitmap);
     event log_payload(bytes p);
     event log_uint(uint256 l);
 
     /// @dev The CUBE3 payload combines the module payload and the routing bitmap.
-   function createCube3PayloadForSignatureModule(
-       address integration,
-       address caller,
-       uint256 pvtKeyToSignWith,
-       uint256 expirationWindow,
-       bool trackNonce,
-       Cube3SignatureModule signatureModule,
-       Structs.TopLevelCallComponents memory topLevelCallComponents
-   ) internal returns (bytes memory) {
+    function createCube3PayloadForSignatureModule(
+        address integration,
+        address caller,
+        uint256 pvtKeyToSignWith,
+        uint256 expirationWindow,
+        bool trackNonce,
+        Cube3SignatureModule signatureModule,
+        Structs.TopLevelCallComponents memory topLevelCallComponents
+    )
+        internal
+        returns (bytes memory)
+    {
         uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = trackNonce ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
 
@@ -63,18 +65,13 @@ Vm private constant vm = Vm(VM_ADDRESS);
         emit log_uint(signature.length);
 
         // create the signature module payload and pad it to the next full word
-        bytes memory encodedModulePayloadData = abi.encodePacked(
-            expirationTimestamp,
-            trackNonce,
-            userNonce,
-            signature
-        );
+        bytes memory encodedModulePayloadData = abi.encodePacked(expirationTimestamp, trackNonce, userNonce, signature);
         emit log_payload(encodedModulePayloadData);
         uint32 paddingNeeded = uint32(calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
         bytes memory modulePayloadWithPadding = createPaddedModulePayload(encodedModulePayloadData, paddingNeeded);
         emit log_payload(modulePayloadWithPadding);
         emit log_uint(paddingNeeded);
-        
+
         // creating the routing bitmap
         uint256 bitmap = uint256(0);
 
@@ -91,7 +88,7 @@ Vm private constant vm = Vm(VM_ADDRESS);
         bitmap = bitmap + (uint256(uint32(paddingNeeded)) << 192);
 
         // TODO: figure out why this isn't working
-        
+
         // uint256 bitmap = createRoutingFooterBitmap(
         //     signatureModule.moduleId(),
         //     Cube3SignatureModule.validateSignature.selector,
@@ -103,7 +100,7 @@ Vm private constant vm = Vm(VM_ADDRESS);
         emit log_bitmap(bitmap);
         // combine and return them.
         return abi.encodePacked(modulePayloadWithPadding, bitmap);
-   }
+    }
 
     function signPayloadData(
         bytes memory encodedSignatureData,
@@ -120,11 +117,10 @@ Vm private constant vm = Vm(VM_ADDRESS);
 
         require(signature.length == 65, "invalid signature length");
 
-        address signedHashAddress = ECDSA.recover(ethSignedHash,signature);
+        address signedHashAddress = ECDSA.recover(ethSignedHash, signature);
 
         require(signedHashAddress == vm.addr(pvtKeyToSignWith), "signers dont match");
     }
-
 
     // TODO: use safe cast
     function calculateRequiredModulePayloadPadding(uint256 modulePayloadLength) internal pure returns (uint32) {
@@ -132,7 +128,14 @@ Vm private constant vm = Vm(VM_ADDRESS);
         return uint32((32 - (modulePayloadLength % 32)) % 32);
     }
 
-    function createPaddedModulePayload(bytes memory modulePayload, uint32 modulePaddingSize) internal pure returns (bytes memory) {
+    function createPaddedModulePayload(
+        bytes memory modulePayload,
+        uint32 modulePaddingSize
+    )
+        internal
+        pure
+        returns (bytes memory)
+    {
         // pad the module payload to the next word
         bytes memory payloadWithPadding = new bytes(modulePayload.length + modulePaddingSize);
 
@@ -153,12 +156,15 @@ Vm private constant vm = Vm(VM_ADDRESS);
         uint256 msgValue,
         bytes memory integrationCalldataWithEmptyPayload,
         uint256 expectedPayloadSize
-    ) internal returns (Structs.TopLevelCallComponents memory) {
+    )
+        internal
+        returns (Structs.TopLevelCallComponents memory)
+    {
         // remove the payload so we can create a hash of the calldata without the payload,
         // note: because payload is type bytes, the slicedCalldata may contain some data about the payload,
         // eg. the offset to the payload, and the length of the payload, but this will be the case when it's
         // reproduced on chain.  For all intents and purposes, the empty bytes payload is structurally identical
-        // to the payload populated with the correct data. Subtracting 64 accounts for the routing bitmap and the 
+        // to the payload populated with the correct data. Subtracting 64 accounts for the routing bitmap and the
         // 32 bytes (uint256) that's added to the front of the module payload by the ABI encoding.
         bytes memory slicedCalldata = sliceBytes(
             integrationCalldataWithEmptyPayload,
@@ -195,6 +201,19 @@ Vm private constant vm = Vm(VM_ADDRESS);
         uint256 bitmap = uint256(0);
 
         // add the module ID in the right-most 16 bytes
+        bitmap = bitmap + uint256(uint128(id));
+
+        // add the module selector in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(moduleSelector)) << 128);
+
+        // add the module payload length in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(paddedModulePayloadLength)) << 160);
+
+        // add the cube payload length in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(modulePadding)) << 192);
+
+        /*
+        // add the module ID in the right-most 16 bytes
         // bitmap = bitmap + uint256(uint128(id));
         bitmap = addBytes16ToBitmap(bitmap, id, 0);
 
@@ -209,18 +228,17 @@ Vm private constant vm = Vm(VM_ADDRESS);
         // add the cube payload length in the next 4 bytes
         // bitmap = bitmap + (uint256(uint32(modulePadding)) << 192);
         bitmap = addUint32ToBitmap(bitmap, uint32(modulePadding), 192);
-
+        */
         return bitmap;
     }
 
     function addBytes16ToBitmap(uint256 bitmap, bytes16 id, uint8 offset) public pure returns (uint256) {
-        return bitmap + uint256(uint128(id)) << offset;
+        return bitmap + uint256(uint128(id));
     }
 
     function addUint32ToBitmap(uint256 bitmap, uint32 value, uint8 offset) public pure returns (uint256) {
         return bitmap + uint256(value) << offset;
     }
-
 
     function sliceBytes(bytes memory _bytes, uint256 start, uint256 end) public pure returns (bytes memory) {
         require(_bytes.length >= end, "Slice end too high");
