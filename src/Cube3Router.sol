@@ -134,7 +134,7 @@ contract Cube3Router is
         // create the calldata for the module call
         bytes memory moduleCalldata = abi.encodeWithSelector(
             moduleFnSelector,
-            Structs.IntegrationCallMetadata(
+            Structs.TopLevelCallComponents(
                 integrationMsgSender,
                 msg.sender, // this will be the proxy address if the integration uses a proxy
                 integrationMsgValue,

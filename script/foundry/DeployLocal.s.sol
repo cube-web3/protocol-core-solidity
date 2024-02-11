@@ -138,11 +138,11 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
 
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(DemoIntegrationERC721.safeMint.selector, 3, emptyBytes);
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(caller, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
 
         demo.safeMint(3, cube3SecurePayload);

@@ -18,17 +18,19 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         assertTrue(true);
     }
 
-    function testMint() public {
+    function test_SucceedsWhen_MintingWithValidPayload() public {
         address user = _randomAddress();
 
         vm.startPrank(user);
 
         // generate the calldata for the integration function calls
-        bytes memory emptyBytes = new bytes(352);
+        bytes memory emptyBytes = new bytes(352); //352
         bytes memory mintCalldataWithEmptyPayload = abi.encodeWithSelector(Demo.mint.selector, 99, emptyBytes);
 
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
-            PayloadCreationUtils.packageOriginalCalldataInfo(
+        emit log_named_address("signatureModule", address(signatureModule));
+
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
+            PayloadCreationUtils.packageTopLevelCallComponents(
                 user, 
                 address(demo), 
                 0, 
@@ -36,9 +38,17 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
                 signatureModule.expectedPayloadSize()
             );
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), 
+            user, 
+            demoSigningAuthorityPvtKey, 
+            1 days, 
+            true, 
+            signatureModule, 
+            topLevelCallComponents
         );
+
+
 
         emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
         uint256 prevBalance = demo.mint(99, cube3SecurePayload);
@@ -46,7 +56,7 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         vm.stopPrank();
     }
 
-    function testProtected() public {
+    function test_SucceedsWhen_CallingProtecteDemoFunction() public {
         address user = _randomAddress();
 
         vm.startPrank(user);
@@ -61,11 +71,11 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(Demo.protected.selector, newVal, newState, newBytes, emptyBytes);
 
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
 
         demo.protected(newVal, newState, newBytes, cube3SecurePayload);
@@ -90,11 +100,11 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory emptyBytes = new bytes(352); // payload length
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(Demo.dynamic.selector, vals, flag, str, emptyBytes);
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
         demo.dynamic(vals, flag, str, cube3SecurePayload);
         vm.stopPrank();
@@ -121,11 +131,11 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
             Demo.bytesProtected.selector, firstBytes, newVal, secondBytes, uint256s, str, flag, emptyBytes
         );
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
         demo.bytesProtected(firstBytes, newVal, secondBytes, uint256s, str, flag, cube3SecurePayload);
         vm.stopPrank();
@@ -140,11 +150,11 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         // generate the payload
         bytes memory emptyBytes = new bytes(352); // payload length
         bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(Demo.noArgs.selector, emptyBytes);
-        Structs.IntegrationCallMetadata memory integrationCallInfo =
+        Structs.TopLevelCallComponents memory topLevelCallComponents =
             _createIntegrationCallInfo(user, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
         bytes memory cube3SecurePayload = _createPayload(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
+            address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
         );
         demo.noArgs(cube3SecurePayload);
         vm.stopPrank();

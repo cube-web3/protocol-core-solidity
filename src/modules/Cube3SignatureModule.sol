@@ -53,7 +53,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
     event stored_log(uint256 n);
 
     function validateSignature(
-        Structs.IntegrationCallMetadata memory integrationData,
+        Structs.TopLevelCallComponents memory integrationData,
         bytes calldata modulePayload
     )
         external

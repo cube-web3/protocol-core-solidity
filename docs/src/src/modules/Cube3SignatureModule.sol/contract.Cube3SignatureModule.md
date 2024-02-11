@@ -55,7 +55,7 @@ constructor(
 
 ```solidity
 function validateSignature(
-    Structs.IntegrationCallMetadata memory integrationData,
+    Structs.TopLevelCallComponents memory integrationData,
     bytes calldata modulePayload
 )
     external

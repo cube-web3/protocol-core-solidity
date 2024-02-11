@@ -1,9 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
+import {Vm} from "forge-std/Vm.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {Structs} from "../../src/common/Structs.sol";
+import {Cube3SignatureModule} from "../../src/modules/Cube3SignatureModule.sol";
 
 library PayloadCreationUtils {
+address private constant VM_ADDRESS =
+    address(bytes20(uint160(uint256(keccak256("hevm cheat code")))));
+Vm private constant vm = Vm(VM_ADDRESS);
 
  uint256 constant SIGNATURE_MODULE_PAYLOAD_SIZE = 352;
 
@@ -25,16 +32,75 @@ library PayloadCreationUtils {
      - combining packedModulePayload + routingBitmap by packing them to create the cube3Payload
    */
 
+    event log_bitmap(uint256 bitmap);
+    event log_payload(bytes p);
+    event log_uint(uint256 l);
+
     /// @dev The CUBE3 payload combines the module payload and the routing bitmap.
-   function createCube3Payload(
+   function createCube3PayloadForSignatureModule(
        address integration,
        address caller,
        uint256 pvtKeyToSignWith,
-       uint256 expirationTimestamp,
-       Structs.SignatureModule signatureModule,
-       Structs.IntegrationCallMetadata integrationCallInfo
+       uint256 expirationWindow,
+       bool trackNonce,
+       Cube3SignatureModule signatureModule,
+       Structs.TopLevelCallComponents memory topLevelCallComponents
    ) internal returns (bytes memory) {
+        uint256 expirationTimestamp = block.timestamp + expirationWindow;
+        uint256 userNonce = trackNonce ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
 
+        // create the signature using the signers private key
+        bytes memory encodedDataForSigning = abi.encode(
+            block.chainid, // chain id
+            topLevelCallComponents,
+            address(signatureModule), // module contract address
+            Cube3SignatureModule.validateSignature.selector, // the module fn's signature
+            userNonce,
+            expirationTimestamp // expiration
+        );
+        bytes memory signature = signPayloadData(encodedDataForSigning, pvtKeyToSignWith);
+        emit log_payload(signature);
+        emit log_uint(signature.length);
+
+        // create the signature module payload and pad it to the next full word
+        bytes memory encodedModulePayloadData = abi.encodePacked(
+            expirationTimestamp,
+            trackNonce,
+            userNonce,
+            signature
+        );
+        emit log_payload(encodedModulePayloadData);
+        uint32 paddingNeeded = uint32(calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
+        bytes memory modulePayloadWithPadding = createPaddedModulePayload(encodedModulePayloadData, paddingNeeded);
+        emit log_payload(modulePayloadWithPadding);
+        emit log_uint(paddingNeeded);
+        
+        // creating the routing bitmap
+        uint256 bitmap = uint256(0);
+
+        // add the module ID in the right-most 16 bytes
+        bitmap = bitmap + uint256(uint128(signatureModule.moduleId()));
+
+        // add the module selector in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(Cube3SignatureModule.validateSignature.selector)) << 128);
+
+        // add the module payload length in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(modulePayloadWithPadding.length)) << 160);
+
+        // add the cube payload length in the next 4 bytes
+        bitmap = bitmap + (uint256(uint32(paddingNeeded)) << 192);
+
+        // uint256 bitmap = createRoutingFooterBitmap(
+        //     signatureModule.moduleId(),
+        //     Cube3SignatureModule.validateSignature.selector,
+        //     uint32(modulePayloadWithPadding.length),
+        //     paddingNeeded
+        // );
+
+        // emit log_bytes32(bytes32(signatureModule.moduleId()));
+        emit log_bitmap(bitmap);
+        // combine and return them.
+        return abi.encodePacked(modulePayloadWithPadding, bitmap);
    }
 
     function signPayloadData(
@@ -50,14 +116,11 @@ library PayloadCreationUtils {
 
         signature = abi.encodePacked(r, s, v);
 
-        assertTrue(signature.length == 65, "invalid signature length");
+        require(signature.length == 65, "invalid signature length");
 
-        (address signedHashAddress, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
-        if (error != ECDSA.RecoverError.NoError) {
-            revert("No Matchies");
-        }
+        address signedHashAddress = ECDSA.recover(ethSignedHash,signature);
 
-        assertEq(signedHashAddress, vm.addr(pvtKeyToSignWith), "signers dont match");
+        require(signedHashAddress == vm.addr(pvtKeyToSignWith), "signers dont match");
     }
 
 
@@ -82,32 +145,32 @@ library PayloadCreationUtils {
         return payloadWithPadding;
     }
 
-    function packageOriginalCalldataInfo(
+    function packageTopLevelCallComponents(
         address caller,
         address integration,
         uint256 msgValue,
         bytes memory integrationCalldataWithEmptyPayload,
         uint256 expectedPayloadSize
-    ) internal returns (Structs.IntegrationCallMetadata memory) {
+    ) internal returns (Structs.TopLevelCallComponents memory) {
         // remove the payload so we can create a hash of the calldata without the payload,
         // note: because payload is type bytes, the slicedCalldata may contain some data about the payload,
         // eg. the offset to the payload, and the length of the payload, but this will be the case when it's
         // reproduced on chain.  For all intents and purposes, the empty bytes payload is structurally identical
         // to the payload populated with the correct data. Subtracting 64 accounts for the routing bitmap and the 
         // 32 bytes (uint256) that's added to the front of the module payload by the ABI encoding.
-        bytes memory slicedCalldata = _sliceBytes(
+        bytes memory slicedCalldata = sliceBytes(
             integrationCalldataWithEmptyPayload,
             0,
             integrationCalldataWithEmptyPayload.length - expectedPayloadSize - 64
         );
         bytes32 calldataDigest = keccak256(slicedCalldata);
-        return Structs.IntegrationCallMetadata(caller, integration, msgValue, calldataDigest);
+        return Structs.TopLevelCallComponents(caller, integration, msgValue, calldataDigest);
     }
 
     function createRoutingFooterBitmap(
         bytes16 id,
         bytes4 moduleSelector,
-        uint32 modulePayloadLength,
+        uint32 paddedModulePayloadLength,
         uint32 modulePadding
     )
         internal
@@ -139,7 +202,7 @@ library PayloadCreationUtils {
 
         // add the module payload length in the next 4 bytes
         // bitmap = bitmap + (uint256(uint32(modulePayloadLength)) << 160);
-        bitmap = addUint32ToBitmap(bitmap, uint32(modulePayloadLength), 160);
+        bitmap = addUint32ToBitmap(bitmap, uint32(paddedModulePayloadLength), 160);
 
         // add the cube payload length in the next 4 bytes
         // bitmap = bitmap + (uint256(uint32(modulePadding)) << 192);

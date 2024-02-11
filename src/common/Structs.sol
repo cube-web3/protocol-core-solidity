@@ -39,7 +39,7 @@ abstract contract Structs {
         bool paused;
     }
 
-    struct IntegrationCallMetadata {
+    struct TopLevelCallComponents {
         address msgSender;
         address integration;
         uint256 msgValue;

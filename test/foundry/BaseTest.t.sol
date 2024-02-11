@@ -80,8 +80,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
             demoDeployer: vm.addr(demoDeployerPrivateKey)
         });
 
-        // labels
-
     }
 
     function _deployTestingHarnessContracts() internal {

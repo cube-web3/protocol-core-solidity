@@ -38,7 +38,29 @@ The reason we include the required module's padding is that the module payload i
 
 Now that the length of the Module Payload is known, we can extract the Module Payload from the calldata. In addition, we can extract the bytes representing the remaining ABI encoded function arguments, along with the function selector, and generate the digest. It's important to note that this data will likely contain the data for the offset of the Module Payload, but this is accounted for when generating the equivalent digest off-chain.
 
-TODO: show layout of modulePayload
+### Module payload layout
+
+```solidity
+bytes memory encodedModulePayloadData = abi.encode(
+   expirationTimestamp,
+   trackNonce,
+   userNonce,
+   signature
+);
+```
+
+The next step is to apply padding of zeroes to fill the last word, as previously mentioned. Take note of the trailing zeros after the signature's `s` value (`0x1c`).
+
+[000]: 0000000000000000000000000000000000000000000000000000000000015181 [timestamp]
+[020]: 0000000000000000000000000000000000000000000000000000000000000001 [shouldTrackNonce]
+[040]: 0000000000000000000000000000000000000000000000000000000000000001 [nonce]
+[060]: 0000000000000000000000000000000000000000000000000000000000000080 [signature offset] 0x80 = 128 bytes bytes
+[080]: 0000000000000000000000000000000000000000000000000000000000000041 [signature length] 0x41 = 65 bytes
+[0a0]: 5a5cb72a195205cd56ab0aa564fe38162d3625d539506251f52bb46024188519 [r]
+[0c0]: 3c3c70e1bc67dc864e13b62e5cf2085d6e22ab50550d1424e857b2ce627e7869 [v]
+[0e0]: 1c00000000000000000000000000000000000000000000000000000000000000 [s] + [padding]
+
+````
 
 Finally, the `moduleFnSelector`, the original function call's metadata, and the `modulePayload` are used to generate the calldata for the module call.
 
@@ -46,7 +68,7 @@ Finally, the `moduleFnSelector`, the original function call's metadata, and the 
 
 bytes memory moduleCalldata = abi.encodeWithSelector(
    moduleFnSelector,
-   Structs.IntegrationCallMetadata(
+   Structs.TopLevelCallComponents(
        integrationMsgSender,
        msg.sender, // this will be the proxy address if the integration uses a proxy
        integrationMsgValue,
@@ -54,4 +76,4 @@ bytes memory moduleCalldata = abi.encodeWithSelector(
    ),
    modulePayload
 );
-```
+````

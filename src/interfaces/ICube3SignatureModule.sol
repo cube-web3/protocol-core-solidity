@@ -32,7 +32,7 @@ interface ICube3SignatureModule {
     //////////////////////////////////////////////////////////////*/
 
     function validateSignature(
-        Structs.IntegrationCallMetadata memory integrationData,
+        Structs.TopLevelCallComponents memory integrationData,
         bytes calldata cube3SecurePayload
     )
         external

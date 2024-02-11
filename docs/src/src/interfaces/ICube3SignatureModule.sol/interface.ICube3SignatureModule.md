@@ -22,7 +22,7 @@ _Module emits no events as a gas-saving measure._
 
 ```solidity
 function validateSignature(
-    Structs.IntegrationCallMetadata memory integrationData,
+    Structs.TopLevelCallComponents memory integrationData,
     bytes calldata cube3SecurePayload
 )
     external

@@ -13,6 +13,10 @@ abstract contract IntegrationTest is BaseTest {
     function setUp() public virtual override {
 
         super.setUp();
+        _deployIntegrationDemos();
+        _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
+        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
+
         // deploy and configure cube protocol
         // _createCube3Accounts();
 
@@ -36,10 +40,10 @@ abstract contract IntegrationTest is BaseTest {
         vm.stopPrank();
     }
 
-    function _setDemoSigningAuthorityAsKeyManager(address loan, uint256 pvtKey) internal {
+    function _setDemoSigningAuthorityAsKeyManager(address integration, uint256 pvtKey) internal {
         vm.startPrank(cube3Accounts.keyManager);
         // set the signing authority
-        registry.setClientSigningAuthority(loan, vm.addr(pvtKey));
+        registry.setClientSigningAuthority(integration, vm.addr(pvtKey));
         vm.stopPrank();
     }
 

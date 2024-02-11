@@ -40,7 +40,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
     // fails when the signing authority is the zero address
     function testFuzz_RevertsWhen_SigningAuthorityNotSet(uint256 pvtKey) public asCubeRouter {
         pvtKey = bound(pvtKey, 1, type(uint128).max);
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(false, 0, 0, pvtKey);
         vm.expectRevert(ProtocolErrors.Cube3SignatureModule_NullSigningAuthority.selector);
         signatureModuleHarness.validateSignature(callMetadata, modulePayload);
@@ -61,7 +61,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
 
         vm.assume(nonce != incorrectNonce);
 
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(true, nonce, block.timestamp + 1 hours, pvtKey);
 
         // set the signing authority for the integration
@@ -86,7 +86,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         uint256 expiresAt = block.timestamp + window;
         vm.warp(expiresAt);
 
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(false, 0, expiresAt - 1, pvtKey);
 
         address authority = vm.addr(pvtKey);
@@ -110,7 +110,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
     {
         nonce = bound(nonce, 0, type(uint256).max - 1);
         pvtKey = bound(pvtKey, 1, type(uint128).max);
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(true, nonce, block.timestamp + 1 hours, pvtKey);
 
         address authority = vm.addr(pvtKey);
@@ -141,7 +141,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         window = bound(window, 1, type(uint40).max);
 
         bool shouldTrack = nonce % 2 == 0;
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(shouldTrack, nonce, block.timestamp + window, pvtKey);
 
         address authority = vm.addr(pvtKey);
@@ -167,7 +167,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         asCubeRouter
     {
         pvtKey = bound(pvtKey, 1, type(uint128).max);
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(false, 0, block.timestamp + 1 hours, pvtKey);
 
         address authority = vm.addr(pvtKey);
@@ -182,7 +182,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
     // succeeds when the signature is valid and the universal signer is used
     function testFuzz_SucceedsWhen_SignatureIsValidForUniversalSigner(uint256 nonce) public asCubeRouter {
         nonce = bound(nonce, 0, type(uint256).max - 1);
-        (Structs.IntegrationCallMetadata memory callMetadata, bytes memory modulePayload) =
+        (Structs.TopLevelCallComponents memory callMetadata, bytes memory modulePayload) =
             _generateIntegrationMetadataAndModulePayload(true, nonce, block.timestamp + 1 hours, universalSignerPvtKey);
 
         // set the nonce for the integration
@@ -206,7 +206,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         uint256 pvtKey
     )
         internal
-        returns (Structs.IntegrationCallMetadata memory, bytes memory)
+        returns (Structs.TopLevelCallComponents memory, bytes memory)
     {
         // mock the calldata for the integration function call (without the CUBE3 payload)
         bytes memory mockSlicedCalldata = _getRandomBytes(128);
@@ -220,7 +220,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
 
         uint256 expectedNonce = shouldTrackNonce ? nonce + 1 : 0;
 
-        Structs.IntegrationCallMetadata memory callMetadata = Structs.IntegrationCallMetadata({
+        Structs.TopLevelCallComponents memory callMetadata = Structs.TopLevelCallComponents({
             msgSender: caller,
             integration: integration,
             msgValue: 0,

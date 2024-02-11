@@ -59,7 +59,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         bytes32 calldataDigest = keccak256(mockSlicedCalldata);
         emit log_named_bytes32("calldataDigest", calldataDigest);
 
-        Structs.IntegrationCallMetadata memory callMetadata = Structs.IntegrationCallMetadata({
+        Structs.TopLevelCallComponents memory callMetadata = Structs.TopLevelCallComponents({
             msgSender: _randomAddress(),
             integration: _randomAddress(),
             msgValue: 0,
