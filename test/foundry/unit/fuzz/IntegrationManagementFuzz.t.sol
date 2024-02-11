@@ -17,7 +17,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
     MockRegistry mockRegistry;
 
-    function setUp() public {
+    function setUp() public override {
         _createCube3Accounts();
         integrationManagementHarness = new IntegrationManagementHarness();
         mockRegistry = new MockRegistry();

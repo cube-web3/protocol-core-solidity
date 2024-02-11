@@ -20,7 +20,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
     UtilsHarness utilsHarness;
 
-    function setUp() public {
+    function setUp() public override {
         utilsHarness = new UtilsHarness();
     }
 

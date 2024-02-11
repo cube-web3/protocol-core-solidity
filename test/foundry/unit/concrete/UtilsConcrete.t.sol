@@ -15,7 +15,7 @@ import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
 contract Utils_Concrete_Unit_Test is BaseTest {
     UtilsHarness utilsHarness;
 
-    function setUp() public {
+    function setUp() public override {
         utilsHarness = new UtilsHarness();
     }
 

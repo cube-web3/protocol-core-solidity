@@ -19,7 +19,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     uint256 constant PAYLOAD_SIZE = 69;
     bytes16 internal expectedId;
 
-    function setUp() public {
+    function setUp() public override {
         expectedId = bytes16(bytes32(keccak256(abi.encode(VERSION_ONE))));
         mockRouter = new MockRouter();
     }

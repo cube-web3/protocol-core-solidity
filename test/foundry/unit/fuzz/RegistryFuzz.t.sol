@@ -11,7 +11,7 @@ import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
 contract Registry_Fuzz_Unit_Test is BaseTest {
     RegistryHarness registryHarness;
 
-    function setUp() public {
+    function setUp() public override {
         _createCube3Accounts();
         registryHarness = new RegistryHarness();
     }

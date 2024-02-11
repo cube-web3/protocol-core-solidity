@@ -46,37 +46,21 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
 
     // cube
     uint256 internal deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
-    address internal deployer;
-
     uint256 internal keyManagerPvtKey = 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d; // anvil [1]
-    address internal keyManager;
-
     uint256 internal cubeAdminPvtKey = 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a; // anvil [2]
-    address internal cube3admin;
-
     uint256 internal cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil
         // [4]
-    address internal cube3integrationAdmin;
 
     uint256 internal backupSignerPvtKey = 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97; // anvil[8]
-    address internal backupSigner;
-
     uint256 internal demoSigningAuthorityPvtKey = uint256(69);
-    address internal demoSigningAuthority;
-
     uint256 internal demoDeployerPrivateKey = uint256(420);
-    address internal demoDeployer;
-
-    address internal user = vm.addr(42_069);
 
     string internal version = "signature-0.0.1";
 
-    // TODO: change to setUp
-    function initProtocol() internal {
+    function setUp() public virtual {
         // deploy and configure cube protocol
         _createCube3Accounts();
-
-        _deployTestingContracts();
+        _deployTestingHarnessContracts();
         _deployProtocol();
         _installSignatureModuleInRouter();
     }
@@ -95,19 +79,12 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
             demoSigningAuthority: vm.addr(demoSigningAuthorityPvtKey),
             demoDeployer: vm.addr(demoDeployerPrivateKey)
         });
-        // backupSigner = vm.addr(backupSignerPvtKey);
-        // deployer = vm.addr(deployerPvtKey);
-        // cube3integrationAdmin = vm.addr(cube3integrationAdminPvtKey);
-        // keyManager = vm.addr(keyManagerPvtKey);
-        // cube3admin = vm.addr(cubeAdminPvtKey);
-        // demoSigningAuthority = vm.addr(demoSigningAuthorityPvtKey);
-        // demoDeployer = vm.addr(demoDeployerPrivateKey);
 
         // labels
-        vm.label(demoSigningAuthority, "Laon Signing Authority");
+
     }
 
-    function _deployTestingContracts() internal {
+    function _deployTestingHarnessContracts() internal {
         routerStorageHarness = new RouterStorageHarness();
         protocolManagementHarness = new ProtocolManagementHarness();
     }
@@ -115,13 +92,13 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     function _deployProtocol() internal {
         emit log_string("Deploying protocol");
 
-        vm.startPrank(deployer, deployer);
+        vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
 
         // ============ registry
         registry = new Cube3Registry();
         vm.label(address(registry), "Cube3Registry");
 
-        _addAccessControlAndRevokeDeployerPermsForRegistry(cube3admin, keyManager, deployer);
+        _addAccessControlAndRevokeDeployerPermsForRegistry(cube3Accounts.protocolAdmin, cube3Accounts.keyManager, cube3Accounts.deployer);
 
         // ============ router
         // deploy the implementation
@@ -135,10 +112,10 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
 
         // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3Router(payable(address(cubeRouterProxy)));
-        _addAccessControlAndRevokeDeployerPermsForRouter(cube3admin, cube3integrationAdmin, deployer);
+        _addAccessControlAndRevokeDeployerPermsForRouter(cube3Accounts.protocolAdmin, cube3Accounts.integrationManager, cube3Accounts.deployer);
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, backupSigner, 320);
+        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner, 320);
         vm.label(address(signatureModule), "Cube3SignatureModule");
 
         vm.stopPrank();
@@ -147,7 +124,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     function _installSignatureModuleInRouter() internal {
         emit log_string("installing signature module");
         // install module
-        vm.startPrank(cube3admin);
+        vm.startPrank(cube3Accounts.protocolAdmin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));
         vm.stopPrank();
     }

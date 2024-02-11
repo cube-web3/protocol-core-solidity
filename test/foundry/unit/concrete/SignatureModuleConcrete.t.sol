@@ -23,7 +23,7 @@ contract SignatureModule_Concrete_Unit_Test is BaseTest {
 
     uint256 nonceSeed;
 
-    function setUp() public {
+    function setUp() public override {
         mockRouter = new MockRouter();
         mockRegistry = new MockRegistry();
         mockRouter.setRegistryAddress(address(mockRegistry));

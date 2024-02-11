@@ -16,10 +16,10 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     string constant MODULE_VERSION = "mockModule-0.0.1";
 
-    function setUp() public {
+    function setUp() public override {
         // BaseTest.setUp();
         _createCube3Accounts();
-        _deployTestingContracts();
+        _deployTestingHarnessContracts();
 
         protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);
 

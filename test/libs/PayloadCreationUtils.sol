@@ -25,6 +25,42 @@ library PayloadCreationUtils {
      - combining packedModulePayload + routingBitmap by packing them to create the cube3Payload
    */
 
+    /// @dev The CUBE3 payload combines the module payload and the routing bitmap.
+   function createCube3Payload(
+       address integration,
+       address caller,
+       uint256 pvtKeyToSignWith,
+       uint256 expirationTimestamp,
+       Structs.SignatureModule signatureModule,
+       Structs.IntegrationCallMetadata integrationCallInfo
+   ) internal returns (bytes memory) {
+
+   }
+
+    function signPayloadData(
+        bytes memory encodedSignatureData,
+        uint256 pvtKeyToSignWith
+    )
+        internal
+        returns (bytes memory signature)
+    {
+        bytes32 signatureHash = keccak256(encodedSignatureData);
+        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
+
+        signature = abi.encodePacked(r, s, v);
+
+        assertTrue(signature.length == 65, "invalid signature length");
+
+        (address signedHashAddress, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
+        if (error != ECDSA.RecoverError.NoError) {
+            revert("No Matchies");
+        }
+
+        assertEq(signedHashAddress, vm.addr(pvtKeyToSignWith), "signers dont match");
+    }
+
+
     // TODO: use safe cast
     function calculateRequiredModulePayloadPadding(uint256 modulePayloadLength) internal pure returns (uint32) {
         // calculate the padding needed to fill it to the final word
@@ -44,6 +80,28 @@ library PayloadCreationUtils {
         }
 
         return payloadWithPadding;
+    }
+
+    function packageOriginalCalldataInfo(
+        address caller,
+        address integration,
+        uint256 msgValue,
+        bytes memory integrationCalldataWithEmptyPayload,
+        uint256 expectedPayloadSize
+    ) internal returns (Structs.IntegrationCallMetadata memory) {
+        // remove the payload so we can create a hash of the calldata without the payload,
+        // note: because payload is type bytes, the slicedCalldata may contain some data about the payload,
+        // eg. the offset to the payload, and the length of the payload, but this will be the case when it's
+        // reproduced on chain.  For all intents and purposes, the empty bytes payload is structurally identical
+        // to the payload populated with the correct data. Subtracting 64 accounts for the routing bitmap and the 
+        // 32 bytes (uint256) that's added to the front of the module payload by the ABI encoding.
+        bytes memory slicedCalldata = _sliceBytes(
+            integrationCalldataWithEmptyPayload,
+            0,
+            integrationCalldataWithEmptyPayload.length - expectedPayloadSize - 64
+        );
+        bytes32 calldataDigest = keccak256(slicedCalldata);
+        return Structs.IntegrationCallMetadata(caller, integration, msgValue, calldataDigest);
     }
 
     function createRoutingFooterBitmap(

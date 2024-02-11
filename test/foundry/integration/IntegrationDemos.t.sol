@@ -5,9 +5,11 @@ import "forge-std/Test.sol";
 import { Demo } from "../../demo/Demo.sol";
 import { IntegrationTest } from "../IntegrationTest.t.sol";
 
+import {PayloadCreationUtils} from "../../libs/PayloadCreationUtils.sol";
+
 import { Structs } from "../../../src/common/Structs.sol";
 
-contract Integration_Standlone_Concrete is IntegrationTest {
+contract Integration_Standlone_Concrete_Test is IntegrationTest {
     function setUp() public override {
         super.setUp();
     }
@@ -17,15 +19,22 @@ contract Integration_Standlone_Concrete is IntegrationTest {
     }
 
     function testMint() public {
+        address user = _randomAddress();
+
         vm.startPrank(user);
 
-        // generate the payload
-        bytes memory emptyBytes = new bytes(352); // payload length
-
+        // generate the calldata for the integration function calls
+        bytes memory emptyBytes = new bytes(352);
         bytes memory mintCalldataWithEmptyPayload = abi.encodeWithSelector(Demo.mint.selector, 99, emptyBytes);
 
         Structs.IntegrationCallMetadata memory integrationCallInfo =
-            _createIntegrationCallInfo(user, address(demo), 0, mintCalldataWithEmptyPayload, signatureModule);
+            PayloadCreationUtils.packageOriginalCalldataInfo(
+                user, 
+                address(demo), 
+                0, 
+                mintCalldataWithEmptyPayload, 
+                signatureModule.expectedPayloadSize()
+            );
 
         bytes memory cube3SecurePayload = _createPayload(
             address(demo), user, demoSigningAuthorityPvtKey, 1 days, signatureModule, integrationCallInfo
@@ -38,6 +47,8 @@ contract Integration_Standlone_Concrete is IntegrationTest {
     }
 
     function testProtected() public {
+        address user = _randomAddress();
+
         vm.startPrank(user);
 
         uint256 newVal = 420;
@@ -62,6 +73,9 @@ contract Integration_Standlone_Concrete is IntegrationTest {
     }
 
     function testDynamic() public {
+
+        address user = _randomAddress();
+
         vm.startPrank(user);
 
         uint256[] memory vals = new uint256[](3);
@@ -87,6 +101,9 @@ contract Integration_Standlone_Concrete is IntegrationTest {
     }
 
     function testBytes() public {
+
+        address user = _randomAddress();
+
         vm.startPrank(user);
 
         bytes memory firstBytes = new bytes(169);
@@ -115,6 +132,9 @@ contract Integration_Standlone_Concrete is IntegrationTest {
     }
 
     function testNoArgs() public {
+
+        address user = _randomAddress();
+        
         vm.startPrank(user);
 
         // generate the payload

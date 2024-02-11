@@ -11,7 +11,7 @@ import { ICube3Registry } from "../../../../src/interfaces/ICube3Registry.sol";
 contract Registry_Concrete_Unit_Test is BaseTest {
     RegistryHarness registryHarness;
 
-    function setUp() public {
+    function setUp() public override {
         _createCube3Accounts();
         registryHarness = new RegistryHarness();
     }
