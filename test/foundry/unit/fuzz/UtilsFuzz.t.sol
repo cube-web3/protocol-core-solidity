@@ -201,17 +201,17 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     )
         public
     {
-        locationSeed = bound(locationSeed, 0, 255-32);
+        locationSeed = bound(locationSeed, 0, 255 - 32);
         retrievalSeed = bound(retrievalSeed, 32, 255);
         locationSeed = _toMultipleOf32(locationSeed);
         retrievalSeed = _toMultipleOf32(retrievalSeed);
-         
+
         valueSeed = bound(valueSeed, 1, type(uint32).max);
         uint32 value = uint32(valueSeed);
         uint8 location = uint8(locationSeed);
         uint8 retrieval = uint8(retrievalSeed);
         vm.assume(location != retrieval);
-        
+
         uint256 bitmap = uint256(0);
         bitmap = PayloadCreationUtils.addUint32ToBitmap(bitmap, value, location);
         emit log_named_uint("bitmap", bitmap);

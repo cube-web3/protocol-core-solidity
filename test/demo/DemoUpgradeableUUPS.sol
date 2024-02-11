@@ -38,6 +38,4 @@ contract DemoUpgradeableUUPS is Cube3ProtectionUpgradeable, UUPSUpgradeable, Own
         emit CalledSucceeded(oldArg, arg);
     }
 
-
-
 }

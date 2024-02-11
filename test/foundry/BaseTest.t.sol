@@ -79,7 +79,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
             demoSigningAuthority: vm.addr(demoSigningAuthorityPvtKey),
             demoDeployer: vm.addr(demoDeployerPrivateKey)
         });
-
     }
 
     function _deployTestingHarnessContracts() internal {
@@ -96,7 +95,9 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         registry = new Cube3Registry();
         vm.label(address(registry), "Cube3Registry");
 
-        _addAccessControlAndRevokeDeployerPermsForRegistry(cube3Accounts.protocolAdmin, cube3Accounts.keyManager, cube3Accounts.deployer);
+        _addAccessControlAndRevokeDeployerPermsForRegistry(
+            cube3Accounts.protocolAdmin, cube3Accounts.keyManager, cube3Accounts.deployer
+        );
 
         // ============ router
         // deploy the implementation
@@ -105,12 +106,15 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         vm.label(routerImplAddr, "Cube3RouterImpl");
 
         // deploy the proxy
-        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, (address(registry))));
+        cubeRouterProxy =
+            new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, (address(registry))));
         vm.label(address(cubeRouterProxy), "CubeRouterProxy");
 
         // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
-        _addAccessControlAndRevokeDeployerPermsForRouter(cube3Accounts.protocolAdmin, cube3Accounts.integrationManager, cube3Accounts.deployer);
+        _addAccessControlAndRevokeDeployerPermsForRouter(
+            cube3Accounts.protocolAdmin, cube3Accounts.integrationManager, cube3Accounts.deployer
+        );
 
         // =========== signature module
         signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner, 320);

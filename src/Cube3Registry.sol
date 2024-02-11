@@ -142,5 +142,4 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
     function getSigningAuthorityForIntegration(address integration) external view returns (address) {
         return integrationToSigningAuthority[integration];
     }
-
 }

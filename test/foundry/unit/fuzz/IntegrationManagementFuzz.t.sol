@@ -358,7 +358,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             bytes4[] memory enabledByDefaultFnSelectors
         ) = _generateMockRegistrationData(pvtKeySeed, numSelectors);
 
-        for (uint i; i < numSelectors; i++) {
+        for (uint256 i; i < numSelectors; i++) {
             enabledByDefaultFnSelectors[i] = bytes4(bytes32(keccak256(abi.encode(pvtKeySeed, i))));
         }
 
@@ -371,7 +371,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
-        for (uint i; i < numSelectors; i++) {
+        for (uint256 i; i < numSelectors; i++) {
             vm.expectEmit(true, true, true, true);
             emit FunctionProtectionStatusUpdated(integration, enabledByDefaultFnSelectors[i], true);
         }
@@ -381,7 +381,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             integration, registrarSignature, enabledByDefaultFnSelectors
         );
     }
-
 
     /*//////////////////////////////////////////////////////////////
           batchUpdateIntegrationRegistrationStatus
@@ -421,11 +420,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     }
 
     // fails if updating the status as a non admin
-    function test_RevertsWhen_BatchUpdateingRegistrationStatus_AsNonAdmin(
-        uint256 integrationsLength
-    )
-        public
-    {
+    function test_RevertsWhen_BatchUpdateingRegistrationStatus_AsNonAdmin(uint256 integrationsLength) public {
         bytes32 integrationSeed = keccak256(abi.encode(integrationsLength));
         uint256 statusSeed = integrationsLength;
         integrationsLength = bound(integrationsLength, 1, 16);

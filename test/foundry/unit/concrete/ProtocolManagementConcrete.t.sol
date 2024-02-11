@@ -134,7 +134,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
     }
 
-
     /*//////////////////////////////////////////////////////////////
             installModule
     //////////////////////////////////////////////////////////////*/

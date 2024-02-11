@@ -5,7 +5,7 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 
 import { BaseTest } from "../../BaseTest.t.sol";
 
-import {ProtocolErrors} from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
 import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
 
 contract Registry_Fuzz_Unit_Test is BaseTest {
@@ -20,7 +20,12 @@ contract Registry_Fuzz_Unit_Test is BaseTest {
             batchSetSigningAuthority
     //////////////////////////////////////////////////////////////*/
 
-    function testFuzz_RevertsWhen_IntegrationAndSigningAuthorityArraysDontMatch_AsKeyManager(uint256 lenIntegrations, uint256 lenAuthorities) public {
+    function testFuzz_RevertsWhen_IntegrationAndSigningAuthorityArraysDontMatch_AsKeyManager(
+        uint256 lenIntegrations,
+        uint256 lenAuthorities
+    )
+        public
+    {
         lenAuthorities = bound(lenAuthorities, 0, 100);
         lenIntegrations = bound(lenIntegrations, 0, 100);
         vm.assume(lenIntegrations != lenAuthorities);

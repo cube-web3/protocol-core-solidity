@@ -11,7 +11,6 @@ abstract contract IntegrationTest is BaseTest {
     Demo demo;
 
     function setUp() public virtual override {
-
         super.setUp();
         _deployIntegrationDemos();
         _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
@@ -25,7 +24,6 @@ abstract contract IntegrationTest is BaseTest {
         // _installSignatureModuleInRouter();
 
         // emit log_named_address("router proxy", address(cubeRouterProxy));
-
 
         // // _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
         // _deployIntegrationDemos();

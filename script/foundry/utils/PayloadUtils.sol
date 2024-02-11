@@ -81,7 +81,6 @@ contract PayloadUtils is Test {
         internal
         returns (bytes memory)
     {
-
         uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = false ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
 

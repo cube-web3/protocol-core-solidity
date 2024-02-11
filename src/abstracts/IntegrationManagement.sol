@@ -194,14 +194,14 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         if (numSelectors > 0) {
             for (uint256 i; i < numSelectors;) {
                 tempSelector = enabledByDefaultFnSelectors[i];
-                
+
                 // Checks: the selector being set is not null.
                 if (tempSelector == bytes4(0)) {
                     revert ProtocolErrors.Cube3Router_InvalidFunctionSelector();
                 }
 
                 // Effects: updates the function protection status of the integration's function using the selector.
-                _setFunctionProtectionStatus(integration, tempSelector , true);
+                _setFunctionProtectionStatus(integration, tempSelector, true);
                 unchecked {
                     ++i;
                 }

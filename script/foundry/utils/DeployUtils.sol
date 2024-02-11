@@ -81,7 +81,8 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         // deploy the implementation
         routerImplAddr = address(new Cube3RouterImpl());
         // deploy the proxy
-        cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, address(registry)));
+        cubeRouterProxy =
+            new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, address(registry)));
         // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));

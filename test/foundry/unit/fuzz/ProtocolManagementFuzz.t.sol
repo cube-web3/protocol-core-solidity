@@ -63,7 +63,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
     }
 
-        // fails when the module doesn't exist
+    // fails when the module doesn't exist
     function testFuzz_RevertsWhen_CalledModuleNotInstalled_AsAdmin(uint256 moduleSeed) public {
         moduleSeed = bound(moduleSeed, 1, type(uint256).max);
         bytes16 moduleId = bytes16(bytes32(keccak256(abi.encode(moduleSeed))));

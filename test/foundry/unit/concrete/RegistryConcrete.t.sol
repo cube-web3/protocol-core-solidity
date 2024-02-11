@@ -187,9 +187,7 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         registryHarness.batchRevokeSigningAuthoritiesForIntegrations(integrations);
         vm.stopBroadcast();
 
-        assertEq(
-            registryHarness.getSigningAuthorityForIntegration(integrations[0]), address(0), "incorrect authority"
-        );
+        assertEq(registryHarness.getSigningAuthorityForIntegration(integrations[0]), address(0), "incorrect authority");
     }
 
     /*//////////////////////////////////////////////////////////////
