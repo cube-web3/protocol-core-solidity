@@ -91,15 +91,6 @@ library PayloadCreationUtils {
         // add the cube payload length in the next 4 bytes
         bitmap = bitmap + (uint256(uint32(paddingNeeded)) << 192);
 
-        // TODO: figure out why this isn't working
-
-        // uint256 bitmap = createRoutingFooterBitmap(
-        //     signatureModule.moduleId(),
-        //     Cube3SignatureModule.validateSignature.selector,
-        //     uint32(modulePayloadWithPadding.length),
-        //     paddingNeeded
-        // );
-
         // emit log_bytes32(bytes32(signatureModule.moduleId()));
         emit log_bitmap(bitmap);
         // combine and return them.

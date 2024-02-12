@@ -12,7 +12,7 @@ import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
 import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
-import { PayloadUtils } from "@src/libs/PayloadUtils.sol";
+import { RoutingUtils } from "@src/libs/RoutingUtils.sol";
 import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
 import { AddressUtils } from "@src/libs/AddressUtils.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
@@ -35,7 +35,7 @@ contract Cube3RouterImpl is
     IntegrationManagement
 {
     using AddressUtils for address;
-    using PayloadUtils for bytes;
+    using RoutingUtils for bytes;
     using SignatureUtils for bytes32;
 
     /// @dev Checks the call can only take place in another contract's constructor.

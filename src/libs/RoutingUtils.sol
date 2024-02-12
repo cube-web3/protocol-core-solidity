@@ -4,8 +4,9 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { BitmapUtils } from "./BitmapUtils.sol";
 
-// TODO: rename ModulePayloadUtils
-library PayloadUtils {
+/// @title RoutingUtils
+/// @notice Contains utils for extracting a Module Payload and routing data from calldata.
+library RoutingUtils {
     using BitmapUtils for uint256;
 
     /// @notice Extracts the CUBE3 payload, which itself contains the module payload and bitmap containing the routing

@@ -149,7 +149,7 @@ The following protocol contracts are in scope for this audit (including SLOC):
  132 ./Cube3Registry.sol
  216 ./Cube3RouterImpl.sol
   23 ./libs/SignatureUtils.sol
-  59 ./libs/PayloadUtils.sol
+  59 ./libs/RoutingUtils.sol
   52 ./libs/BitmapUtils.sol
   20 ./libs/AddressUtils.sol
   48 ./common/Structs.sol

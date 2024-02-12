@@ -52,7 +52,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), "version1");
     }
 
-    // TODO: check revert message is correct
+
     // fails with a version that's too long
     function test_RevertsWhen_VersionStringTooLong() public {
         vm.expectRevert(ProtocolErrors.Cube3Module_DoesNotConformToVersionSchema.selector);

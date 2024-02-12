@@ -22,7 +22,7 @@ Conceptually, parsing the necessary data to route data to a module is a 3 step p
 2. Extract the `Module Payload` and the `Routing Bitmap` from the `CUBE3 Payload`.
 3. Extract and generate a keccak256 hash of the integration function's calldata to generate a digest. This digest is then passed along to the module, along with the original call's `msg.value` and `msg.sender`. This allows any module, if desired, to validate that the metadata of the call submitted on chain matches the data provided to CUBE3 off-chain.
 
-Practically, all three steps take place within the `parseRoutingInfoAndPayload` function in the `PayloadUtils` library.
+Practically, all three steps take place within the `parseRoutingInfoAndPayload` function in the `RoutingUtils` library.
 
 The diagram below provides a visually reference for how the payload data is structured.
 
