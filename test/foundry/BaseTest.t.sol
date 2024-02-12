@@ -5,9 +5,7 @@ import "forge-std/Test.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-
 import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
-
 import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
 import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
@@ -15,15 +13,15 @@ import { Cube3Registry } from "@src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
-import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
-import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
-
 import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
-import { TestUtils } from "../utils/TestUtils.t.sol";
-import { TestEvents } from "../utils/TestEvents.t.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import { ProtocolManagementHarness } from "@test/foundry/harnesses/ProtocolManagementHarness.sol";
 
-import { Demo } from "../demo/Demo.sol";
+import { TestUtils } from "@test/utils/TestUtils.t.sol";
+import { TestEvents } from "@test/utils/TestEvents.t.sol";
+
+import { Demo } from "@test/demo/Demo.sol";
 
 struct Accounts {
     address deployer;
@@ -64,10 +62,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         _deployProtocol();
         _installSignatureModuleInRouter();
     }
-
-    // ============= TESTS
-
-    // ============= CUBE
 
     function _createCube3Accounts() internal {
         cube3Accounts = Accounts({

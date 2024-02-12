@@ -10,7 +10,7 @@ import { Cube3Registry } from "@src/Cube3Registry.sol";
 
 import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
 import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
-// import {LibDeployConstants} from "../utils/LibDeployConstants.sol";
+// import {LibDeployConstants} from "@test/utils/LibDeployConstants.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles

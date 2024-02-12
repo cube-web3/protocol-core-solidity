@@ -8,7 +8,7 @@ import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
 /// @dev Serves as a mock router from the mock module's persepective.
 contract ProtocolManagementHarness is ProtocolManagement {
     /*
-    The following functions are exposed externall by ProtocolManagement:
+    The following functions are exposed externally by ProtocolManagement:
     - updateProtocolConfig
     - callModuleFunctionAsAdmin
     - installModule

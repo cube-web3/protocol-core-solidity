@@ -10,8 +10,6 @@ contract IntegrationManagementHarness is IntegrationManagement {
         // allow the test suite to assign roles as needed
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-    // public/external functions exposed by the IntegrationManagement contract
-    // are not overridden here
 
     function setIntegrationAdmin(address integration, address admin) public {
         _setIntegrationAdmin(integration, admin);

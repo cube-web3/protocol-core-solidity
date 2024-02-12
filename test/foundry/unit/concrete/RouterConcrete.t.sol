@@ -5,10 +5,10 @@ import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
-import { RouterHarness } from "../../harnesses/RouterHarness.sol";
-import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
+import { RouterHarness } from "@test/foundry/harnesses/RouterHarness.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { Structs } from "@src/common/Structs.sol";
 

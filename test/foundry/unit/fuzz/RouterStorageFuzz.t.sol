@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 import { Structs } from "@src/common/Structs.sol";
-import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
 
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {
     uint256 constant HALF_MAX_UINT = type(uint256).max / 2;

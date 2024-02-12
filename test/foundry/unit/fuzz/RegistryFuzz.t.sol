@@ -3,10 +3,10 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
+import { RegistryHarness } from "@test/foundry/harnesses/RegistryHarness.sol";
 
 contract Registry_Fuzz_Unit_Test is BaseTest {
     RegistryHarness registryHarness;

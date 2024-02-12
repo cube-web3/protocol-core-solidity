@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 import { Structs } from "@src/common/Structs.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { MockModule } from "../../../mocks/MockModule.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { MockModule } from "@test/mocks/MockModule.t.sol";
 
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";

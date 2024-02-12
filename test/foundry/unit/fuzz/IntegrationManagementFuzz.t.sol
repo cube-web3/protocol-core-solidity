@@ -3,15 +3,15 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 import { Structs } from "@src/common/Structs.sol";
 
 import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { MockTarget } from "../../../mocks/MockContract.t.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
+import { MockTarget } from "@test/mocks/MockContract.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
 
 contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
