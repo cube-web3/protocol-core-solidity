@@ -107,7 +107,7 @@ abstract contract RouterStorage is ProtocolEvents, ProtocolAdminRoles, ProtocolC
         SETTERS
     //////////////////////////////////////////////////////////////*/
 
-    function _setProtocolConfig(address registry, bool isPaused) internal {
+    function _updateProtocolConfig(address registry, bool isPaused) internal {
         _state().protocolConfig = Structs.ProtocolConfig(registry, isPaused);
         emit ProtocolConfigUpdated(registry, isPaused);
         if (registry == address(0)) {

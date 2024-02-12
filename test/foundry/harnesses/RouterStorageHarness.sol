@@ -13,8 +13,8 @@ contract RouterStorageHarness is RouterStorage {
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Fuzz
-    function setProtocolConfig(address registry, bool isPaused) public {
-        _setProtocolConfig(registry, isPaused);
+    function updateProtocolConfig(address registry, bool isPaused) public {
+        _updateProtocolConfig(registry, isPaused);
     }
 
     /// @dev Fuzz

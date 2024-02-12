@@ -28,7 +28,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     }
 
     /*//////////////////////////////////////////////////////////////
-         setProtocolConfig
+         updateProtocolConfig
     //////////////////////////////////////////////////////////////*/
 
     // succeeds when the registry is set
@@ -40,7 +40,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         // set the config
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(address(mockRegistry), paused);
-        protocolManagementHarness.setProtocolConfig(address(mockRegistry), paused);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), paused);
         vm.stopPrank();
 
         // check the config values
@@ -56,7 +56,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(address(0), false);
         emit ProtocolRegistryRemoved();
-        protocolManagementHarness.setProtocolConfig(address(0), false);
+        protocolManagementHarness.updateProtocolConfig(address(0), false);
         vm.stopPrank();
 
         // check the config values
@@ -70,7 +70,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         // set the config
         // TODO: can we dynamically cast the revert string?
         vm.expectRevert();
-        protocolManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         vm.stopPrank();
     }
 
@@ -80,7 +80,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         // set the config
         vm.expectRevert(ProtocolErrors.Cube3Router_NotValidRegistryInterface.selector);
-        protocolManagementHarness.setProtocolConfig(_randomAddress(), true);
+        protocolManagementHarness.updateProtocolConfig(_randomAddress(), true);
         vm.stopPrank();
     }
 

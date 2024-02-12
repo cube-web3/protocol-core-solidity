@@ -25,8 +25,8 @@ contract IntegrationManagementHarness is IntegrationManagement {
         _setUsedRegistrationSignatureHash(sigHash);
     }
 
-    function setProtocolConfig(address registry, bool isPaused) public {
-        _setProtocolConfig(registry, isPaused);
+    function updateProtocolConfig(address registry, bool isPaused) public {
+        _updateProtocolConfig(registry, isPaused);
     }
 
     function setIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) public {

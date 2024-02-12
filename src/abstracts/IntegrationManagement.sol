@@ -128,6 +128,7 @@ abstract contract IntegrationManagement is ICube3Router, AccessControlUpgradeabl
     )
         external
         onlyIntegrationAdmin(integration)
+        whenNotPaused // TODO: test this
     {
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {

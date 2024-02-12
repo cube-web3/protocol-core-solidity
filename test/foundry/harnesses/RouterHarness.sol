@@ -20,7 +20,7 @@ contract RouterHarness is Cube3RouterImpl {
     }
 
     function wrappedSetProtocolConfig(address registry, bool isPaused) public {
-        _setProtocolConfig(registry, isPaused);
+        _updateProtocolConfig(registry, isPaused);
     }
 
     /*//////////////////////////////////////////////////////////////

@@ -70,7 +70,7 @@ contract Cube3RouterImpl is
         __ERC165_init();
 
         // Not paused by default.
-        _setProtocolConfig(registry, false);
+        _updateProtocolConfig(registry, false);
 
         // The deployer is the EOA who initiated the transaction, and is the account that will revoke
         // it's own access permissions and add new ones immediately following deployment. Using tx.origin accounts

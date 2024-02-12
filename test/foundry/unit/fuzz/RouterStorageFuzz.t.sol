@@ -21,7 +21,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         // set the config
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(registry, flag);
-        routerStorageHarness.setProtocolConfig(registry, flag);
+        routerStorageHarness.updateProtocolConfig(registry, flag);
 
         // check the config values
         assertEq(registry, routerStorageHarness.getProtocolConfig().registry, "registry mismatch");

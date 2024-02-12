@@ -1,0 +1,20 @@
+{
+  "solidity.packageDefaultDependenciesContractsDirectory": "src",
+  "solidity.packageDefaultDependenciesDirectory": "lib",
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "lib": true
+  },
+
+  "files.associations": {
+    ".gas-snapshot": "julia"
+  },
+  "solidity.remappings": [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+    "@src/=src/"
+  ]
+}

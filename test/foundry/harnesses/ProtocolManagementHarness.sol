@@ -9,7 +9,7 @@ import { ProtocolManagement } from "../../../src/abstracts/ProtocolManagement.so
 contract ProtocolManagementHarness is ProtocolManagement {
     /*
     The following functions are exposed externall by ProtocolManagement:
-    - setProtocolConfig
+    - updateProtocolConfig
     - callModuleFunctionAsAdmin
     - installModule
     - deprecateModule
