@@ -8,7 +8,6 @@ import { BitmapUtils } from "./BitmapUtils.sol";
 library PayloadUtils {
     using BitmapUtils for uint256;
 
-    event log_id(bytes16 id);
     /// @notice Extracts the CUBE3 payload, which itself contains the module payload and bitmap containing the routing
     /// data.
     /// @dev The `integrationCalldata` is the calldata for the integration contract's function call.
@@ -21,8 +20,8 @@ library PayloadUtils {
 
     function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         internal
+        pure
         returns (
-            // pure
             bytes4 moduleSelector,
             bytes16 moduleId,
             bytes memory modulePayload,
@@ -35,7 +34,7 @@ library PayloadUtils {
 
         // The module ID occupies the right-most 16 bytes of the bitmap
         moduleId = routingBitmap.extractBytes16Bitmap();
-        emit log_id(moduleId);
+
         // The module selector occupies the 4 bytes to the left of the module ID
         moduleSelector = routingBitmap.extractBytes4FromBitmap(128);
 

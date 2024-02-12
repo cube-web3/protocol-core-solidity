@@ -27,7 +27,7 @@ contract RouterHarness is Cube3RouterImpl {
             WRAPPED FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    function shouldBypassRouting(bytes4 integrationFnCallSelector) public returns (bool) {
+    function shouldBypassRouting(bytes4 integrationFnCallSelector) public view returns (bool) {
         return _shouldBypassRouting(integrationFnCallSelector);
     }
 

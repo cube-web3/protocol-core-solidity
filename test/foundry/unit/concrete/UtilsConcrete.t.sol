@@ -34,6 +34,7 @@ contract Utils_Concrete_Unit_Test is BaseTest {
         // due to the call taking place during the contract's deployment, therefore the code size is 0
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Protocol_TargetNotAContract.selector, precomputed));
         MockCaller mockCaller = new MockCaller(address(mockTarget));
+        (mockCaller);
     }
 
     // succeeds when the target address is a contract
@@ -43,7 +44,7 @@ contract Utils_Concrete_Unit_Test is BaseTest {
     }
 
     // succeeds when the target address is an EOA
-    function test_SucceedssWhen_TargetIsAnEoa() public {
+    function test_SucceedssWhen_TargetIsAnEoa() public view {
         utilsHarness.assertIsEOAorConstructorCall(_randomAddress());
     }
 

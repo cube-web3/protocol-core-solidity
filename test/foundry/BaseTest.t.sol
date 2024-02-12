@@ -147,6 +147,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         uint256 pvtKeyToSignWith
     )
         internal
+        pure
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);

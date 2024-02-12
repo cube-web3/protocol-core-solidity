@@ -125,7 +125,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     function testFuzz_RevertsWhen_IntegrationProvidedIsZeroAddress_AsIntegrationAdmin(uint256 pvtKeySeed) public {
         pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
         (
-            address integration,
+            , // unused integration
             address admin,
             ,
             bytes memory registrarSignature,
@@ -259,7 +259,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             address integration,
             address admin,
             address signer,
-            bytes memory registrarSignature,
+            , // unused registrar isgnature
             bytes4[] memory enabledByDefaultFnSelectors
         ) = _generateMockRegistrationData(pvtKeySeed, 1);
 
@@ -393,7 +393,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     )
         public
     {
-        bytes32 integrationSeed = keccak256(abi.encode(integrationsLength));
         uint256 statusSeed = statusesLength;
         integrationsLength = bound(integrationsLength, 1, 16);
         statusesLength = bound(statusesLength, 1, 16);
@@ -421,7 +420,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
     // fails if updating the status as a non admin
     function test_RevertsWhen_BatchUpdateingRegistrationStatus_AsNonAdmin(uint256 integrationsLength) public {
-        bytes32 integrationSeed = keccak256(abi.encode(integrationsLength));
+ 
         uint256 statusSeed = integrationsLength;
         integrationsLength = bound(integrationsLength, 1, 16);
 
@@ -482,7 +481,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     function testFuzz_SucceedsWhen_FetchingSigningAuthorityForIntegration(uint256 numIntegrations) public {
-        uint256 integrationSeed = numIntegrations;
         numIntegrations = bound(numIntegrations, 1, 16);
 
         address[] memory integrations = new address[](numIntegrations);

@@ -35,7 +35,7 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         );
 
         emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
-        uint256 prevBalance = demo.mint(99, cube3SecurePayload);
+        demo.mint(99, cube3SecurePayload);
 
         vm.stopPrank();
     }

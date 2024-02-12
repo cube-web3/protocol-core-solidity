@@ -65,10 +65,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when a non-priveleged role tries to set the config
     function test_RevertsWhen_NonPrivilegedRoleSetsConfig() public {
-        address unprivileged = _randomAddress();
 
         // set the config
-        // TODO: can we dynamically cast the revert string?
         vm.expectRevert();
         protocolManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         vm.stopPrank();
@@ -118,7 +116,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         vm.startPrank(randomAccount);
         vm.expectRevert();
-        (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        require(success, "harness call failed");
     }
 
     // fails when called by an admin, with a valid module, but the module fn reverts
@@ -131,8 +130,10 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
 
         vm.expectRevert(bytes("FAILED"));
-        (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
+        require(success, "harness call failed");
     }
+
 
     /*//////////////////////////////////////////////////////////////
             installModule
@@ -178,9 +179,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when deploying a module whose ID doesn't match the version
     function test_RevertsWhen_ModuleIdNotMatchingVersion() public {
-        // TODO: need to install a module with a janky version
 
-        bytes16 moduleId = _installModuleAsAdmin();
         MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
 
         bytes16 altModuleId = altMockModule.moduleId();

@@ -29,11 +29,9 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     event log_named_bytes16(string name, bytes16 value);
-    // TODO: fix this
 
     function testFuzz_SucceedsWhen_PayloadDataIsValid(
         uint256 calldataSize,
-        uint256 modulePayloadSize,
         uint256 idSeed,
         uint256 nonce
     )
@@ -58,13 +56,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         // create the digest of the "original" function call's selector + args
         bytes32 calldataDigest = keccak256(mockSlicedCalldata);
         emit log_named_bytes32("calldataDigest", calldataDigest);
-
-        Structs.TopLevelCallComponents memory callMetadata = Structs.TopLevelCallComponents({
-            msgSender: _randomAddress(),
-            integration: _randomAddress(),
-            msgValue: 0,
-            calldataDigest: calldataDigest
-        });
 
         // bytes memory signature = _createPayloadSignature(signatureData, pvtKey);
         bytes memory signature = _getRandomBytes(65);
@@ -241,7 +232,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         signerPvtKey = bound(signerPvtKey, 1, type(uint128).max);
         dataLength = bound(dataLength, 1, 4096);
 
-        address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
         bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
 
@@ -295,7 +285,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         signerPvtKey = bound(signerPvtKey, 1, type(uint128).max);
         dataLength = bound(dataLength, 1, 4096);
 
-        address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
         bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
 
@@ -312,8 +301,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
-
         bytes memory altEncodedSignatureData = _getRandomBytes(dataLength + 1);
         bytes memory altSignature = _createPayloadSignature(altEncodedSignatureData, signerPvtKey);
 
@@ -324,7 +311,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     }
 
     // Removes `lengthToRemove` bytes from the end of a `bytes memory data`
-    function _removeBytesFromEnd(bytes memory data, uint256 lengthToRemove) internal returns (bytes memory) {
+    function _removeBytesFromEnd(bytes memory data, uint256 lengthToRemove) internal pure returns (bytes memory) {
         require(lengthToRemove <= data.length, "Cannot remove more bytes than the data contains");
 
         uint256 newLength = data.length - lengthToRemove;

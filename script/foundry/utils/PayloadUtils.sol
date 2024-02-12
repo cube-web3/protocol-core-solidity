@@ -47,6 +47,7 @@ contract PayloadUtils is Test {
         Cube3SignatureModule signatureModule
     )
         internal
+        view
         returns (Structs.TopLevelCallComponents memory)
     {
         // remove the payload so we can create a hash of the calldata without the payload,

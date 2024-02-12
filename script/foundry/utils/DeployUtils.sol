@@ -14,9 +14,6 @@ import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
-    // bytes32 internal constant CUBE3_PROTOCOL_ADMIN_ROLE = keccak256("CUBE3_PROTOCOL_ADMIN_ROLE");
-    // bytes32 internal constant CUBE3_INTEGRATION_MANAGER_ROLE = keccak256("CUBE3_INTEGRATION_MANAGER_ROLE");
-    // bytes32 internal constant CUBE3_KEY_MANAGER_ROLE = keccak256("CUBE3_KEY_MANAGER_ROLE");
     bytes32 internal constant DEFAULT_ADMIN_ROLE = bytes32(0);
 
     event consoleLog(string log);

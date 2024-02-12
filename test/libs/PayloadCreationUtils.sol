@@ -107,6 +107,7 @@ library PayloadCreationUtils {
         uint256 pvtKeyToSignWith
     )
         internal
+        pure
         returns (bytes memory signature)
     {
         bytes32 signatureHash = keccak256(encodedSignatureData);
@@ -158,6 +159,7 @@ library PayloadCreationUtils {
         uint256 expectedPayloadSize
     )
         internal
+        pure
         returns (Structs.TopLevelCallComponents memory)
     {
         // remove the payload so we can create a hash of the calldata without the payload,

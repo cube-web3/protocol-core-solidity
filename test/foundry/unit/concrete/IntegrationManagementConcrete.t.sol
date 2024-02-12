@@ -151,7 +151,6 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_AdminExistsForIntegration() public {
         address integration = _randomAddress();
         address admin = _randomAddress();
-        address newAdmin = _randomAddress();
 
         integrationManagementHarness.setIntegrationAdmin(integration, admin);
 

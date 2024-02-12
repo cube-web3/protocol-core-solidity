@@ -127,7 +127,6 @@ contract Registry_Concrete_Unit_Test is BaseTest {
     // reverts when caller does not have the key manager role
     function test_RevertsWhen_RevokingSigningAuthority_WithoutRole() public {
         address integrationContract = _randomAddress();
-        address clientSigningAuthority = _randomAddress();
 
         address account = _randomAddress();
         vm.startBroadcast(account);

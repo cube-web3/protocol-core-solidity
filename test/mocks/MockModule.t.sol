@@ -33,12 +33,14 @@ contract MockModule is ModuleBase, TestEvents {
    }
    
    /// @notice emulates a module's core functionality that returns the incorrect amount of data
-   function executeMockModuleFunctionInvalidReturnDataLength(bytes32 randomHash) public onlyCube3Router returns(bytes32, bool) {
+   function executeMockModuleFunctionInvalidReturnDataLength(bytes32 randomHash) public view onlyCube3Router returns(bytes32, bool) {
+   (randomHash);
      return (MODULE_CALL_SUCCEEDED, true);
    }
 
    /// @notice emulates a module's core functionality that returns the incorrect type of data
-   function executeMockModuleFunctionInvalidReturnDataType(bytes32 randomHash) public onlyCube3Router returns(bytes32) {
+   function executeMockModuleFunctionInvalidReturnDataType(bytes32 randomHash) public view onlyCube3Router returns(bytes32) {
+      (randomHash);
      return keccak256(abi.encode(MODULE_CALL_SUCCEEDED));
    }
 
@@ -58,11 +60,11 @@ contract MockModule is ModuleBase, TestEvents {
     return SUCCESSFUL_RETURN;
  }
 
- function privilegedFunctionThatReverts() external onlyCube3Router {
+ function privilegedFunctionThatReverts() external view onlyCube3Router {
   revert("FAILED");
  }
 
- function deprecate() external override returns(string memory) {
+ function deprecate() external view override returns(string memory) {
    if (preventDeprecation) {
       revert("deprecation failed");
    }

@@ -19,8 +19,8 @@ contract UtilsHarness {
 
     function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         external
+        pure
         returns (
-            // pure
             bytes4 moduleSelector,
             bytes16 moduleId,
             bytes memory modulePayload,

@@ -23,7 +23,7 @@ contract MockCaller {
 contract MockTarget {
    using AddressUtils for address;
 
-    function checkCallerIsContract() public {
+    function checkCallerIsContract() public view {
       (msg.sender).assertIsContract();
     }
 }
