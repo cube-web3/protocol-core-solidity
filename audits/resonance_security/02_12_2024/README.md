@@ -51,6 +51,8 @@ The main areas of change include:
 
 # Protocol Properties
 
+Please review the repositories [README](../../../README.md) for a high-level overview of the Protocol.
+
 TODO: complete
 
 - The Core Protocol provides on-chain security features for smart contracts that inherit the ancillary protection contracts.

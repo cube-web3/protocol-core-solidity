@@ -122,7 +122,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// - Checks for the correct version schema by counting the "." separating MAJOR.MINOR.PATCH
     /// - Checks for the presence of the single "-" separating name and version number
     /// - Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
-    /// 
+    ///
     /// @param version_ The version string.
     ///
     /// @return Whether the string confirms to the schema: 'true` for yes and 'false' for no.

@@ -14,7 +14,6 @@ pragma solidity >= 0.8.19 < 0.8.24;
 /// inoperable.
 /// - Events are defined in {ModuleBaseEvents}
 interface ICube3Module {
-        
     /// @notice Deprecates the module so that it cannot be used or reinstalled.
     ///
     /// @dev Emits a {ModuleDeprecated} event.
@@ -36,7 +35,7 @@ interface ICube3Module {
 
     /// @notice The human-readable version of the module.
     /// @dev Module version scheme is as follows: `<module_name>-<semantic_version>`, eg. `signature-0.0.1`
-        /// Validation of the moduleVersion string must be done by the deployer
+    /// Validation of the moduleVersion string must be done by the deployer
     /// @return The module version as a string
     function moduleVersion() external view returns (string memory);
 
@@ -49,7 +48,7 @@ interface ICube3Module {
     /// @return The module's computed ID.
     function moduleId() external view returns (bytes16);
 
-        /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
             ERC165
     //////////////////////////////////////////////////////////////*/
 
@@ -57,5 +56,4 @@ interface ICube3Module {
     /// @param interfaceId The interface identifier, as specified in ERC-165.
     /// @return bool `true` if the contract implements `interfaceId`, `false` otherwise.
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
-
 }

@@ -9,6 +9,70 @@ import { Structs } from "@src/common/Structs.sol";
 /// @dev All events are defined in {ProtocolEvents}.
 interface ICube3Router {
     /*//////////////////////////////////////////////////////////////////////////
+                            CUBE3 Router Implementation
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Initializes the proxy contract.
+    ///
+    /// @dev Emits a {ProtocolConfigUpdated} event.
+    ///
+    /// Notes:
+    /// - Initializes AccessControlUpgradeable
+    /// - Initialized UUPSUpgradeable
+    /// - Initializes ERC165
+    /// - Sets the initial configuration of the protocol.
+    /// - Grants the DEFAULT_ADMIN_ROLE to the EOA responsible for deployment. This accounts
+    /// for deployment using salted contract creation via a contract.
+    /// - The protocol is not paused by default.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must be a contract and the call must take place within it's constructor.
+    /// - `registry` cannot be the zero address.
+    ///
+    /// @param registry The address of the CUBE3 Registry contract.
+    function initialize(address registry) external;
+
+    /// @notice Routes the top-level calldata to the Security Module using data
+    /// embedded in the routing bitmap.
+    ///
+    /// @dev If events are emitted, they're done so by the Security Module being utilized.
+    ///
+    /// Notes:
+    /// - Acts like an assertion.  Will revert on any error or failure to meet the
+    /// conditions laid out by the security module.
+    /// - Will bypass the security modules under the following conditions, checked
+    /// sequentially:
+    ///     - Function protection for the provided selector is disabled.
+    ///     - The integration's registration status is revoked.
+    ///     - The Protocol is paused.
+    /// - Only contracts can be registered as integrations, so checking against UNREGISTERED
+    /// status is redundant.
+    /// - No Ether is transferred to the router, so the function is non-payable.
+    /// - If the module function call reverts, the revert data will be relayed to the integration.
+    ///
+    /// Requirements:
+    /// - The last word of the `integrationCalldata` is a valid routing bitmap.
+    /// - The module identified in the routing bitmap must be installed.
+    /// - The call to the Security Module must succeed.
+    ///
+    /// @param integrationMsgSender the `msg.sender` of the top-level call.
+    /// @param integrationMsgValue The `msg.value` of the top-level call.
+    /// @param integrationCalldata The `msg.data` of the top-level call, which includes the
+    /// CUBE3 Payload.
+    ///
+    /// @return The PROCEED_WITH_CALL magic value if the call succeeds.
+    function routeToModule(
+        address integrationMsgSender,
+        uint256 integrationMsgValue,
+        bytes calldata integrationCalldata
+    ) external returns (bytes32);
+
+    /// @notice Checks whether the ICube3Router interface is supported.
+    /// @param interfaceId The interfaceId to check.
+    /// @return Whether the provided interface is supported: `true` for yes.
+    function supportsInterface(bytes4 interfaceId) external view override returns (bool);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 Integration Management
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -207,7 +271,7 @@ interface ICube3Router {
     /// @param fnCalldata The calldata for the function to call on the module.
     ///
     /// @return The return or revert data from the module function call.
-    function callModuleFunctionAsAdmin(bytes16 moduleId, bytes calldata fnCalldata) external returns (bytes memory);
+    function callModuleFunctionAsAdmin(bytes16 moduleId, bytes calldata fnCalldata) external payable returns (bytes memory);
 
     /// @notice Adds a new module to the Protocol.
     ///
@@ -298,101 +362,4 @@ interface ICube3Router {
     /// @param moduleId The module's ID derived from the hash of the module's version string.
     /// @return True if the module has been deprecated.
     function getIsModuleVersionDeprecated(bytes16 moduleId) external view returns (bool);
-
-    /// @notice Initializes the proxy's implementation contract.
-    /// @dev Can only be called during the proxy's construction.
-    /// @dev Omits any argument to avoid changing deployment bytecode across EVM chains.
-    /// @dev See {Cube3RouterProxy-construcot} constructor for implementation details.
-    function initialize() external;
-
-    /// @notice Routes transactions from any Cube3Integration integration to a designated CUBE3 module.
-    /// @dev Can only be called by integration contracts that have registered with the router.
-    /// @dev A successful module function's execution should always return TRUE.
-    /// @dev A failed module function's execution, or not meeting the conditions layed out in the module, should always
-    /// revert.
-    /// @dev Makes a low-level call to the module that includes all relevent data.
-    /// @param integrationMsgSender The msgSender of the originating Cube3Integration function.
-    /// @param integrationSelf The Cube3Integration integration contract address, passes by itself as the _self ref.
-    /// @param integrationMsgValue The msg.value of the originating Cube3Integration function call.
-    /// @param integrationMsgValue The msg.value of the originating Cube3Integration function call.
-    /// @param cube3PayloadLength The length of the CUBE3 payload.
-    /// @return Whether the module's function execution was successful.
-    function routeToModule(
-        address integrationMsgSender,
-        address integrationSelf,
-        uint256 integrationMsgValue,
-        uint256 cube3PayloadLength,
-        bytes calldata integrationMsgData
-    )
-        external
-        returns (bool);
-
-    /// @notice Registers the calling contract's address as an integration.
-    /// @dev Cannot be called by a contract's constructor as the `supportsInterface` callback would fail.
-    /// @dev Can only be called by a contract, EOAS are prevented from calling via {supportsInterface} callback.
-    /// @dev There is no guarantee the calling contract is a legitimate Cube3Integration contract.
-    /// @dev The registrarSignature needs to be attained from the CUBE3 service.
-    /// @dev msg.sender will be the proxy contract, not the implementation, if it is a proxy registering.
-    /// @dev Unauthorized contracts can be revoked manually by an admin, see {setIntegrationAuthorizationStatus}.
-    /// @param integrationSelf The contract address of the integration contract being registered.
-    /// @param registrarSignature The registration signature provided by the integration's signing authority.
-    function initiate2StepIntegrationRegistration(
-        address integrationSelf,
-        bytes calldata registrarSignature
-    )
-        external
-        returns (bool success);
-
-    /// @notice Manually sets/updates the designated integration contract's registration status.
-    /// @dev Can only be called by a CUBE3 admin.
-    /// @dev Can be used to reset an upgradeable proxy implementation's registration status.
-    /// @dev If the integration is a standalone contract (not using a proxy), the `integrationOrProxy` and
-    ///      `integrationOrImplementation` parameters will be the same address.
-    /// @param integrationOrProxy The contract address of the integration contract (or its proxy).
-    /// @param integrationOrImplementation The contract address of the integration's implementation contract (or itself
-    /// if not a proxy).
-    /// @param registrationStatus The registration status status to set.
-    function setIntegrationRegistrationStatus(
-        address integrationOrProxy,
-        address integrationOrImplementation,
-        Structs.RegistrationStatusEnum registrationStatus
-    )
-        external;
-
-    /// @notice Sets the CUBE3 protocol contract addresses.
-    /// @dev Performs checks using {supportsInterface} to ensure the correct addresses are passed in.
-    /// @dev We cannot pass in the addresses during intialization, as we need the deployed bytecode to be the same
-    ///      on all EVM chains for use with the constant address deployer proxy.
-    /// @dev MUST be called immediately after deployment, before any other functions are called.
-    /// @param cube3GateKeeper The address of the Cube3GateKeeper contract.
-    /// @param cube3RegistryProxy The address of the Cube3Registry proxy contract.
-    function setProtocolContracts(address cube3GateKeeper, address cube3RegistryProxy) external;
-
-    /// @notice Gets the contract address of a module using its computed ID.
-    /// @dev `moduleId` is computed from keccak256(abi.encode(versionString)).
-    /// @param moduleId The module's ID derived from the hash of the module's version string.
-    /// @return The module contract's address.
-    function getModuleAddressById(bytes16 moduleId) external view returns (address);
-
-    /// @notice Whether the supplied contract is both a registered integration and has a protection status of ACTIVE.
-    /// @param integrationOrProxy The contract address of the integration (or its proxy) contract being queried.
-    /// @param integrationOrImplementation The contract address of the integration's implementation contract.
-    /// @return Whether the provided integration is actively protected.
-    function isProtectedIntegration(
-        address integrationOrProxy,
-        address integrationOrImplementation
-    )
-        external
-        view
-        returns (bool);
-
-    /// @notice Get the current proxy implementation's address.
-    /// @dev Will return the address of the Cube3RouterProxy's current implementation/logic contract.
-    /// @dev Conforms to the UUPS spec.
-    /// @return The contract address of this active implementation contract.
-    function getImplementation() external view returns (address);
-
-    function getIntegrationAdmin(address integration) external view returns (address);
-
-    function getRegistryAddress() external view returns (address);
 }

@@ -14,7 +14,7 @@ import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 /// @title ProtocolManagement
 /// @notice This contract contains all the logic for managing the protocol.
 /// @dev This contract's functions can only be accessed by CUBE3 accounts with privileged roles.
-abstract contract ProtocolManagement is ICube3Router, AccessControlUpgradeable, RouterStorage {
+abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage {
     /*//////////////////////////////////////////////////////////////
             PROTOCOL ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/

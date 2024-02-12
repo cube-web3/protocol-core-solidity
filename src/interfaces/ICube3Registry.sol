@@ -9,14 +9,13 @@ pragma solidity >= 0.8.19 < 0.8.24;
 /// generates the signature of the secure payload supplied by the Risk API.
 /// - Events are defined in {ProtocolEvents}
 interface ICube3Registry {
-
     /// @notice Sets or updates the signing authority address for an integration contract.
     ///
     /// @dev Emits a {SigningAuthorityUpdated} event.
     ///
     /// Notes:
     /// - External wrapper for the {Cube3Registry-_setClientSigningAuthority}
-    /// - 
+    /// -
     ///
     /// Requirements:
     /// - `msg.sender` must have the CUBE3_KEY_MANAGER_ROLE role.
@@ -34,7 +33,7 @@ interface ICube3Registry {
     ///
     /// Notes:
     /// - Can lead to out-of-gas errors due to no array  length check; use discretion when calling.
-    /// - 
+    /// -
     ///
     /// Requirements:
     /// - `msg.sender` must have the CUBE3_KEY_MANAGER_ROLE role.

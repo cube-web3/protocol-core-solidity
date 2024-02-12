@@ -56,6 +56,7 @@ Application-specific smart contracts that provide dedicated per-contract functio
 - Module
 - Module Payload
 - CUBE3 Payload
+- Routing Bitmap
 
 ## Debugging
 

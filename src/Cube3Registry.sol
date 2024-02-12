@@ -2,10 +2,11 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
-import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
 
-import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
-import { ProtocolAdminRoles } from "./common/ProtocolAdminRoles.sol";
+import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
 
 /// @title Cube3Registry
 /// @notice Contract containing logic for the storage and management of integration Signing
@@ -14,7 +15,7 @@ import { ProtocolAdminRoles } from "./common/ProtocolAdminRoles.sol";
 /// Notes:
 /// - In the event of a catestrophic breach of the KMS, the registry contract can be deprecated and replaced
 /// by a new version.
-contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
+contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, ProtocolEvents {
     /*//////////////////////////////////////////////////////////////
             SIGNING AUTHORITY STORAGE
     //////////////////////////////////////////////////////////////*/

@@ -15,7 +15,7 @@ import { AddressUtils } from "@src/libs/AddressUtils.sol";
 /// @title IntegrationManagment
 /// @notice This contract implements logic for managing integration contracts and their relationship with the protocol.
 /// @dev See {ICube3Router} for documentation.
-abstract contract IntegrationManagement is ICube3Router, AccessControlUpgradeable, RouterStorage {
+abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
     using SignatureUtils for bytes;
     using AddressUtils for address;
 
@@ -130,8 +130,10 @@ abstract contract IntegrationManagement is ICube3Router, AccessControlUpgradeabl
     )
         external
         onlyIntegrationAdmin(integration)
-        whenNotPaused // TODO: test this
     {
+        // TODO: check paused
+
+         
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Protocol_InvalidIntegration();

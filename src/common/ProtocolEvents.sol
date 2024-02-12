@@ -8,7 +8,6 @@ import { Structs } from "./Structs.sol";
 /// @title ProtocolEvents
 /// @notice Defines the collective events used throughout the Protocol.
 abstract contract ProtocolEvents {
-
     /*//////////////////////////////////////////////////////////////////////////
                                 Protocol Management
     //////////////////////////////////////////////////////////////////////////*/
