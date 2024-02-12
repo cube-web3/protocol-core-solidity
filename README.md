@@ -1,5 +1,6 @@
-# CUBE3 Protocol Core [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
+# CUBE3 Protocol Core [![Foundry][foundry-badge]][foundry]
 
+<!-- [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov]  -->
 <!-- [gha]: https://github.com/sablier-labs/v2-core/actions
 [gha-badge]: https://github.com/sablier-labs/v2-core/actions/workflows/ci.yml/badge.svg
 [codecov]: https://codecov.io/gh/sablier-labs/v2-core
@@ -60,7 +61,7 @@ An integration has access to all the functionality offered by the available Secu
 Clone the repository:
 
 ```bash
-git@github.com:cube-web3/protocol-core-solidity.git
+git clone git@github.com:cube-web3/protocol-core-solidity.git
 ```
 
 cd into the `protocol-core-solidity` directory and run:
@@ -71,7 +72,7 @@ forge install
 
 ## Debugging
 
-You can generage a list of all the function and error selectors in this repository using:
+A list of all the function and error selectors in this repository can be generated using:
 
 ```
 forge selectors list
@@ -81,13 +82,13 @@ or by visiting [Sam CZ Sun's signature database](https://openchain.xyz/signature
 
 ## Testing
 
-You can run all unit tests using the following command:
+Run unit tests using the following command:
 
 ```bash
 forge test -vvv
 ```
 
-You can view the coverage report by running:
+View the coverage report by running:
 
 ```bash
 forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage

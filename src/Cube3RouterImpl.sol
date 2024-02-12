@@ -96,7 +96,6 @@ contract Cube3RouterImpl is
             ROUTING
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: check gas consumption of contract check
     /// @inheritdoc ICube3RouterImpl
     function routeToModule(
         address integrationMsgSender,
@@ -136,8 +135,7 @@ contract Cube3RouterImpl is
                 integrationMsgSender,
                 msg.sender, // this will be the proxy address if the integration uses a proxy
                 integrationMsgValue,
-                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload
-                    // TODO: better name
+                integrationCalldataDigest // the top-level function call's msg.data without the cube3SecurePayload
             ),
             modulePayload
         );

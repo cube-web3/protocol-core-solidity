@@ -57,8 +57,10 @@ contract Demo is Cube3Protection {
         cube3Protected(cubePayload)
     {
         require(msg.value > 0, "value = 0");
+        uint256 balanceBefore = address(this).balance;
         (newVal, newState, newBytes);
         emit Success();
+        emit BalanceUpdated(address(this), address(this).balance);
     }
 
     function deposit(bytes calldata cubePayload) external cube3Protected(cubePayload) {

@@ -47,6 +47,7 @@ contract MockModule is ModuleBase, TestEvents {
    }
 
  // TODO: test payable
+ 
  function privilegedFunctionWithArgs(bytes32 arg) external onlyCube3Router returns(bytes32) {
     emit MockModuleCallSucceededWithArgs(arg);
     return arg;

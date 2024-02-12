@@ -1,5 +1,0 @@
-# Access Control
-
-## User
-
-## Admin

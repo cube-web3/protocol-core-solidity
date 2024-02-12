@@ -40,7 +40,6 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         vm.stopPrank();
     }
 
-    // TODO: add value to TX
 
     function test_SucceedsWhen_CallingProtecteDemoFunction() public {
         address user = _randomAddress();
