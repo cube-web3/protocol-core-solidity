@@ -5,6 +5,8 @@ import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { Demo } from "@test/demo/Demo.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
+
 abstract contract IntegrationTest is BaseTest {
     Demo demo;
 
@@ -46,7 +48,7 @@ abstract contract IntegrationTest is BaseTest {
         fnSelectors[5] = Demo.payableProtected.selector;
 
         bytes memory registrationSignature =
-            _generateRegistrarSignature(address(cubeRouterProxy), address(demo), demoAuthPvtKey);
+            PayloadCreationUtils.createRegistrarSignature(ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)), address(demo), demoSigningAuthorityPvtKey);
 
         emit log_named_bytes("registrationSignature", registrationSignature);
 

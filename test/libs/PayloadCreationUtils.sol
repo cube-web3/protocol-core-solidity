@@ -34,6 +34,10 @@ library PayloadCreationUtils {
     event log_bitmap(uint256 bitmap);
     event log_payload(bytes p);
     event log_uint(uint256 l);
+    event log_bytes32(bytes32 b);
+    event log_named_uint(string name, uint256 l);
+    event log_named_bytes32(string name, bytes32 b);
+    event log_named_address(string name, address a);
 
     /// @dev The CUBE3 payload combines the module payload and the routing bitmap.
     function createCube3PayloadForSignatureModule(
@@ -233,6 +237,61 @@ library PayloadCreationUtils {
         return bitmap;
     }
 
+    function _extractModuleIdFromBitmapAssembly(uint256 bitmap) internal pure returns (bytes16) {
+        bytes16 moduleId;
+        assembly {
+            // Mask to extract the right-most 16 bytes
+            let mask := sub(shl(128, 1), 1)
+            moduleId := shl(128, and(bitmap, mask))
+        }
+        return moduleId;
+    }
+
+    function _extractModuleIdFromBitmap(uint256 bitmap) internal returns (bytes16) {
+        // no need to shift right as we're only interested in the right-most 16 bytes
+
+        uint256 mask = (uint256(1) << 128) - 1;
+        emit log_named_uint("mask", mask);
+        uint256 moduleUint = bitmap & mask;
+        moduleUint = moduleUint << 128;
+        bytes32 moduleBytes32 = bytes32(moduleUint);
+        emit log_named_bytes32("moduleBytes32", moduleBytes32);
+        emit log_named_uint("moduleUint", moduleUint);
+        return bytes16(bytes32(moduleUint));
+    }
+
+    event log_named_bytes4(string name, bytes4 b);
+
+    // `location` is the number of bits distance from the least significant bit (right-most)
+    function _extractSelectorBytes4FromBitmap(uint256 bitmap, uint256 location) internal returns (bytes4) {
+        uint256 numberOfTargetBits = 32;
+        uint256 mask = (uint256(1) << numberOfTargetBits) - 1;
+        emit log_named_uint("mask", mask);
+
+        uint256 selectorUint = (bitmap >> location) & mask;
+
+        // when casting from uint256 to bytes4, we need to make sure our 32bits occupy the most significant bits, so
+        // shift left to the 32 most significant bits
+        selectorUint = selectorUint << 224;
+        emit log_named_uint("selectorUint", selectorUint);
+
+        bytes4 converted = bytes4(bytes32(selectorUint));
+        emit log_named_bytes4("selectorBytes4", converted);
+
+        return converted;
+    }
+
+    function _extractSelectorBytes4FromBitmapAssm(uint256 bitmap, uint256 location) internal pure returns (uint32) {
+        uint32 selector;
+        assembly {
+            // Mask to extract 32 bits
+            let mask := sub(shl(32, 1), 1)
+            // Shift bitmap right by 'location', apply mask, and cast to uint32
+            selector := and(shr(location, bitmap), mask)
+        }
+        return selector;
+    }
+
     function addBytes16ToBitmap(uint256 bitmap, bytes16 id, uint8 offset) public pure returns (uint256) {
         return bitmap + uint256(uint128(id));
     }
@@ -251,10 +310,9 @@ library PayloadCreationUtils {
         return tempBytes;
     }
 
-/*
 
-        function _generateRegistrarSignature(
-        address router,
+    function createRegistrarSignature(
+        address integrationAdmin,
         address integration,
         uint256 signingAuthPvtKey
     )
@@ -262,9 +320,6 @@ library PayloadCreationUtils {
         view
         returns (bytes memory)
     {
-        address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
-        return
-            _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
+        return signPayloadData(abi.encodePacked(integration, integrationAdmin, block.chainid), signingAuthPvtKey);
     }
-    */
 }

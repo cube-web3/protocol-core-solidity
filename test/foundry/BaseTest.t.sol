@@ -36,8 +36,6 @@ struct Accounts {
 contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
 
-    uint256 internal constant EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
-
     // Test-specific contracts
     RouterStorageHarness routerStorageHarness;
     ProtocolManagementHarness protocolManagementHarness;
@@ -125,42 +123,5 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         vm.startPrank(cube3Accounts.protocolAdmin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));
         vm.stopPrank();
-    }
-
-    // ============== UTILS
-
-    function _generateRegistrarSignature(
-        address router,
-        address integration,
-        uint256 signingAuthPvtKey
-    )
-        internal
-        returns (bytes memory)
-    {
-        emit log_string("generating reg sig");
-        address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
-        return
-            _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
-    }
-
-    // TODO: move to ustils
-    function _createSignature(
-        bytes memory encodedSignatureData,
-        uint256 pvtKeyToSignWith
-    )
-        internal
-        pure
-        returns (bytes memory signature)
-    {
-        bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
-
-        signature = abi.encodePacked(r, s, v);
-
-        (, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
-        if (error != ECDSA.RecoverError.NoError) {
-            revert("No Matchies");
-        }
     }
 }

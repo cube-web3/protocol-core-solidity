@@ -15,6 +15,8 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
     bytes32 internal constant DEFAULT_ADMIN_ROLE = bytes32(0);
 
+        uint256 internal constant EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
+
     // used for writing the json files
     struct AddressMapping {
         string key;
