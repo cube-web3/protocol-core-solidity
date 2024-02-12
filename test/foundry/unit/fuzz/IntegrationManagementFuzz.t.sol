@@ -443,7 +443,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
     // fails if updating the status as a non admin
     function test_RevertsWhen_BatchUpdateingRegistrationStatus_AsNonAdmin(uint256 integrationsLength) public {
- 
         uint256 statusSeed = integrationsLength;
         integrationsLength = bound(integrationsLength, 1, 16);
 

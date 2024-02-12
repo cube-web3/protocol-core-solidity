@@ -58,7 +58,6 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
     }
 
     function run() external {
-
         // install module
         vm.startBroadcast(cube3admin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));

@@ -14,7 +14,6 @@ contract Integration_Standlone_Fuzz_Test is IntegrationTest {
         super.setUp();
     }
 
-
     function testFuzz_SucceedsWhen_CallingProtectedPayableFunction_WithEther(uint256 value) public {
         value = bound(value, 1, type(uint128).max);
         bool flag = value % 2 == 0;
@@ -24,7 +23,8 @@ contract Integration_Standlone_Fuzz_Test is IntegrationTest {
         vm.deal(user, value);
 
         bytes memory emptyBytes = new bytes(352); //352
-        bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(Demo.payableProtected.selector, value, flag, randomBytes32, emptyBytes);
+        bytes memory calldataWithEmptyPayload =
+            abi.encodeWithSelector(Demo.payableProtected.selector, value, flag, randomBytes32, emptyBytes);
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
@@ -37,11 +37,9 @@ contract Integration_Standlone_Fuzz_Test is IntegrationTest {
 
         vm.startPrank(user);
         uint256 contractBalance = address(demo).balance;
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit BalanceUpdated(address(demo), contractBalance + value);
-        demo.payableProtected{value: value}(value, flag, randomBytes32, cube3SecurePayload);
+        demo.payableProtected{ value: value }(value, flag, randomBytes32, cube3SecurePayload);
         vm.stopPrank();
     }
-
-
 }

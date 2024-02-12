@@ -15,7 +15,7 @@
   - [ProtocolEvents](src/common/ProtocolEvents.sol/abstract.ProtocolEvents.md)
   - [Structs](src/common/Structs.sol/abstract.Structs.md)
 - [❱ interfaces](src/interfaces/README.md)
-  - [ICube3Module](src/interfaces/ICube3Module.sol/interface.ICube3Module.md)
+  - [ICube3SecurityModule](src/interfaces/ICube3SecurityModule.sol/interface.ICube3SecurityModule.md)
   - [ICube3Registry](src/interfaces/ICube3Registry.sol/interface.ICube3Registry.md)
   - [ICube3Router](src/interfaces/ICube3Router.sol/interface.ICube3Router.md)
   - [ICube3SignatureModule](src/interfaces/ICube3SignatureModule.sol/interface.ICube3SignatureModule.md)

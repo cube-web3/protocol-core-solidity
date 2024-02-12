@@ -2,11 +2,10 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { Structs } from "@src/common/Structs.sol";
-interface IIntegrationManagement {
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                Integration Management
-    //////////////////////////////////////////////////////////////////////////*/
+/// @title IIntegrationManagement
+/// @notice Contains the logic for managing the integration contracts that are registered with the CUBE3 protocol.
+interface IIntegrationManagement {
 
     /// @notice Begins the 2 step transfer process of the admin account for an integration contract.
     ///
@@ -14,7 +13,7 @@ interface IIntegrationManagement {
     ///
     /// Notes:
     /// - No need check for the null address being passed in as the `newAdmin`, as there's no way for the null
-    /// address to call this function and complete the transfer.  Setting the integration to the null address in 
+    /// address to call this function and complete the transfer.  Setting the integration to the null address in
     /// essence cancels the pending transfer.
     ///
     /// Requirements:
@@ -167,6 +166,4 @@ interface IIntegrationManagement {
         external
         view
         returns (address registry, address authority);
-
-
 }

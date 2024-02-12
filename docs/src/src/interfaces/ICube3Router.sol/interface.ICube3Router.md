@@ -171,7 +171,7 @@ the contract address for the destination module._
 
 _The Router can only make calls to modules registered via this function._
 
-_Can only install module contracts that have been deployed and support the {ICube3Module} interface._
+_Can only install module contracts that have been deployed and support the {ICube3SecurityModule} interface._
 
 _Makes a call to the module that returns the string version to validate the module exists._
 

@@ -2,11 +2,11 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
 
-import {IIntegrationManagement} from "@src/interfaces/IIntegrationManagement.sol";
+import { IIntegrationManagement } from "@src/interfaces/IIntegrationManagement.sol";
 
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 import { Structs } from "@src/common/Structs.sol";
@@ -132,7 +132,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         onlyIntegrationAdmin(integration)
     {
         // Checks: the protocol is not paused.
-        if(getIsProtocolPaused()) {
+        if (getIsProtocolPaused()) {
             revert ProtocolErrors.Cube3Router_ProtocolPaused();
         }
 

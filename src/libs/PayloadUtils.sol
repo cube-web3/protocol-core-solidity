@@ -21,12 +21,7 @@ library PayloadUtils {
     function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         internal
         pure
-        returns (
-            bytes4 moduleSelector,
-            bytes16 moduleId,
-            bytes memory modulePayload,
-            bytes32 originalCalldataDigest
-        )
+        returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
     {
         // Extract the bitmap from the last word of the integration calldata.
         uint256 routingBitmap =

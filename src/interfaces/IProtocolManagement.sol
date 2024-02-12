@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
-
 import { Structs } from "@src/common/Structs.sol";
 
-
+/// @title IProtocolManagement
+/// @notice Contains the logic for privileged accounts belonging to CUBE3 to configure the protocol and
+/// Security Modules.
 interface IProtocolManagement {
-
-   /*//////////////////////////////////////////////////////////////////////////
-                                Protocol Management
-    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Updates the protocol configuration.
     ///
@@ -46,7 +43,13 @@ interface IProtocolManagement {
     /// @param fnCalldata The calldata for the function to call on the module.
     ///
     /// @return The return or revert data from the module function call.
-    function callModuleFunctionAsAdmin(bytes16 moduleId, bytes calldata fnCalldata) external payable returns (bytes memory);
+    function callModuleFunctionAsAdmin(
+        bytes16 moduleId,
+        bytes calldata fnCalldata
+    )
+        external
+        payable
+        returns (bytes memory);
 
     /// @notice Adds a new module to the Protocol.
     ///
@@ -56,12 +59,12 @@ interface IProtocolManagement {
     /// - Module IDs are included in the routing bitmap at the tail of the `cube3Payload` and
     /// and are used to dynamically retrieve the contract address for the destination module from storage.
     /// - The Router can only make calls to modules registered via this function.
-    /// - Can only install module contracts that have been deployed and support the {ICube3Module} interface.
+    /// - Can only install module contracts that have been deployed and support the {ICube3SecurityModule} interface.
     ///
     /// Requirements:
     /// - `msg.sender` must possess the CUBE3_PROTOCOL_ADMIN_ROLE role.
     /// - The `moduleAddress` cannot be the zero address.
-    /// - The `moduleAddress` must be a smart contract that supports the ICube3Module interface.
+    /// - The `moduleAddress` must be a smart contract that supports the ICube3SecurityModule interface.
     /// - The `moduleId` must not contain empty bytes or have been installed before.
     /// - The `moduleId` provided must match the hash of the version string stored in the module contract.
     /// - The module must not have previously been deprecated.
@@ -86,5 +89,4 @@ interface IProtocolManagement {
     ///
     /// @param moduleId The module ID of the module to deprecate.
     function deprecateModule(bytes16 moduleId) external;
-
 }

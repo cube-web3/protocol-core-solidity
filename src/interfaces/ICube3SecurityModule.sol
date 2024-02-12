@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-// TODO: rename ICube3SecurityModule.
-
-/// @title ICube3Module
+/// @title ICube3SecurityModule
 /// @notice Provides an interface for the functionality shared by all CUBE3 Security Modules.
 ///
 /// Notes:
@@ -13,7 +11,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 /// delegatecall to a contract that might, as it could potentially render the router proxy
 /// inoperable.
 /// - Events are defined in {ModuleBaseEvents}
-interface ICube3Module {
+interface ICube3SecurityModule {
     /// @notice Deprecates the module so that it cannot be used or reinstalled.
     ///
     /// @dev Emits a {ModuleDeprecated} event.

@@ -3,25 +3,25 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
-import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 
 /// @title ModuleBase
 /// @notice Provides common functionality for all CUBE3 Security Modules.
-/// @dev See {ICube3Module} for documentation.
-abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, ProtocolConstants {
+/// @dev See {ICube3SecurityModule} for documentation.
+abstract contract ModuleBase is ICube3SecurityModule, ModuleBaseEvents, ERC165, ProtocolConstants {
     // interface wrapping the CUBE3 Router proxy contract for convenience.
     IRouterStorage internal immutable cube3router;
 
     /// Unique ID derived from the module's version string that matches keccak256(abi.encode(moduleVersion));
     bytes16 public immutable moduleId;
 
-    /// @inheritdoc	ICube3Module
+    /// @inheritdoc	ICube3SecurityModule
     string public moduleVersion;
 
-    /// @inheritdoc	ICube3Module
+    /// @inheritdoc	ICube3SecurityModule
     bool public isDeprecated;
 
     /*//////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     //////////////////////////////////////////////////////////////*/
 
     // TODO: test custom override here and call super.deprecate();
-    /// @inheritdoc	ICube3Module
+    /// @inheritdoc	ICube3SecurityModule
     function deprecate() external virtual onlyCube3Router returns (string memory) {
         isDeprecated = true;
         string memory version = moduleVersion; // gas-saving
@@ -94,9 +94,15 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
             ERC165
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc	ICube3Module
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ICube3Module, ERC165) returns (bool) {
-        return interfaceId == type(ICube3Module).interfaceId || super.supportsInterface(interfaceId);
+    /// @inheritdoc	ICube3SecurityModule
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ICube3SecurityModule, ERC165)
+        returns (bool)
+    {
+        return interfaceId == type(ICube3SecurityModule).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /*//////////////////////////////////////////////////////////////

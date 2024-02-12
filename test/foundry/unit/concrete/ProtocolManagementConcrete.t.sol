@@ -65,7 +65,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when a non-priveleged role tries to set the config
     function test_RevertsWhen_NonPrivilegedRoleSetsConfig() public {
-
         // set the config
         vm.expectRevert();
         protocolManagementHarness.updateProtocolConfig(address(mockRegistry), false);
@@ -130,10 +129,9 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
 
         vm.expectRevert(bytes("FAILED"));
-        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
     }
-
 
     /*//////////////////////////////////////////////////////////////
             installModule
@@ -179,7 +177,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when deploying a module whose ID doesn't match the version
     function test_RevertsWhen_ModuleIdNotMatchingVersion() public {
-
         MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
 
         bytes16 altModuleId = altMockModule.moduleId();

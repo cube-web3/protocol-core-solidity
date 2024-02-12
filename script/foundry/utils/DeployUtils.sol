@@ -77,9 +77,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(
-            address(cubeRouterProxy), _signatureModuleVersion, _backupSigner
-        );
+        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), _signatureModuleVersion, _backupSigner);
 
         vm.stopBroadcast();
     }

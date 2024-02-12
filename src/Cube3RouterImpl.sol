@@ -24,7 +24,7 @@ import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 /// @dev See {ICube3RouterImpl} for documentation, which is inherited implicitly via
 /// {ProtocolManagement} and {IntegrationManagement}.
 /// Notes:
-/// - All storage variables are defined in {RouterStorage} and accessed via 
+/// - All storage variables are defined in {RouterStorage} and accessed via
 /// dedicated getter and setter functions.
 contract Cube3RouterImpl is
     ICube3RouterImpl,
@@ -213,7 +213,12 @@ contract Cube3RouterImpl is
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ICube3RouterImpl
-    function supportsInterface(bytes4 interfaceId) public view override(AccessControlUpgradeable, ICube3RouterImpl) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable, ICube3RouterImpl)
+        returns (bool)
+    {
         return interfaceId == type(ICube3RouterImpl).interfaceId || super.supportsInterface(interfaceId);
     }
 }

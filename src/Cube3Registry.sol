@@ -5,7 +5,7 @@ import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol"
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
-import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
+import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
 
 /// @title Cube3Registry
 /// @notice Contract containing logic for the storage and management of integration Signing

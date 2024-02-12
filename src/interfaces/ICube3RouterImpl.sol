@@ -65,12 +65,12 @@ interface ICube3RouterImpl {
         address integrationMsgSender,
         uint256 integrationMsgValue,
         bytes calldata integrationCalldata
-    ) external returns (bytes32);
+    )
+        external
+        returns (bytes32);
 
     /// @notice Checks whether the ICube3Router interface is supported.
     /// @param interfaceId The interfaceId to check.
     /// @return Whether the provided interface is supported: `true` for yes.
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
-
-
 }

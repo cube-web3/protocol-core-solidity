@@ -29,13 +29,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
     event log_named_bytes16(string name, bytes16 value);
 
-    function testFuzz_SucceedsWhen_PayloadDataIsValid(
-        uint256 calldataSize,
-        uint256 idSeed,
-        uint256 nonce
-    )
-        public
-    {
+    function testFuzz_SucceedsWhen_PayloadDataIsValid(uint256 calldataSize, uint256 idSeed, uint256 nonce) public {
         calldataSize = bound(calldataSize, 32, 256);
         idSeed = bound(idSeed, 1, type(uint256).max);
         vm.assume(calldataSize % 32 == 0);

@@ -7,7 +7,7 @@ import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 // import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
 import { MockRouter } from "@test/mocks/MockRouter.t.sol";
 import { ModuleBaseHarness } from "@test/foundry/harnesses/ModuleBaseHarness.sol";
-import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 
@@ -56,8 +56,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     // fails with a version that's too long
     function test_RevertsWhen_VersionStringTooLong() public {
         vm.expectRevert(ProtocolErrors.Cube3Module_DoesNotConformToVersionSchema.selector);
-        moduleBaseHarness =
-            new ModuleBaseHarness(address(mockRouter), "versionThatsTooLongBecauseItsOver32Bytes-0.0.1");
+        moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), "versionThatsTooLongBecauseItsOver32Bytes-0.0.1");
     }
 
     // fails with an invalid version schema
@@ -120,11 +119,14 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
             ERC165
     //////////////////////////////////////////////////////////////*/
 
-    // succeeds when checking interface support for ICube3Module and ERC165
+    // succeeds when checking interface support for ICube3SecurityModule and ERC165
     function test_SucceedsWhen_CheckingSupportedInterfaces() public {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE);
-        assertTrue(moduleBaseHarness.supportsInterface(type(ICube3Module).interfaceId), "ICube3Module not supported");
-        assertTrue(moduleBaseHarness.supportsInterface(type(IERC165).interfaceId), "ICube3Module not supported");
+        assertTrue(
+            moduleBaseHarness.supportsInterface(type(ICube3SecurityModule).interfaceId),
+            "ICube3SecurityModule not supported"
+        );
+        assertTrue(moduleBaseHarness.supportsInterface(type(IERC165).interfaceId), "ICube3SecurityModule not supported");
     }
 
     /*//////////////////////////////////////////////////////////////

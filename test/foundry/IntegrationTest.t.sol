@@ -5,8 +5,6 @@ import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { Demo } from "@test/demo/Demo.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
-
-
 abstract contract IntegrationTest is BaseTest {
     Demo demo;
 

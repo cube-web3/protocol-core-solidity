@@ -36,7 +36,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // Succeeds if routing is bypassed
     function test_SucceedsWhen_RoutingToModule_WhenProtectionBypassed() public {
-        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
+        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
 
         // without fn protection enabled for `selector`, the router will bypass routing and return early
         vm.startPrank(integration);
@@ -48,7 +48,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // Fails if module doesn't exist
     function test_RevertsWhen_ModuleIdDoesNotExist() public {
-        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
+        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
 
         // enable fn protection
         routerHarness.setFunctionProtectionStatus(integration, selector, true);
@@ -124,7 +124,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // succees (returns true) when the function is protected, but registration status is revoked
     function test_SucceedsWhen_BypassRouting_WhenRegistrationStatusRevoked() public {
-        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
+        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
         // enable fn protection
         routerHarness.setFunctionProtectionStatus(integration, selector, true);
         assertTrue(routerHarness.getIsIntegrationFunctionProtected(integration, selector), "not protected");
@@ -148,7 +148,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
     // succeeds (returns false) when the function is protected, integration is REGISTERED,
     // and protocol is not paused
     function test_SucceedsWhen_Routing_WhenProtectedAndRegisteredAndNotPaused() public {
-        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
+        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
 
         emit log_named_bytes4("selector", selector);
 

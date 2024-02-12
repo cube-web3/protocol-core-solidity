@@ -59,7 +59,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedPayableFunction.selector);
         bytes memory harnessCalldata =
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
-        (bool success,) = address(protocolManagementHarness).call{value: value}(harnessCalldata);
+        (bool success,) = address(protocolManagementHarness).call{ value: value }(harnessCalldata);
         require(success, "harness call failed");
         require(address(mockModule).balance == value, "ether not sent");
     }
@@ -78,7 +78,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         vm.startPrank(cube3Accounts.protocolAdmin);
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
         (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
-           require(success, "harness call failed");
+        require(success, "harness call failed");
         vm.stopPrank();
     }
 
@@ -92,7 +92,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunctionThatReverts.selector);
         bytes memory harnessCalldata =
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
-   
+
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
         (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");

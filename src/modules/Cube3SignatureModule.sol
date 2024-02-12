@@ -90,7 +90,8 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             // no user can feasibly get close to type(uint256).max nonces, so use unchecked math.
             unchecked {
                 // First increments the `integrationToUserNonce` storage variable, then sets the in-memory {userNonce}.
-                expectedUserNonce = ++integrationToUserNonce[topLevelCallComponents.integration][topLevelCallComponents.msgSender];
+                expectedUserNonce =
+                    ++integrationToUserNonce[topLevelCallComponents.integration][topLevelCallComponents.msgSender];
             }
 
             // Checks: the cube3SecuredData.nonce should equal: user's nonce at the time of the tx + 1

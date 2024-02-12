@@ -36,8 +36,8 @@ struct Accounts {
 contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
 
-    uint256 constant internal EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
-    
+    uint256 internal constant EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
+
     // Test-specific contracts
     RouterStorageHarness routerStorageHarness;
     ProtocolManagementHarness protocolManagementHarness;

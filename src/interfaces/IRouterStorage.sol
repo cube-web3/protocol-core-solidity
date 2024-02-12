@@ -2,12 +2,10 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { Structs } from "@src/common/Structs.sol";
-interface IRouterStorage {
 
- 
-    /*//////////////////////////////////////////////////////////////////////////
-                                Router Storage
-    //////////////////////////////////////////////////////////////////////////*/
+/// @title IRouterStorage
+/// @notice Contains the dedicated getter functions for accessing the Router's storage.
+interface IRouterStorage {
 
     /// @notice Gets the protection status of an integration contract's function using the selector.
     /// @param integration The address of the integration contract to check the function protection status for.
@@ -55,5 +53,4 @@ interface IRouterStorage {
     /// @param moduleId The module's ID derived from the hash of the module's version string.
     /// @return True if the module has been deprecated.
     function getIsModuleVersionDeprecated(bytes16 moduleId) external view returns (bool);
-
 }

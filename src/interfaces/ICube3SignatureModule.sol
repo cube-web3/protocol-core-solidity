@@ -16,7 +16,7 @@ interface ICube3SignatureModule {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Defines the structure of the Signature Module Payload, ie the data expected by this module.
-    /// @dev This Module Payload is included in the CUBE3 Payload that's passed to the {ProtectionBase-cube3Protected} 
+    /// @dev This Module Payload is included in the CUBE3 Payload that's passed to the {ProtectionBase-cube3Protected}
     /// modifier.
     /// @param expirationTimestamp The block timestamp up until which the payload is considered valid.
     /// @param shouldTrackNonce A boolean value dictating whether or no the transaction nonce should
