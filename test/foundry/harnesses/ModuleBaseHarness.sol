@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { ModuleBase } from "../../../src/modules/ModuleBase.sol";
+import { ModuleBase } from "@src/modules/ModuleBase.sol";
 
 /// @notice Testing Harness for the abstract ModuleBase contract.
 contract ModuleBaseHarness is ModuleBase {

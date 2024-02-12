@@ -10,9 +10,9 @@ import { IntegrationTest } from "../IntegrationTest.t.sol";
 import { MockRouter } from "../../mocks/MockRouter.t.sol";
 import { MockRegistry } from "../../mocks/MockRegistry.t.sol";
 
-import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 
-import { ProtocolErrors } from "../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
 import { DemoUpgradeableUUPS } from "../../demo/DemoUpgradeableUUPS.sol";
 

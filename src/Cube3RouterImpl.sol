@@ -7,7 +7,7 @@ import {
 } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
 import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
@@ -21,13 +21,13 @@ import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 
 /// @title Cube3RouterImpl
 /// @notice Defines the implementation contract for the upgradeable CUBE3 Router.
-/// @dev See {ICube3Router} for documentation, which is inherited implicitly via
+/// @dev See {ICube3RouterImpl} for documentation, which is inherited implicitly via
 /// {ProtocolManagement} and {IntegrationManagement}.
 /// Notes:
 /// - All storage variables are defined in {RouterStorage} and accessed via 
 /// dedicated getter and setter functions.
 contract Cube3RouterImpl is
-
+    ICube3RouterImpl,
     ContextUpgradeable,
     AccessControlUpgradeable,
     UUPSUpgradeable,
@@ -59,7 +59,7 @@ contract Cube3RouterImpl is
             PROXY + UPGRADE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc ICube3RouterImpl
     /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
         // Checks: registry is not the zero address
@@ -97,7 +97,7 @@ contract Cube3RouterImpl is
     //////////////////////////////////////////////////////////////*/
 
     // TODO: check gas consumption of contract check
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc ICube3RouterImpl
     function routeToModule(
         address integrationMsgSender,
         uint256 integrationMsgValue,
@@ -215,8 +215,8 @@ contract Cube3RouterImpl is
             ERC165
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId);
+    /// @inheritdoc ICube3RouterImpl
+    function supportsInterface(bytes4 interfaceId) public view override(AccessControlUpgradeable, ICube3RouterImpl) returns (bool) {
+        return interfaceId == type(ICube3RouterImpl).interfaceId || super.supportsInterface(interfaceId);
     }
 }

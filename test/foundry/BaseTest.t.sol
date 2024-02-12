@@ -10,16 +10,16 @@ import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
 
 import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
 
-import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "../../src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
-import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
-import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
 import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
 import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
 
-import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
-import { ProtocolConstants } from "../../src/common/ProtocolConstants.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 import { TestUtils } from "../utils/TestUtils.t.sol";
 import { TestEvents } from "../utils/TestEvents.t.sol";
 

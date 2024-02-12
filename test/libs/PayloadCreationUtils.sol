@@ -4,8 +4,8 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { Vm } from "forge-std/Vm.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { Structs } from "../../src/common/Structs.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
 library PayloadCreationUtils {
     address private constant VM_ADDRESS = address(bytes20(uint160(uint256(keccak256("hevm cheat code")))));
@@ -249,4 +249,21 @@ library PayloadCreationUtils {
         }
         return tempBytes;
     }
+
+/*
+
+        function _generateRegistrarSignature(
+        address router,
+        address integration,
+        uint256 signingAuthPvtKey
+    )
+        internal
+        view
+        returns (bytes memory)
+    {
+        address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
+        return
+            _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
+    }
+    */
 }

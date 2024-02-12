@@ -4,11 +4,11 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 
 import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
+import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
 import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
 

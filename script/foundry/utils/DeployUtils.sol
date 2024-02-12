@@ -4,12 +4,12 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 
-import { Cube3Registry } from "../../../src/Cube3Registry.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
 
-import { ProtocolAdminRoles } from "../../../src/common/ProtocolAdminRoles.sol";
-import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 // import {LibDeployConstants} from "../utils/LibDeployConstants.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {

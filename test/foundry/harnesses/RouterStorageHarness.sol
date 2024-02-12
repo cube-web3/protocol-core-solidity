@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { RouterStorage } from "../../../src/abstracts/RouterStorage.sol";
+import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 /// @notice Testing harness for the RouterStorage contract for testing storage getters and setters.
 /// @dev All getters have a visibility of `public`, so no need to wrap them.
 

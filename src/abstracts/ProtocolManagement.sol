@@ -5,7 +5,9 @@ import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/ac
 import { ERC165Checker } from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+
+import {IProtocolManagement} from "@src/interfaces/IProtocolManagement.sol";
+
 import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
 import { Structs } from "@src/common/Structs.sol";
@@ -14,14 +16,14 @@ import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 /// @title ProtocolManagement
 /// @notice This contract contains all the logic for managing the protocol.
 /// @dev This contract's functions can only be accessed by CUBE3 accounts with privileged roles.
-abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage {
+abstract contract ProtocolManagement is IProtocolManagement,AccessControlUpgradeable, RouterStorage {
     /*//////////////////////////////////////////////////////////////
             PROTOCOL ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
     // TODO: add convenience function for pausing/unpausing
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IProtocolManagement
     function updateProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         // Checks: the registry, if provided, supports the ICube3Registry interface.
         if (registry != address(0)) {
@@ -34,7 +36,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         _updateProtocolConfig(registry, isPaused);
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IProtocolManagement
     function callModuleFunctionAsAdmin(
         bytes16 moduleId,
         bytes calldata fnCalldata
@@ -72,7 +74,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
             MODULE ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IProtocolManagement
     function installModule(address moduleAddress, bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         // Checks: the module address is valid.
         if (moduleAddress == address(0)) {
@@ -112,7 +114,7 @@ abstract contract ProtocolManagement is AccessControlUpgradeable, RouterStorage 
         _setModuleInstalled(moduleId, moduleAddress, moduleVersion);
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IProtocolManagement
     function deprecateModule(bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
         // Retrieve the module address using the ID.
         address moduleToDeprecate = getModuleAddressById(moduleId);

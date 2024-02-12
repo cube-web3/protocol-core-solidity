@@ -2,7 +2,7 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
 import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
@@ -13,7 +13,7 @@ import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 /// @dev See {ICube3Module} for documentation.
 abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, ProtocolConstants {
     // interface wrapping the CUBE3 Router proxy contract for convenience.
-    ICube3Router internal immutable cube3router;
+    IRouterStorage internal immutable cube3router;
 
     /// Unique ID derived from the module's version string that matches keccak256(abi.encode(moduleVersion));
     bytes16 public immutable moduleId;
@@ -63,7 +63,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
 
         expectedPayloadSize = payloadSize;
 
-        cube3router = ICube3Router(cubeRouterProxy);
+        cube3router = IRouterStorage(cubeRouterProxy);
 
         // Checks: for an existing version so we don't deploy two modules with the same version
         if (cube3router.getModuleAddressById(moduleId) != address(0)) {
@@ -104,7 +104,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc	ICube3Module
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ICube3Module, ERC165) returns (bool) {
         return interfaceId == type(ICube3Module).interfaceId || super.supportsInterface(interfaceId);
     }
 

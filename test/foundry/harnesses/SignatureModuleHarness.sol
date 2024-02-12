@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
-import { ICube3Registry } from "../../../src/interfaces/ICube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 
 contract SignatureModuleHarness is Cube3SignatureModule {
     constructor(

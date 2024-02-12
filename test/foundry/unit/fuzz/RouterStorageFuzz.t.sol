@@ -2,7 +2,7 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
 
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {

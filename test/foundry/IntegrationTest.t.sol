@@ -5,7 +5,7 @@ import { BaseTest } from "./BaseTest.t.sol";
 
 import { Demo } from "../demo/Demo.sol";
 
-import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 
 abstract contract IntegrationTest is BaseTest {
     Demo demo;

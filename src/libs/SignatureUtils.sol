@@ -4,7 +4,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { ProtocolErrors } from "./ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
 library SignatureUtils {
     // TODO: dev

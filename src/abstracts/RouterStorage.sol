@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import {IRouterStorage} from "@src/interfaces/IRouterStorage.sol";
 import { Structs } from "@src/common/Structs.sol";
 import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
 import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
@@ -39,7 +39,7 @@ struct Cube3State {
 /// @dev This contract utilizes namespaced storage layout (ERC-7201). All storage access happens via
 ///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
 ///      can only be accessed via dedicated getter and setter functions.
-abstract contract RouterStorage is ICube3Router, ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
+abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -59,52 +59,52 @@ abstract contract RouterStorage is ICube3Router, ProtocolEvents, ProtocolAdminRo
         GETTERS
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIsIntegrationFunctionProtected(address integration, bytes4 fnSelector) public view returns (bool) {
         return _state().integrationToFunctionProtectionStatus[integration][fnSelector];
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIntegrationStatus(address integration) public view returns (Structs.RegistrationStatusEnum) {
         return _state().integrationToState[integration].registrationStatus;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIntegrationPendingAdmin(address integration) public view returns (address) {
         return _state().integrationToPendingAdmin[integration];
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIntegrationAdmin(address integration) public view returns (address) {
         return _state().integrationToState[integration].admin;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIsProtocolPaused() public view returns (bool) {
         return _state().protocolConfig.paused;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getModuleAddressById(bytes16 moduleId) public view returns (address) {
         return _state().idToModules[moduleId];
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getRegistrarSignatureHashExists(bytes32 signatureHash) public view returns (bool) {
         return _state().usedRegistrarSignatureHashes[signatureHash];
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getProtocolConfig() external view returns (Structs.ProtocolConfig memory) {
         return _state().protocolConfig;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getRegistryAddress() public view returns (address) {
         return _state().protocolConfig.registry;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IRouterStorage
     function getIsModuleVersionDeprecated(bytes16 moduleId) public view returns (bool) {
         return _state().deprecatedModules[moduleId];
     }

@@ -4,8 +4,10 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
+
+import {IIntegrationManagement} from "@src/interfaces/IIntegrationManagement.sol";
+
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 import { Structs } from "@src/common/Structs.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
@@ -14,8 +16,8 @@ import { AddressUtils } from "@src/libs/AddressUtils.sol";
 
 /// @title IntegrationManagment
 /// @notice This contract implements logic for managing integration contracts and their relationship with the protocol.
-/// @dev See {ICube3Router} for documentation.
-abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
+/// @dev See {IIntegrationManagement} for documentation.
+abstract contract IntegrationManagement is IIntegrationManagement, AccessControlUpgradeable, RouterStorage {
     using SignatureUtils for bytes;
     using AddressUtils for address;
 
@@ -45,7 +47,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
 
     // TODO: should you be able to set this as teh zero address?
     // TODO: should you be able to cancel it?
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function transferIntegrationAdmin(
         address integration,
         address newAdmin
@@ -56,13 +58,13 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         _setPendingIntegrationAdmin(integration, msg.sender, newAdmin);
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function acceptIntegrationAdmin(address integration) external onlyPendingIntegrationAdmin(integration) {
         _setIntegrationAdmin(integration, msg.sender);
         _deleteIntegrationPendingAdmin(integration); // small gas refund
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
@@ -101,7 +103,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION REGISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function initiateIntegrationRegistration(address initialAdmin) external returns (bytes32) {
         // Checks: the integration admin account provided is a valid address.
         if (initialAdmin == address(0)) {
@@ -122,7 +124,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         return PRE_REGISTRATION_SUCCEEDED;
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function registerIntegrationWithCube3(
         address integration,
         bytes calldata registrarSignature,
@@ -211,7 +213,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function batchUpdateIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatusEnum[] calldata statuses
@@ -235,7 +237,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
     }
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
@@ -250,7 +252,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ICube3Router
+    /// @inheritdoc IIntegrationManagement
     function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         public
         view

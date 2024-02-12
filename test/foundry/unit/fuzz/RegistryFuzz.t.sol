@@ -5,7 +5,7 @@ import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol
 
 import { BaseTest } from "../../BaseTest.t.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
 
 contract Registry_Fuzz_Unit_Test is BaseTest {

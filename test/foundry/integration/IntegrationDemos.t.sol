@@ -7,7 +7,7 @@ import { IntegrationTest } from "../IntegrationTest.t.sol";
 
 import { PayloadCreationUtils } from "../../libs/PayloadCreationUtils.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract Integration_Standlone_Concrete_Test is IntegrationTest {
     function setUp() public override {

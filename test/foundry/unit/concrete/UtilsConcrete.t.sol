@@ -2,11 +2,11 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
 import { MockModule } from "../../../mocks/MockModule.t.sol";
 import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
 
 // TODO: use same as script
