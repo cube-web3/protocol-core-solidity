@@ -4,7 +4,6 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { Demo } from "@test/demo/Demo.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-
 import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
 abstract contract IntegrationTest is BaseTest {
@@ -32,12 +31,6 @@ abstract contract IntegrationTest is BaseTest {
 
     function _completeRegistrationAndEnableFnProtectionAsDemoDeployer(uint256 demoAuthPvtKey) internal {
         vm.startPrank(cube3Accounts.demoDeployer);
-
-        // deploy the contract
-        // ICube3Data.FunctionProtectionStatusUpdate[] memory fnProtectionData =
-        //     new ICube3Data.FunctionProtectionStatusUpdate[](1);
-        // fnProtectionData[0] = ICube3Data.FunctionProtectionStatusUpdate({fnSelector: selector, protectionEnabled:
-        // true});
 
         bytes4[] memory fnSelectors = new bytes4[](6);
         fnSelectors[0] = Demo.mint.selector;

@@ -6,8 +6,6 @@ import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/Mes
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
-import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
-
 import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 import { Cube3Registry } from "@src/Cube3Registry.sol";
 import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
@@ -33,7 +31,7 @@ struct Accounts {
     address demoDeployer;
 }
 
-contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
+contract BaseTest is DeployUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants, Test {
     using ECDSA for bytes32;
 
     // Test-specific contracts
@@ -81,7 +79,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     }
 
     function _deployProtocol() internal {
-        emit log_string("Deploying protocol");
 
         vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
 
@@ -118,7 +115,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     }
 
     function _installSignatureModuleInRouter() internal {
-        emit log_string("installing signature module");
         // install module
         vm.startPrank(cube3Accounts.protocolAdmin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));

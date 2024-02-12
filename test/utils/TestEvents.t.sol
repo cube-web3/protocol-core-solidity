@@ -5,4 +5,7 @@ abstract contract TestEvents {
   event MockModuleCallSucceeded();
   event MockModuleCallSucceededWithArgs(bytes32 arg);
   event BalanceUpdated(address indexed account, uint256 newBalance);
+
+  event log_named_bytes4(string name, bytes4 value);
+  event log_named_uint32(string name, uint32 value);
 }

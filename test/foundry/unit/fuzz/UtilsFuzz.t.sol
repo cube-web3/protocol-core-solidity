@@ -50,23 +50,18 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         bytes32 calldataDigest = keccak256(mockSlicedCalldata);
         emit log_named_bytes32("calldataDigest", calldataDigest);
 
-        // bytes memory signature = _createPayloadSignature(signatureData, pvtKey);
         bytes memory signature = _getRandomBytes(65);
+        bytes memory encodedModulePayloadData = abi.encodePacked(block.timestamp + 1 hours, shouldTrackNonce, shouldTrackNonce ? nonce + 1 : 0, signature);
+        uint32 padding = uint32(PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
+        bytes memory modulePayloadWithPadding = PayloadCreationUtils.createPaddedModulePayload(encodedModulePayloadData, padding);
 
-        // create the module payload
-        (bytes memory modulePayloadWithPadding, uint32 padding) = _encodeModulePayloadAndPadToNextFullWord(
-            shouldTrackNonce, // whether to track the nonce
-            block.timestamp + 1 hours,
-            shouldTrackNonce ? nonce + 1 : 0,
-            signature
-        );
 
         emit log_named_uint32("length", uint32(modulePayloadWithPadding.length));
         emit log_named_uint32("padding", padding);
 
         // create the routing bitmap
         uint256 routingBitmap =
-            _createRoutingFooterBitmap(mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding);
+            PayloadCreationUtils.createRoutingFooterBitmap(mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding);
         emit log_named_uint("routing bitmap", routingBitmap);
 
         // normal abi.encoding adds the length as the first word of modulePayloadWithPadding, so we need to simulate it
@@ -213,7 +208,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
         assertTrue(utilsHarness.assertIsValidSignature(signature, digest, signer));
@@ -225,7 +220,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         dataLength = bound(dataLength, 1, 4096);
 
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
 
@@ -278,7 +273,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         dataLength = bound(dataLength, 1, 4096);
 
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 altDigest = keccak256(_getRandomBytes(dataLength + 1));
 
@@ -294,7 +289,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
         bytes memory altEncodedSignatureData = _getRandomBytes(dataLength + 1);
-        bytes memory altSignature = _createPayloadSignature(altEncodedSignatureData, signerPvtKey);
+        bytes memory altSignature = PayloadCreationUtils.signPayloadData(altEncodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
 

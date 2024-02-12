@@ -2,13 +2,15 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+
 import { SignatureModuleHarness } from "@test/foundry/harnesses/SignatureModuleHarness.sol";
 import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
 import { MockRouter } from "@test/mocks/MockRouter.t.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract SignatureModule_Fuzz_Unit_Test is BaseTest {
     SignatureModuleHarness signatureModuleHarness;
@@ -206,6 +208,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         uint256 pvtKey
     )
         internal
+        view
         returns (Structs.TopLevelCallComponents memory, bytes memory)
     {
         // mock the calldata for the integration function call (without the CUBE3 payload)
@@ -237,7 +240,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
             expirationTimestamp
         );
 
-        bytes memory signature = _createPayloadSignature(signatureData, pvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(signatureData, pvtKey);
 
         // create the module payload
         bytes memory modulePayload = abi.encodePacked(
