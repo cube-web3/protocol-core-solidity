@@ -123,7 +123,6 @@ library PayloadCreationUtils {
         require(signedHashAddress == vm.addr(pvtKeyToSignWith), "signers dont match");
     }
 
-    // TODO: use safe cast
     function calculateRequiredModulePayloadPadding(uint256 modulePayloadLength) internal pure returns (uint32) {
         // calculate the padding needed to fill it to the final word
         return uint32((32 - (modulePayloadLength % 32)) % 32);

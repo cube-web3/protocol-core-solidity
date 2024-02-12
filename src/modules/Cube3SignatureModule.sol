@@ -72,7 +72,6 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             ? _universalSigner
             : _fetchSigningAuthorityFromRegistry(cube3registry, topLevelCallComponents.integration);
 
-        // TODO: Test this
         // Checks that neither the signing authority nor universal signer are null.
         if (integrationSigningAuthority == address(0)) {
             revert ProtocolErrors.Cube3SignatureModule_NullSigningAuthority();
@@ -80,8 +79,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
 
         // Parse the payload provided by the CUBE3 Risk API.
         SignatureModulePayloadData memory signatureModulePayloadData = _decodeModulePayload(signatureModulePayload);
-        // emit logCube3SignatureModulePayload(cubeSecuredData);
-        emit log_struct(signatureModulePayloadData);
+
         // If nonce tracking is not required, we expect the payload nonce to be 0
         uint256 expectedUserNonce;
 
@@ -96,9 +94,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
                 // First increments the `integrationToUserNonce` storage variable, then sets the in-memory {userNonce}.
                 expectedUserNonce = ++integrationToUserNonce[topLevelCallComponents.integration][topLevelCallComponents.msgSender];
             }
-            emit stored_log(expectedUserNonce);
-            // TODO: Add an event
-            // TODO: Test
+
             // Checks: the cube3SecuredData.nonce should equal: user's nonce at the time of the tx + 1
             if (signatureModulePayloadData.nonce != expectedUserNonce) {
                 revert ProtocolErrors.Cube3SignatureModule_InvalidNonce();
@@ -199,7 +195,6 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         // of the signature as it will be checked when the signer is recovered.
         bytes memory signature = modulePayload[65:];
 
-        // TODO: test this
         // Checks: the expiration timestamp should be in the future.
         if (expirationTimestamp <= block.timestamp) {
             revert ProtocolErrors.Cube3SignatureModule_ExpiredSignature();

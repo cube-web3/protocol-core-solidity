@@ -95,6 +95,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
 
         vm.expectRevert(ProtocolErrors.Cube3Module_ModuleVersionExists.selector);
         ModuleBaseHarness moduleBaseHarnessAlt = new ModuleBaseHarness(address(mockRouter), VERSION_ONE, PAYLOAD_SIZE);
+        (moduleBaseHarnessAlt);
     }
 
     /*//////////////////////////////////////////////////////////////

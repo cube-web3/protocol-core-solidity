@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-// TODO: rename structs and enums
-// TODO: maybe DataSchema
 /// @title Structs
 /// @notice Defines shared datastructures and enums for the Protocol.
 abstract contract Structs {

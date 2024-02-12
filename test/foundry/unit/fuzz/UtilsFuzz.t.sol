@@ -12,7 +12,6 @@ import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
 
-// TODO: use same as script
 import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Fuzz_Unit_Test is BaseTest {
@@ -142,7 +141,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         assertEq(derivedId, mockId, "id not matching");
     }
 
-    // TODO: create invariant for this
     // succeeds when uint32 is extracted from the bitmap at the correct location
     function testFuzz_SucceedsWhen_Uint32ExtractedFromAnyLocationInBitmap(
         uint256 valueSeed,

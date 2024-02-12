@@ -7,7 +7,6 @@ import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/Mes
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
 library SignatureUtils {
-    // TODO: dev
     function assertIsValidSignature(bytes memory signature, bytes32 digest, address signer) internal pure {
         // generate a EIP-191 comaptible eth signed message hash
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(digest);

@@ -54,8 +54,7 @@ abstract contract ProtocolManagement is IProtocolManagement,AccessControlUpgrade
             revert ProtocolErrors.Cube3Router_ModuleNotInstalled(moduleId);
         }
 
-        // TODO: should add value to call?
-        (bool success, bytes memory returnOrRevertData) = payable(module).call(fnCalldata);
+        (bool success, bytes memory returnOrRevertData) = payable(module).call{value: msg.value}(fnCalldata);
         if (!success) {
             // Bubble up the revert data unmolested.
             assembly {

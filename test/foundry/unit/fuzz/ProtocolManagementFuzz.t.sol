@@ -48,6 +48,22 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         assertEq(returnedArg, arg, "invalid return");
     }
 
+    // succeeds when calling a mofule function that accepts ether
+    function testFuzz_SucceedsWhen_CallingModuleFunctionThatAcceptsEther_AsProtocolAdmin(uint256 value) public {
+        value = bound(value, 1, type(uint128).max);
+        vm.deal(cube3Accounts.protocolAdmin, value);
+        bytes16 moduleId = _installModuleAsAdmin();
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        vm.expectEmit(true, true, true, true);
+        emit MockModuleCallSucceeded();
+        bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedPayableFunction.selector);
+        bytes memory harnessCalldata =
+            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        (bool success,) = address(protocolManagementHarness).call{value: value}(harnessCalldata);
+        require(success, "harness call failed");
+        require(address(mockModule).balance == value, "ether not sent");
+    }
+
     // fails when called by an admin with an invalid module address
     function testFuzz_RevertsWhen_CalledByAnAdminWithAnInvalidModule(uint256 moduleSeed) public {
         moduleSeed = bound(moduleSeed, 1, type(uint256).max);

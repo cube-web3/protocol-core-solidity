@@ -8,8 +8,6 @@ import { MockModule } from "@test/mocks/MockModule.t.sol";
 import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
-
-// TODO: use same as script
 import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Concrete_Unit_Test is BaseTest {

@@ -60,7 +60,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     // succeeds accepting integration admin as pending admin and deleting the pending admin
-    function test_Succeeds_AcceptingIntegrationAdmin_AsPendingAdmin(uint256 integrationSeed) public {
+    function test_Succeeds_AcceptingIntegrationAdmin_AsPendingAdmin() public {
         address integration = _randomAddress();
         address pendingAdmin = _randomAddress();
 

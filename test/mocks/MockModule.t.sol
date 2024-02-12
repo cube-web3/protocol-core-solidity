@@ -48,7 +48,10 @@ contract MockModule is ModuleBase, TestEvents {
       preventDeprecation = shouldPreventDeprecation;
    }
 
- // TODO: test payable
+ function privilegedPayableFunction() external payable onlyCube3Router {
+      require(msg.value > 0, "no value sent");
+    emit MockModuleCallSucceeded();
+ }
  
  function privilegedFunctionWithArgs(bytes32 arg) external onlyCube3Router returns(bytes32) {
     emit MockModuleCallSucceededWithArgs(arg);
