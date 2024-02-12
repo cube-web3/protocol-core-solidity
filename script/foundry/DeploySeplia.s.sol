@@ -49,7 +49,6 @@ contract DeploySepolia is Script, DeployUtils, SignatureUtils, PayloadUtils {
             keyManagerV2,
             integrationAdminV2,
             backupSignerV2,
-            SIGNATURE_MODULE_LENGTH,
             signatureModuleVersion
         );
 

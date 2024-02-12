@@ -58,7 +58,6 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
     }
 
     function run() external {
-        // _deployProtocol();
 
         // install module
         vm.startBroadcast(cube3admin);
@@ -73,29 +72,6 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
 
         _demoMintAsUser();
     }
-
-    // function _deployProtocol() internal {
-    //     vm.startBroadcast(deployerPvtKey);
-
-    //     // ============ registry
-    //     registry = new Cube3Registry();
-    //     _addAccessControlAndRevokeDeployerPermsForRegistry(cube3admin, keyManager, deployer);
-
-    //     // ============ router
-    //     // deploy the implementation
-    //     routerImplAddr = address(new Cube3RouterImpl());
-    //     // deploy the proxy
-    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize,
-    // (address(registry))));
-    //     // create a wrapper interface (for convenience)
-    //     wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
-    //     _addAccessControlAndRevokeDeployerPermsForRouter(cube3admin, cube3integrationAdmin, deployer);
-
-    //     // =========== signature module
-    //     signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, backupSigner, 320);
-
-    //     vm.stopBroadcast();
-    // }
 
     function _deployDemoAsDemoDeployer() internal {
         vm.startBroadcast(demoDeployerPvtKey);
@@ -139,7 +115,7 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(DemoIntegrationERC721.safeMint.selector, 3, emptyBytes);
         Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(caller, address(demo), 0, calldataWithEmptyPayload, signatureModule);
+            _createIntegrationCallInfo(caller, address(demo), 0, calldataWithEmptyPayload);
 
         bytes memory cube3SecurePayload = _createPayload(
             address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents

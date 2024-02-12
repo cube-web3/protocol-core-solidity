@@ -10,17 +10,10 @@ import { Cube3Registry } from "@src/Cube3Registry.sol";
 
 import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
 import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
-// import {LibDeployConstants} from "@test/utils/LibDeployConstants.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
     bytes32 internal constant DEFAULT_ADMIN_ROLE = bytes32(0);
-
-    event consoleLog(string log);
-    event consoleLog(string key, address value);
-    event consoleLog(string key, uint256 value);
-    event consoleLog(string key, bytes value);
-    event consoleLog(string key, bytes32 value);
 
     // used for writing the json files
     struct AddressMapping {
@@ -63,7 +56,6 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address _keyManager,
         address _integrationAdmin,
         address _backupSigner,
-        uint256 _signatureModulePayloadLength,
         string memory _signatureModuleVersion
     )
         internal
@@ -86,7 +78,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
 
         // =========== signature module
         signatureModule = new Cube3SignatureModule(
-            address(cubeRouterProxy), _signatureModuleVersion, _backupSigner, _signatureModulePayloadLength
+            address(cubeRouterProxy), _signatureModuleVersion, _backupSigner
         );
 
         vm.stopBroadcast();

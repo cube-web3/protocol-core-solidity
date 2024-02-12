@@ -36,6 +36,8 @@ struct Accounts {
 contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
     using ECDSA for bytes32;
 
+    uint256 constant internal EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
+    
     // Test-specific contracts
     RouterStorageHarness routerStorageHarness;
     ProtocolManagementHarness protocolManagementHarness;
@@ -111,7 +113,7 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         );
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner, 320);
+        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner);
         vm.label(address(signatureModule), "Cube3SignatureModule");
 
         vm.stopPrank();

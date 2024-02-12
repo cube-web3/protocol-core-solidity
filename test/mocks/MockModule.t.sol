@@ -16,7 +16,7 @@ contract MockModule is ModuleBase, TestEvents {
  bool public forceRevert = false;
 
 
- constructor(address mockRouter, string memory version, uint256 payloadSize) ModuleBase(mockRouter, version, payloadSize) {}
+ constructor(address mockRouter, string memory version, uint256 payloadSize) ModuleBase(mockRouter, version) {}
 
 
    function updateForceRevert(bool shouldRevert) public {

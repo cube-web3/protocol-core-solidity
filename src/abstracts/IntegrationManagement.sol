@@ -45,8 +45,6 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
             INTEGRATION MANAGEMENT
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: should you be able to set this as teh zero address?
-    // TODO: should you be able to cancel it?
     /// @inheritdoc IIntegrationManagement
     function transferIntegrationAdmin(
         address integration,
@@ -133,9 +131,11 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         external
         onlyIntegrationAdmin(integration)
     {
-        // TODO: check paused
+        // Checks: the protocol is not paused.
+        if(getIsProtocolPaused()) {
+            revert ProtocolErrors.Cube3Router_ProtocolPaused();
+        }
 
-         
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Protocol_InvalidIntegration();

@@ -12,6 +12,11 @@ interface IIntegrationManagement {
     ///
     /// @dev Emits an {IntegrationAdminTransferStarted} event.
     ///
+    /// Notes:
+    /// - No need check for the null address being passed in as the `newAdmin`, as there's no way for the null
+    /// address to call this function and complete the transfer.  Setting the integration to the null address in 
+    /// essence cancels the pending transfer.
+    ///
     /// Requirements:
     /// - The caller must be the current admin of the integration contract.
     /// - The `newAdmin` must call {acceptIntegrationAdmin} to complete the transfer of privileges.

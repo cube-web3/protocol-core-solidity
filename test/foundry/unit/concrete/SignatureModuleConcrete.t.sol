@@ -27,7 +27,7 @@ contract SignatureModule_Concrete_Unit_Test is BaseTest {
         mockRouter = new MockRouter();
         mockRegistry = new MockRegistry();
         mockRouter.setRegistryAddress(address(mockRegistry));
-        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner, 320);
+        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner);
     }
 
     modifier asCubeRouter() {

@@ -18,10 +18,6 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// Unique ID derived from the module's version string that matches keccak256(abi.encode(moduleVersion));
     bytes16 public immutable moduleId;
 
-    // TODO: is this needed? or change to mapping
-    // The expected CUBE3 Payload length (in bytes) for this module.
-    uint256 public immutable expectedPayloadSize;
-
     /// @inheritdoc	ICube3Module
     string public moduleVersion;
 
@@ -38,7 +34,7 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /// @param cubeRouterProxy Contract address of the Cube3RouterImpl proxy.
     /// @param version Human-readable module version, where minimum valid length is 9 bytes and max valid length is 32
     /// bytes: `xxx-x.x.x`
-    constructor(address cubeRouterProxy, string memory version, uint256 payloadSize) {
+    constructor(address cubeRouterProxy, string memory version) {
         // Checks: The address provided for the Router proxy is not null.
         if (cubeRouterProxy == address(0)) {
             revert ProtocolErrors.Cube3Module_InvalidRouter();
@@ -49,9 +45,6 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
             revert ProtocolErrors.Cube3Module_DoesNotConformToVersionSchema();
         }
 
-        // TODO: probably remove this
-        require(payloadSize > 0, "TODO: invalid payload size");
-
         // Assign the module version.
         moduleVersion = version;
 
@@ -60,8 +53,6 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
         // smart contracts containing unique functionality, so it's not feasible to produce enough
         // modules to ever cause a collision despite using bytes16.
         moduleId = bytes16(keccak256(abi.encode(moduleVersion)));
-
-        expectedPayloadSize = payloadSize;
 
         cube3router = IRouterStorage(cubeRouterProxy);
 

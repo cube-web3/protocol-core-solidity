@@ -58,7 +58,6 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
         // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 lenIntegrations = integrations.length;
 
-        // TODO: test
         // Checks: make sure there's an authority for each integration provided.
         if (lenIntegrations != signingAuthorities.length) {
             revert ProtocolErrors.Cube3Protocol_ArrayLengthMismatch();
@@ -106,7 +105,6 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
             UTILITY FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: rename
     /// @notice Sets the signing authority for an integration.
     /// @dev Encapsulates the setter for reusability.
     /// @param integration The contract address of the integration to set the `authority` for.

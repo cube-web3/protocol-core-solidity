@@ -28,7 +28,7 @@ contract Integration_Standlone_Fuzz_Test is IntegrationTest {
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), value, calldataWithEmptyPayload, signatureModule.expectedPayloadSize()
+            user, address(demo), value, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
         );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(

@@ -7,10 +7,9 @@ import { ModuleBase } from "@src/modules/ModuleBase.sol";
 contract ModuleBaseHarness is ModuleBase {
     constructor(
         address cubeRouterProxy,
-        string memory version,
-        uint256 payloadSize
+        string memory version
     )
-        ModuleBase(cubeRouterProxy, version, payloadSize)
+        ModuleBase(cubeRouterProxy, version)
     { }
 
     function isValidVersionSchema(string memory version) external pure returns (bool) {

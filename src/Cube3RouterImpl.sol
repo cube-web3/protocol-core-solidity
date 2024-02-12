@@ -82,7 +82,6 @@ contract Cube3RouterImpl is
         _grantRole(DEFAULT_ADMIN_ROLE, tx.origin);
     }
 
-    // TODO: test this
     /// @dev Adds access control logic to the {upgradeTo} function
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 

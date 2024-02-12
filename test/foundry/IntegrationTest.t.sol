@@ -15,21 +15,6 @@ abstract contract IntegrationTest is BaseTest {
         _deployIntegrationDemos();
         _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
         _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
-
-        // deploy and configure cube protocol
-        // _createCube3Accounts();
-
-        // _deployProtocol();
-
-        // _installSignatureModuleInRouter();
-
-        // emit log_named_address("router proxy", address(cubeRouterProxy));
-
-        // // _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
-        // _deployIntegrationDemos();
-
-        // // complete the registration
-        // _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
     }
 
     function _deployIntegrationDemos() internal {

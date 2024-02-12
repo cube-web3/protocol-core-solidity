@@ -29,7 +29,7 @@ contract SignatureModule_Fuzz_Unit_Test is BaseTest {
         mockRouter.setRegistryAddress(address(mockRegistry));
         universalSignerPvtKey = uint256(keccak256(abi.encode((address(_randomAddress())))));
         universalSigner = vm.addr(universalSignerPvtKey);
-        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner, 320);
+        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner);
     }
 
     modifier asCubeRouter() {

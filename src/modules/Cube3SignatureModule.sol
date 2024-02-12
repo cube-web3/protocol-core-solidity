@@ -6,7 +6,6 @@ import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
 import { Structs } from "@src/common/Structs.sol";
-
 import { ModuleBase } from "@src/modules/ModuleBase.sol";
 
 /// @title Cube3SignatureModule
@@ -38,10 +37,9 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
     constructor(
         address cube3RouterProxy,
         string memory version,
-        address backupSigner,
-        uint256 expectedPayloadSize // TODO: remove
+        address backupSigner
     )
-        ModuleBase(cube3RouterProxy, version, expectedPayloadSize)
+        ModuleBase(cube3RouterProxy, version)
     {
         _universalSigner = backupSigner;
     }

@@ -100,7 +100,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
            registerIntegrationWithCube3
     //////////////////////////////////////////////////////////////*/
 
-    // fails if called my non integration admin
+    // fails if called by non integration admin
     function testFuzz_RevertsWhen_RegisteringIntegration_AsNonIntegrationAdmin(uint256 pvtKeySeed) public {
         pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
         (
@@ -116,6 +116,29 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
         vm.startPrank(_randomAddress());
         vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin.selector)));
+        integrationManagementHarness.registerIntegrationWithCube3(
+            integration, registrarSignature, enabledByDefaultFnSelectors
+        );
+    }
+
+    // fails if the protocol is paused
+    function test_RevertsWhen_RegisteringWhenProtocolIsPaused_AsIntegrationAdmin(uint256 pvtKeySeed) public {
+        pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
+        (
+            address integration,
+            address admin,
+            ,
+            bytes memory registrarSignature,
+            bytes4[] memory enabledByDefaultFnSelectors
+        ) = _generateMockRegistrationData(pvtKeySeed, 1);
+
+        // set the integration admin
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+        assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
+
+        integrationManagementHarness.updateProtocolConfig(_randomAddress(), true);
+        vm.startPrank(admin);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ProtocolPaused.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
             integration, registrarSignature, enabledByDefaultFnSelectors
         );

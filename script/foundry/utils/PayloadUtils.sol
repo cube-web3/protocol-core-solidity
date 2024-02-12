@@ -10,6 +10,8 @@ import { Structs } from "@src/common/Structs.sol";
 contract PayloadUtils is Test {
     using ECDSA for bytes32;
 
+    uint256 internal constant EXPECTED_PAYLOAD_SIZE = 320;
+
     uint256 internal constant PAYLOAD_LENGTH = 384; // includes length + magic value
 
     bytes32 private constant CUBE3_PAYLOAD_MAGIC_VALUE = keccak256("CUBE3_PAYLOAD_MAGIC_VALUE");
@@ -43,11 +45,10 @@ contract PayloadUtils is Test {
         address caller,
         address integration,
         uint256 msgValue,
-        bytes memory integrationCalldataWithEmptyPayload,
-        Cube3SignatureModule signatureModule
+        bytes memory integrationCalldataWithEmptyPayload
     )
         internal
-        view
+        pure
         returns (Structs.TopLevelCallComponents memory)
     {
         // remove the payload so we can create a hash of the calldata without the payload,
@@ -58,12 +59,9 @@ contract PayloadUtils is Test {
         bytes memory slicedCalldata = _sliceBytes(
             integrationCalldataWithEmptyPayload,
             0,
-            integrationCalldataWithEmptyPayload.length - signatureModule.expectedPayloadSize() - 64 //
+            integrationCalldataWithEmptyPayload.length - EXPECTED_PAYLOAD_SIZE - 64 //
         );
         bytes32 calldataDigest = keccak256(slicedCalldata);
-
-        // emit log_named_bytes("slicedcalldata", slicedCalldata);
-        // emit log_named_bytes32("calldatadigest", calldataDigest);
 
         return Structs.TopLevelCallComponents(caller, integration, msgValue, calldataDigest);
     }
