@@ -167,7 +167,6 @@ interface ICube3Router {
         view
         returns (address registry, address authority);
 
-
     /*//////////////////////////////////////////////////////////////////////////
                                 Integration Management
     //////////////////////////////////////////////////////////////////////////*/
@@ -208,21 +207,18 @@ interface ICube3Router {
     /// @param fnCalldata The calldata for the function to call on the module.
     ///
     /// @return The return or revert data from the module function call.
-    function callModuleFunctionAsAdmin(
-        bytes16 moduleId,
-        bytes calldata fnCalldata
-    ) external returns(bytes memory);
+    function callModuleFunctionAsAdmin(bytes16 moduleId, bytes calldata fnCalldata) external returns (bytes memory);
 
     /// @notice Adds a new module to the Protocol.
     ///
     /// @dev Emits an {RouterModuleInstalled} event.
     ///
     /// Notes:
-    /// - Module IDs are included in the routing bitmap at the tail of the `cube3Payload` and 
+    /// - Module IDs are included in the routing bitmap at the tail of the `cube3Payload` and
     /// and are used to dynamically retrieve the contract address for the destination module from storage.
     /// - The Router can only make calls to modules registered via this function.
     /// - Can only install module contracts that have been deployed and support the {ICube3Module} interface.
-    /// 
+    ///
     /// Requirements:
     /// - `msg.sender` must possess the CUBE3_PROTOCOL_ADMIN_ROLE role.
     /// - The `moduleAddress` cannot be the zero address.
@@ -234,7 +230,6 @@ interface ICube3Router {
     /// @param moduleAddress The contract address where the module is located.
     /// @param moduleId The corresponding module ID generated from the hash of its version string.
     function installModule(address moduleAddress, bytes16 moduleId) external;
-
 
     /// @notice Deprecates an installed module.
     ///
@@ -303,15 +298,6 @@ interface ICube3Router {
     /// @param moduleId The module's ID derived from the hash of the module's version string.
     /// @return True if the module has been deprecated.
     function getIsModuleVersionDeprecated(bytes16 moduleId) external view returns (bool);
-
-
-
-
-
-
-
-
-
 
     /// @notice Initializes the proxy's implementation contract.
     /// @dev Can only be called during the proxy's construction.
@@ -409,5 +395,4 @@ interface ICube3Router {
     function getIntegrationAdmin(address integration) external view returns (address);
 
     function getRegistryAddress() external view returns (address);
-
 }

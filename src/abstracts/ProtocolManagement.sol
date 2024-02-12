@@ -5,7 +5,7 @@ import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/ac
 import { ERC165Checker } from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
 import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import {ICube3Router} from "@src/interfaces/ICube3Router.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
 import { Structs } from "@src/common/Structs.sol";

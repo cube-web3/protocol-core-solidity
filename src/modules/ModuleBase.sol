@@ -2,24 +2,28 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import { ICube3Router } from "../interfaces/ICube3Router.sol";
-import { ICube3Module } from "../interfaces/ICube3Module.sol";
-import { ModuleBaseEvents } from "./ModuleBaseEvents.sol";
-import { ProtocolErrors } from "../libs/ProtocolErrors.sol";
-import { ProtocolConstants } from "../common/ProtocolConstants.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
+import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 
-/// @dev See {ICube3Module}
+/// @title ModuleBase
+/// @notice Provides common functionality for all CUBE3 Security Modules.
+/// @dev See {ICube3Module} for documentation.
 abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, ProtocolConstants {
     // interface wrapping the CUBE3 Router proxy contract for convenience.
     ICube3Router internal immutable cube3router;
 
-    /// @inheritdoc	ICube3Module
-    string public moduleVersion;
+    /// Unique ID derived from the module's version string that matches keccak256(abi.encode(moduleVersion));
     bytes16 public immutable moduleId;
 
-    // TODO: is this needed?
+    // TODO: is this needed? or change to mapping
     // The expected CUBE3 Payload length (in bytes) for this module.
     uint256 public immutable expectedPayloadSize;
+
+    /// @inheritdoc	ICube3Module
+    string public moduleVersion;
 
     /// @inheritdoc	ICube3Module
     bool public isDeprecated;
@@ -88,8 +92,6 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
 
     // TODO: test custom override here and call super.deprecate();
     /// @inheritdoc	ICube3Module
-    /// @dev Can be overridden in the event additional logic needs to be executed during deprecation.
-    /// @dev Overriden function MUST use `onlyCube3Router` modifier.
     function deprecate() external virtual onlyCube3Router returns (string memory) {
         isDeprecated = true;
         string memory version = moduleVersion; // gas-saving
@@ -100,6 +102,8 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
     /*//////////////////////////////////////////////////////////////
             ERC165
     //////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc	ICube3Module
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(ICube3Module).interfaceId || super.supportsInterface(interfaceId);
     }
@@ -108,13 +112,20 @@ abstract contract ModuleBase is ICube3Module, ModuleBaseEvents, ERC165, Protocol
             VERSION UTILS
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Module installation is infrequent and performed by CUBE3, so the slightly elevated gas cost
-    ///      of this check is acceptable given the operational significance.
-    /// @dev Is NOT a comprehensive validation. Validation on the schema should be done in the deployment script.
-    /// @dev A minimal check evaluating that the version string conforms to the schema: {xxx-x.x.x}
-    /// @dev Checks for the correct version schema by counting the "." separating MAJOR.MINOR.PATCH
-    /// @dev Checks for the presence of the single "-" separating name and version number
-    /// @dev Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
+    /// @notice Checks the version string provided conforms to a specific schema.
+    ///
+    /// Notes:
+    /// - Module installation is infrequent and performed by CUBE3, so the slightly elevated gas cost
+    /// of this check is acceptable given the operational significance.
+    /// - Is NOT a comprehensive validation. Validation on the schema should be done in the deployment script.
+    /// - A minimal check evaluating that the version string conforms to the schema: {xxx-x.x.x}
+    /// - Checks for the correct version schema by counting the "." separating MAJOR.MINOR.PATCH
+    /// - Checks for the presence of the single "-" separating name and version number
+    /// - Known exception is omitting semver numbers, eg {xxxxxx-x.x.} or {xxxxx-x..x}
+    /// 
+    /// @param version_ The version string.
+    ///
+    /// @return Whether the string confirms to the schema: 'true` for yes and 'false' for no.
     function _isValidVersionSchema(string memory version_) internal pure returns (bool) {
         // check the length of the version string does not exceed 32 bytes.
         if (bytes(version_).length < 9 || bytes(version_).length > 32) {

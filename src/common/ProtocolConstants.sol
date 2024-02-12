@@ -13,7 +13,8 @@ abstract contract ProtocolConstants {
     /// @notice Returned by a module when the module's internal logic execution fails.
     bytes32 public constant MODULE_CALL_FAILED = keccak256("CUBE3_MODULE_CALL_FAILED");
 
-    /// @notice Returned by the router if the module call succeeds, the integration is not registered, the protocol is paused, or
+    /// @notice Returned by the router if the module call succeeds, the integration is not registered, the protocol is
+    /// paused, or
     // the function is not protected.
     bytes32 public constant PROCEED_WITH_CALL = keccak256("CUBE3_PROCEED_WITH_CALL");
 }

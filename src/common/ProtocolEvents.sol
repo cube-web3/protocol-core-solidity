@@ -9,6 +9,10 @@ import { Structs } from "./Structs.sol";
 /// @notice Defines the collective events used throughout the Protocol.
 abstract contract ProtocolEvents {
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                Protocol Management
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice Emitted when a CUBE3 admin installs a new module.
     /// @param moduleId The module's computed ID.
     /// @param moduleAddress The contract address of the module.
@@ -31,7 +35,8 @@ abstract contract ProtocolEvents {
     event UsedRegistrationSignatureHash(bytes32 indexed signatureHash);
 
     /// @notice Emitted when the registration status of an integration is updated.
-    /// @dev Provides an audit trail for changes in the registration status of integrations, enhancing the protocol's governance transparency.
+    /// @dev Provides an audit trail for changes in the registration status of integrations, enhancing the protocol's
+    /// governance transparency.
     /// @param integration The address of the integration contract.
     /// @param status The new registration status, represented as an enum.
     event IntegrationRegistrationStatusUpdated(address indexed integration, Structs.RegistrationStatusEnum status);
@@ -64,17 +69,31 @@ abstract contract ProtocolEvents {
     /// @notice Emitted when the protection status of a function in an integration is updated.
     /// @dev This event logs changes to whether or not the Protocol is utilized for calls to the designated function.
     /// @param integration The address of the integration contract.
-    /// @param selector The function selector (first 4 bytes of the keccak256 hash of the function signature) whose protection status is updated.
+    /// @param selector The function selector (first 4 bytes of the keccak256 hash of the function signature) whose
+    /// protection status is updated.
     /// @param status The new protection status; `true` for protected and `false` for unprotected.
     event FunctionProtectionStatusUpdated(address indexed integration, bytes4 indexed selector, bool status);
 
     /// @notice Emitted when protocol-wide configuration settings are updated.
     /// @param registry The address of the protocol registry contract where configurations are updated.
-    /// @param paused A boolean indicating the new paused state of the protocol; `true` for paused and `false` for unpaused.
+    /// @param paused A boolean indicating the new paused state of the protocol; `true` for paused and `false` for
+    /// unpaused.
     event ProtocolConfigUpdated(address indexed registry, bool paused);
 
-    /// @notice Emitted when the protocol registry is removed, indicating a significant protocol-wide operation, possibly for upgrades or migration.
+    /// @notice Emitted when the protocol registry is removed, indicating a significant protocol-wide operation,
+    /// possibly for upgrades or migration.
     /// @dev Until a new protocol is set, new integration registrations will be blocked.
     event ProtocolRegistryRemoved();
 
+    // ======== REGISTRY
+
+    /// @notice Emitted when a new signing authority is set.
+    /// @param integration The integration contract's address.
+    /// @param signer The signing authority's account address.
+    event SigningAuthorityUpdated(address indexed integration, address indexed signer);
+
+    /// @notice Emitted when a signing authority is revoked.
+    /// @param integration The integration contract's address.
+    /// @param revokedSigner The signing authority's account address.
+    event SigningAuthorityRevoked(address indexed integration, address indexed revokedSigner);
 }
