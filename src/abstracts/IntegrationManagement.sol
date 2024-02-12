@@ -2,19 +2,20 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ICube3Module } from "../interfaces/ICube3Module.sol";
-import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
-import { Structs } from "../common/Structs.sol";
-import { RouterStorage } from "./RouterStorage.sol";
-import { SignatureUtils } from "../libs/SignatureUtils.sol";
-import { AddressUtils } from "../libs/AddressUtils.sol";
+import { ICube3Module } from "@src/interfaces/ICube3Module.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
+import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
+import { AddressUtils } from "@src/libs/AddressUtils.sol";
 
-import { ProtocolConstants } from "../common/ProtocolConstants.sol";
-
-import { ProtocolErrors } from "../libs/ProtocolErrors.sol";
-
-/// @dev This contract contains all the logic for managing customer integrations
-abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStorage {
+/// @title IntegrationManagment
+/// @notice This contract implements logic for managing integration contracts and their relationship with the protocol.
+/// @dev See {ICube3Router} for documentation.
+abstract contract IntegrationManagement is ICube3Router, AccessControlUpgradeable, RouterStorage {
     using SignatureUtils for bytes;
     using AddressUtils for address;
 
@@ -22,6 +23,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Checks the caller is the integration admin account of the `integration` contract provided.
     modifier onlyIntegrationAdmin(address integration) {
         if (getIntegrationAdmin(integration) != msg.sender) {
             revert ProtocolErrors.Cube3Router_CallerNotIntegrationAdmin();
@@ -29,6 +31,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         _;
     }
 
+    /// @notice Checks the caller is the pending integration admin account of the `integration` contract provided.
     modifier onlyPendingIntegrationAdmin(address integration) {
         if (getIntegrationPendingAdmin(integration) != msg.sender) {
             revert ProtocolErrors.Cube3Router_CallerNotPendingIntegrationAdmin();
@@ -40,8 +43,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION MANAGEMENT
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Begins the 2 step transfer the admin account for an integration contract.
-    /// @dev Can only be called by the integration's existing admin.
+    /// @inheritdoc ICube3Router
     function transferIntegrationAdmin(
         address integration,
         address newAdmin
@@ -52,18 +54,13 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         _setPendingIntegrationAdmin(integration, msg.sender, newAdmin);
     }
 
-    /// @dev Facilitates tranfer of admin rights for an integration contract.
-    /// @dev Called by the account accepting the admin rights.
+    /// @inheritdoc ICube3Router
     function acceptIntegrationAdmin(address integration) external onlyPendingIntegrationAdmin(integration) {
         _setIntegrationAdmin(integration, msg.sender);
-        _deleteIntegrationPendingAdmin(integration); // gas-saving
+        _deleteIntegrationPendingAdmin(integration); // small gas refund
     }
 
-    /// @dev Protection can only be enabled for a function if the status is REGISTERED.
-    /// @dev Can only be called by the integration's admin.
-    /// @dev Only an integration that has pre-registered will have an assigned admin, so there's no
-    ///      need to check if the status is UNREGISTERED.
-    /// @dev An integration that's had its registration status revoked can only disable protection.
+    /// @inheritdoc ICube3Router
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
@@ -102,14 +99,10 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION REGISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Called by integration contract during construction, thus the integration contract is `msg.sender`.
-    /// @dev We cannot restrict who calls this function, including EOAs, however an integration has no
-    ///      access to the protocol until `registerIntegrationWithCube3` is called by the integration admin, for
-    ///      which a registrarSignature is required and must be signed by the integration's signing authority via CUBE3.
-    /// @dev Only a contract who initiated registration can complete registration via codesize check.
-    function initiateIntegrationRegistration(address admin_) external returns (bytes32) {
+    /// @inheritdoc ICube3Router
+    function initiateIntegrationRegistration(address initialAdmin) external returns (bytes32) {
         // Checks: the integration admin account provided is a valid address.
-        if (admin_ == address(0)) {
+        if (initialAdmin == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegrationAdmin();
         }
 
@@ -119,18 +112,15 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
 
         // Effects: set the admin account for the integration.
-        _setIntegrationAdmin(msg.sender, admin_);
+        _setIntegrationAdmin(msg.sender, initialAdmin);
 
         // Effects: set the integration's registration status to PENDING.
         _setIntegrationRegistrationStatus(msg.sender, Structs.RegistrationStatusEnum.PENDING);
 
-        // TODO: might be expecting another value
         return PRE_REGISTRATION_SUCCEEDED;
     }
 
-    /// @dev Can only be called by the integration admin set in `initiateIntegrationRegistration`.
-    /// @dev Passing an empty array of selectors to enable none by default.
-    /// @dev Only a contract who initiated registration can complete registration via codesize check.
+    /// @inheritdoc ICube3Router
     function registerIntegrationWithCube3(
         address integration,
         bytes calldata registrarSignature,
@@ -216,6 +206,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             INTEGRATION ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ICube3Router
     function batchUpdateIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatusEnum[] calldata statuses
@@ -239,8 +230,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         }
     }
 
-    /// @dev Can be used to revoke an integration's registration status, preventing it from enabling function protection
-    /// and blocking access to the protocol by skipping protection checks.
+    /// @inheritdoc ICube3Router
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
@@ -255,9 +245,7 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
             HELPERS
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Utility function for returning the integration's signing authority, which is used to validate
-    /// the registrar signature. If the registry is not set, the function will return the zero address as the signing
-    /// authority. It is up to the module to handle this case.
+    /// @inheritdoc ICube3Router
     function fetchRegistryAndSigningAuthorityForIntegration(address integration)
         public
         view
@@ -273,9 +261,9 @@ abstract contract IntegrationManagement is AccessControlUpgradeable, RouterStora
         authority = ICube3Registry(registry).getSigningAuthorityForIntegration(integration);
     }
 
-    /// @dev Updates the integration status for an integration or an integration's proxy.
-    /// @dev Only accessible by the Cube3RouterImpl contract, allowing changes from, and to, any state
-    /// @dev Prevents the status from being set to the same value.
+    /// @notice Internal helper for performing checks and updating storage for and integration's registration
+    /// status.
+    /// @dev Cannot set the status for the zero address and prevents the status from being set to the same value.
     function _updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum status

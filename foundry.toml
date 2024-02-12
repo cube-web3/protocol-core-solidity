@@ -43,6 +43,7 @@ repository = "https://github.com/cube-web3/protocol-core-solidity"
 remappings = [
   "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
   "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+  "@src/=src/"
 ]
 auto_detect_remappings = false
 
