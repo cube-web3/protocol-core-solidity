@@ -43,6 +43,8 @@ abstract contract IntegrationManagement is ICube3Router, AccessControlUpgradeabl
             INTEGRATION MANAGEMENT
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: should you be able to set this as teh zero address?
+    // TODO: should you be able to cancel it?
     /// @inheritdoc ICube3Router
     function transferIntegrationAdmin(
         address integration,
