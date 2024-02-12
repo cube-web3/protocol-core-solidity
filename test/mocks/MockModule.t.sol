@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {ModuleBase} from "../../src/modules/ModuleBase.sol";
+import {ModuleBase} from "@src/modules/ModuleBase.sol";
 
-import { TestEvents } from "../utils/TestEvents.t.sol";
+import { TestEvents } from "@test/utils/TestEvents.t.sol";
 
 contract MockModule is ModuleBase, TestEvents {
 

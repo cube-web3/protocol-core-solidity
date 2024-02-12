@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
-import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
 
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {
     uint256 constant HALF_MAX_UINT = type(uint256).max / 2;
@@ -21,7 +21,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         // set the config
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(registry, flag);
-        routerStorageHarness.setProtocolConfig(registry, flag);
+        routerStorageHarness.updateProtocolConfig(registry, flag);
 
         // check the config values
         assertEq(registry, routerStorageHarness.getProtocolConfig().registry, "registry mismatch");

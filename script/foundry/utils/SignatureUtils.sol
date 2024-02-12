@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { ICube3Router } from "../../../src/interfaces/ICube3Router.sol";
+import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
 
 abstract contract SignatureUtils is Script {
     using ECDSA for bytes32;
@@ -20,7 +20,7 @@ abstract contract SignatureUtils is Script {
         view
         returns (bytes memory)
     {
-        address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
+        address integrationSecurityAdmin = IRouterStorage(router).getIntegrationAdmin(integration);
         return
             _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
     }

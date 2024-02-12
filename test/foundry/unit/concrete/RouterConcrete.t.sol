@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
+import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { ICube3Router } from "../../../../src/interfaces/ICube3Router.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
+import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
-import { RouterHarness } from "../../harnesses/RouterHarness.sol";
-import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { RouterHarness } from "@test/foundry/harnesses/RouterHarness.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract Router_Concrete_Unit_Test is BaseTest {
     RouterHarness routerHarness;
@@ -21,6 +22,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
     // fails when calling initialze externally outside of the constructor
     function test_RevertsWhen_InitializingOutsideTheConstructor() public {
         address mockRegistry = _randomAddress();
+        vm.expectRevert(Initializable.InvalidInitialization.selector);
         routerHarness.initialize(mockRegistry);
     }
 
@@ -178,6 +180,6 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // Succeeds when checking the supported interface
     function test_SucceedsWhen_CheckingICube3RouterInterfaceSupport() public {
-        assertTrue(routerHarness.supportsInterface(type(ICube3Router).interfaceId), "interface not supported");
+        assertTrue(routerHarness.supportsInterface(type(ICube3RouterImpl).interfaceId), "interface not supported");
     }
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 /// @notice Testing harness for the Cube3RouterImpl contract for exposing internal fuctions for testing.
 contract RouterHarness is Cube3RouterImpl {
@@ -20,7 +20,7 @@ contract RouterHarness is Cube3RouterImpl {
     }
 
     function wrappedSetProtocolConfig(address registry, bool isPaused) public {
-        _setProtocolConfig(registry, isPaused);
+        _updateProtocolConfig(registry, isPaused);
     }
 
     /*//////////////////////////////////////////////////////////////

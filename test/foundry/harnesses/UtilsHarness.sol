@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { PayloadUtils } from "../../../src/libs/PayloadUtils.sol";
-import { SignatureUtils } from "../../../src/libs/SignatureUtils.sol";
-import { AddressUtils } from "../../../src/libs/AddressUtils.sol";
-import { BitmapUtils } from "../../../src/libs/BitmapUtils.sol";
+import { PayloadUtils } from "@src/libs/PayloadUtils.sol";
+import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
+import { AddressUtils } from "@src/libs/AddressUtils.sol";
+import { BitmapUtils } from "@src/libs/BitmapUtils.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 /// note: For the purposes of coverage, we utilze the <library>.<function>(...args) approach, rather than
 /// "using <library> for <type>" with the target passed implicitly as the first arg, which coverage doesn't recognize.

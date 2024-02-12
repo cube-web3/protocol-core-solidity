@@ -48,12 +48,15 @@ Application-specific smart contracts that provide dedicated per-contract functio
 
 ## Routing
 
-# Glossay
+# Important Terms
 
 - Integration
 - Signature Authority
 - Router
--
+- Module
+- Module Payload
+- CUBE3 Payload
+- Routing Bitmap
 
 ## Debugging
 

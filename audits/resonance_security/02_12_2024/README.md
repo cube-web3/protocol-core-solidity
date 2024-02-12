@@ -51,6 +51,8 @@ The main areas of change include:
 
 # Protocol Properties
 
+Please review the repositories [README](../../../README.md) for a high-level overview of the Protocol.
+
 TODO: complete
 
 - The Core Protocol provides on-chain security features for smart contracts that inherit the ancillary protection contracts.
@@ -98,7 +100,7 @@ Administration and management of the protocol is restricted to the CUBE3 team an
 
 - A CUBE3 account possessing the `CUBE3_INTEGRATION_MANAGER_ROLE` role can update the registration status of one or more integrations using `{IntegrationManagement-batchUpdateIntegrationRegistrationStatus}`.
 - A CUBE3 account possessing the `CUBE3_INTEGRATION_MANAGER_ROLE` role can update the registration status of a single integration using `{IntegrationManagement-updateIntegrationRegistrationStatus}`.
-- A CUBE3 account possessing the `CUBE3_PROTOCOL_ADMIN_ROLE` role can update the protocol's config, ie the registry address and paused state, by calling `{ProtocolManagement-setProtocolConfig}` on the router.
+- A CUBE3 account possessing the `CUBE3_PROTOCOL_ADMIN_ROLE` role can update the protocol's config, ie the registry address and paused state, by calling `{ProtocolManagement-updateProtocolConfig}` on the router.
 - A CUBE3 account possessing the `CUBE3_PROTOCOL_ADMIN_ROLE` role can call privileged module functions, for who access is restricted to the router, by calling `{ProtocolManagement-callModuleFunctionAsAdmin}` on the router.
 - A CUBE3 account possessing the `CUBE3_PROTOCOL_ADMIN_ROLE` role can install new modules by calling `{ProtocolManagement-installModule}` on the router.
 - A CUBE3 account possessing the `CUBE3_PROTOCOL_ADMIN_ROLE` role can deprecate modules by calling `{ProtocolManagement-deprecateModule}` on the router.

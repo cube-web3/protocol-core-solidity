@@ -5,9 +5,9 @@ import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "../../src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
 import { DemoIntegrationERC721 } from "../../test/demo/DemoIntegrationERC721.sol";
 import { DeployUtils } from "./utils/DeployUtils.sol";
@@ -16,7 +16,7 @@ import { SignatureUtils } from "./utils/SignatureUtils.sol";
 
 import { PayloadUtils } from "./utils/PayloadUtils.sol";
 
-import { Structs } from "../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
     DemoIntegrationERC721 demo;

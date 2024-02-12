@@ -3,17 +3,17 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { MockModule } from "../../../mocks/MockModule.t.sol";
-import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { MockModule } from "@test/mocks/MockModule.t.sol";
+import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
 
 // TODO: use same as script
-import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Fuzz_Unit_Test is BaseTest {
     using ECDSA for bytes32;

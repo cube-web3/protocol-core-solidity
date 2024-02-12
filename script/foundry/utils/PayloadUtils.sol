@@ -3,9 +3,9 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import "forge-std/Test.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract PayloadUtils is Test {
     using ECDSA for bytes32;

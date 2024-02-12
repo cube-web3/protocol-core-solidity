@@ -4,17 +4,12 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-
-import { IntegrationTest } from "../IntegrationTest.t.sol";
-
-import { MockRouter } from "../../mocks/MockRouter.t.sol";
-import { MockRegistry } from "../../mocks/MockRegistry.t.sol";
-
-import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
-
-import { ProtocolErrors } from "../../../src/libs/ProtocolErrors.sol";
-
-import { DemoUpgradeableUUPS } from "../../demo/DemoUpgradeableUUPS.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { IntegrationTest } from "@test/foundry/IntegrationTest.t.sol";
+import { MockRouter } from "@test/mocks/MockRouter.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { DemoUpgradeableUUPS } from "@test/demo/DemoUpgradeableUUPS.sol";
 
 contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
     ERC1967Proxy public uupsIntegrationProxy;

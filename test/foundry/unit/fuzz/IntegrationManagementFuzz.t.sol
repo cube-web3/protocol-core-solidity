@@ -3,15 +3,15 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
 
-import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
+import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { MockTarget } from "../../../mocks/MockContract.t.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { MockTarget } from "@test/mocks/MockContract.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
 
 contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
@@ -244,7 +244,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         vm.startPrank(admin);
         vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationSigningAuthorityNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
@@ -268,7 +268,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -298,7 +298,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -331,7 +331,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -367,7 +367,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -488,7 +488,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         address[] memory integrations = new address[](numIntegrations);
         address[] memory signers = new address[](numIntegrations);
 
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
 
         for (uint256 i; i < numIntegrations; i++) {
             integrations[i] = _randomAddress();

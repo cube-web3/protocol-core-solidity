@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.19 < 0.8.24;
 
+import { Vm } from "forge-std/Vm.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-import {Structs} from "../../src/common/Structs.sol";
-import { Vm } from "forge-std/Vm.sol";
+import {Structs} from "@src/common/Structs.sol";
+
 
 
 abstract contract TestUtils {

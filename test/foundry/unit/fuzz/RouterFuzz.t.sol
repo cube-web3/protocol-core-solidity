@@ -3,15 +3,15 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 
-import { RouterHarness } from "../../harnesses/RouterHarness.sol";
-import { MockModule } from "../../../mocks/MockModule.t.sol";
+import { RouterHarness } from "@test/foundry/harnesses/RouterHarness.sol";
+import { MockModule } from "@test/mocks/MockModule.t.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { ICube3Router } from "../../../../src/interfaces/ICube3Router.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 
-import { Structs } from "../../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract Router_Fuzz_Unit_Test is BaseTest {
     RouterHarness routerHarness;

@@ -2,12 +2,12 @@ pragma solidity >=0.8.19 < 0.8.24;
 
 import "forge-std/Test.sol";
 
-import { Demo } from "../../demo/Demo.sol";
-import { IntegrationTest } from "../IntegrationTest.t.sol";
+import { Demo } from "@test/demo/Demo.sol";
+import { IntegrationTest } from "@test/foundry/IntegrationTest.t.sol";
 
-import { PayloadCreationUtils } from "../../libs/PayloadCreationUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 
 contract Integration_Standlone_Concrete_Test is IntegrationTest {
     function setUp() public override {
