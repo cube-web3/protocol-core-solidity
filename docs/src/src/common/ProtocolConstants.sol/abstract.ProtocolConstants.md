@@ -1,9 +1,13 @@
 # ProtocolConstants
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/07ba602bddefe3eb8d740b07000837f7ec2fa9f5/src/common/ProtocolConstants.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/common/ProtocolConstants.sol)
+
+Defines unique return values for Protocol actions to be stored in the contract's bytecode.
 
 
 ## State Variables
 ### MODULE_CALL_SUCCEEDED
+Returned by a module when the module successfuly executes its internal logic.
+
 
 ```solidity
 bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("CUBE3_MODULE_CALL_SUCCEEDED");
@@ -11,13 +15,17 @@ bytes32 public constant MODULE_CALL_SUCCEEDED = keccak256("CUBE3_MODULE_CALL_SUC
 
 
 ### PRE_REGISTRATION_SUCCEEDED
+Returned by the router when the pre-registration of the integration is successful.
+
 
 ```solidity
-bytes32 private constant PRE_REGISTRATION_SUCCEEDED = keccak256("CUBE3_PRE_REGISTRATION_SUCCEEDED");
+bytes32 public constant PRE_REGISTRATION_SUCCEEDED = keccak256("CUBE3_PRE_REGISTRATION_SUCCEEDED");
 ```
 
 
 ### MODULE_CALL_FAILED
+Returned by a module when the module's internal logic execution fails.
+
 
 ```solidity
 bytes32 public constant MODULE_CALL_FAILED = keccak256("CUBE3_MODULE_CALL_FAILED");
@@ -25,6 +33,9 @@ bytes32 public constant MODULE_CALL_FAILED = keccak256("CUBE3_MODULE_CALL_FAILED
 
 
 ### PROCEED_WITH_CALL
+Returned by the router if the module call succeeds, the integration is not registered, the protocol is
+paused, or
+
 
 ```solidity
 bytes32 public constant PROCEED_WITH_CALL = keccak256("CUBE3_PROCEED_WITH_CALL");

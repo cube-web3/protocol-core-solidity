@@ -1,5 +1,5 @@
 # ProtocolErrors
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/07ba602bddefe3eb8d740b07000837f7ec2fa9f5/src/libs/ProtocolErrors.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/libs/ProtocolErrors.sol)
 
 Defines errors for the CUBE3 Protocol.
 
@@ -67,6 +67,14 @@ Throws when the data returned by the module is not 32 bytes in length.
 
 ```solidity
 error Cube3Router_ModuleReturnDataInvalidLength(uint256 size);
+```
+
+### Cube3Router_ProtocolPaused
+Throws when an integration attempts to register when the protocol is paused.
+
+
+```solidity
+error Cube3Router_ProtocolPaused();
 ```
 
 ### Cube3Router_CallerNotIntegrationAdmin
@@ -159,6 +167,14 @@ Throws when setting the registration status to its current status.
 error Cube3Router_CannotSetStatusToCurrentStatus();
 ```
 
+### Cube3Router_InvalidFunctionSelector
+Throws when attempting to set function protection status for the 0x00000000 selector.
+
+
+```solidity
+error Cube3Router_InvalidFunctionSelector();
+```
+
 ### Cube3Router_NotValidRegistryInterface
 Throws when the contract at the address provided does not support the CUBE3 Registry interface.
 
@@ -221,22 +237,6 @@ Throws when deprecating a module fails.
 
 ```solidity
 error Cube3Router_ModuleDeprecationFailed();
-```
-
-### Cube3SignatureUtils_InvalidSignature
-Throws when the signature is invalid.
-
-
-```solidity
-error Cube3SignatureUtils_InvalidSignature();
-```
-
-### Cube3SignatureUtils_InvalidSignatureLength
-Throws when the signature length is not 65 bytes.
-
-
-```solidity
-error Cube3SignatureUtils_InvalidSignatureLength();
 ```
 
 ### Cube3SignatureUtils_SignerZeroAddress
@@ -325,5 +325,13 @@ Throws when the signing authority retrieved from storage doesn't exist.
 
 ```solidity
 error Cube3Registry_NonExistentSigningAuthority();
+```
+
+### Cube3Registry_NullUniversalSigner
+Throws when the universal backup signer is the zero address
+
+
+```solidity
+error Cube3Registry_NullUniversalSigner();
 ```
 
