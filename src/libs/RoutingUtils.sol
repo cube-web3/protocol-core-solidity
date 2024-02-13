@@ -4,11 +4,11 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { BitmapUtils } from "./BitmapUtils.sol";
 
-// TODO: rename ModulePayloadUtils
-library PayloadUtils {
+/// @title RoutingUtils
+/// @notice Contains utils for extracting a Module Payload and routing data from calldata.
+library RoutingUtils {
     using BitmapUtils for uint256;
 
-    event log_id(bytes16 id);
     /// @notice Extracts the CUBE3 payload, which itself contains the module payload and bitmap containing the routing
     /// data.
     /// @dev The `integrationCalldata` is the calldata for the integration contract's function call.
@@ -21,13 +21,8 @@ library PayloadUtils {
 
     function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
         internal
-        returns (
-            // pure
-            bytes4 moduleSelector,
-            bytes16 moduleId,
-            bytes memory modulePayload,
-            bytes32 originalCalldataDigest
-        )
+        pure
+        returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
     {
         // Extract the bitmap from the last word of the integration calldata.
         uint256 routingBitmap =
@@ -35,7 +30,7 @@ library PayloadUtils {
 
         // The module ID occupies the right-most 16 bytes of the bitmap
         moduleId = routingBitmap.extractBytes16Bitmap();
-        emit log_id(moduleId);
+
         // The module selector occupies the 4 bytes to the left of the module ID
         moduleSelector = routingBitmap.extractBytes4FromBitmap(128);
 

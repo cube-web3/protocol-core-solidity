@@ -5,20 +5,19 @@ import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "../../src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
-import { DemoIntegrationERC721 } from "../../test/demo/DemoIntegrationERC721.sol";
+import { DemoIntegrationERC721 } from "@test/demo/DemoIntegrationERC721.sol";
 import { DeployUtils } from "./utils/DeployUtils.sol";
 
-import { SignatureUtils } from "./utils/SignatureUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
-import { PayloadUtils } from "./utils/PayloadUtils.sol";
+import { Structs } from "@src/common/Structs.sol";
 
-import { Structs } from "../../src/common/Structs.sol";
-
-contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
+contract DeployLocal is Script, DeployUtils {
     DemoIntegrationERC721 demo;
 
     uint256 deployerPvtKey = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80; // anvil [0]
@@ -58,8 +57,6 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
     }
 
     function run() external {
-        // _deployProtocol();
-
         // install module
         vm.startBroadcast(cube3admin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));
@@ -73,29 +70,6 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
 
         _demoMintAsUser();
     }
-
-    // function _deployProtocol() internal {
-    //     vm.startBroadcast(deployerPvtKey);
-
-    //     // ============ registry
-    //     registry = new Cube3Registry();
-    //     _addAccessControlAndRevokeDeployerPermsForRegistry(cube3admin, keyManager, deployer);
-
-    //     // ============ router
-    //     // deploy the implementation
-    //     routerImplAddr = address(new Cube3RouterImpl());
-    //     // deploy the proxy
-    //     cubeRouterProxy = new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize,
-    // (address(registry))));
-    //     // create a wrapper interface (for convenience)
-    //     wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
-    //     _addAccessControlAndRevokeDeployerPermsForRouter(cube3admin, cube3integrationAdmin, deployer);
-
-    //     // =========== signature module
-    //     signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, backupSigner, 320);
-
-    //     vm.stopBroadcast();
-    // }
 
     function _deployDemoAsDemoDeployer() internal {
         vm.startBroadcast(demoDeployerPvtKey);
@@ -123,8 +97,12 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
         bytes4[] memory fnSelectors = new bytes4[](1);
         fnSelectors[0] = DemoIntegrationERC721.safeMint.selector;
 
-        bytes memory registrationSignature =
-            _generateRegistrarSignature(address(cubeRouterProxy), address(demo), demoSigningAuthorityPvtKey);
+        bytes memory registrationSignature = PayloadCreationUtils.createRegistrarSignature(
+            ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)),
+            address(demo),
+            demoSigningAuthorityPvtKey
+        );
+
         wrappedRouterProxy.registerIntegrationWithCube3(address(demo), registrationSignature, fnSelectors);
         vm.stopBroadcast();
     }
@@ -134,15 +112,18 @@ contract DeployLocal is Script, DeployUtils, SignatureUtils, PayloadUtils {
         address caller = vm.addr(callerPvtKey);
 
         vm.startBroadcast(caller);
-        bytes memory emptyBytes = new bytes(PAYLOAD_LENGTH);
+        bytes memory emptyBytes = new bytes(352);
 
         bytes memory calldataWithEmptyPayload =
             abi.encodeWithSelector(DemoIntegrationERC721.safeMint.selector, 3, emptyBytes);
-        Structs.TopLevelCallComponents memory topLevelCallComponents =
-            _createIntegrationCallInfo(caller, address(demo), 0, calldataWithEmptyPayload, signatureModule);
 
-        bytes memory cube3SecurePayload = _createPayload(
-            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, signatureModule, topLevelCallComponents
+        Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
+            .packageTopLevelCallComponents(
+            caller, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, false, signatureModule, topLevelCallComponents
         );
 
         demo.safeMint(3, cube3SecurePayload);

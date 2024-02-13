@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.19 < 0.8.24;
 
+import { Vm } from "forge-std/Vm.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-import {Structs} from "../../src/common/Structs.sol";
-import { Vm } from "forge-std/Vm.sol";
+import {Structs} from "@src/common/Structs.sol";
+
 
 
 abstract contract TestUtils {
@@ -29,7 +30,7 @@ abstract contract TestUtils {
     }
 
     // AccessControl errors
-    function _constructAccessControlErrorString(address account, bytes32 role) internal returns(string memory) {
+    function _constructAccessControlErrorString(address account, bytes32 role) internal pure returns(string memory) {
         return string(
                     abi.encodePacked(
                         "AccessControl: account ",
@@ -45,7 +46,7 @@ abstract contract TestUtils {
      * @param length The length of the byte array to generate.
      * @return randomBytes The generated pseudo-random bytes.
      */
-    function _getRandomBytes(uint256 length) public returns (bytes memory randomBytes) {
+    function _getRandomBytes(uint256 length) public view returns (bytes memory randomBytes) {
         uint256 seed = _randomUint256();
         randomBytes = new bytes(length);
         for (uint256 i = 0; i < length; i++) {

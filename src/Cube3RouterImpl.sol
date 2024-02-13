@@ -5,25 +5,30 @@ import {
     AccessControlUpgradeable,
     ERC165Upgradeable
 } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC1967Utils} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import { ICube3Router } from "./interfaces/ICube3Router.sol";
-import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
-import { ProtocolManagement } from "./abstracts/ProtocolManagement.sol";
-import { IntegrationManagement } from "./abstracts/IntegrationManagement.sol";
-import { PayloadUtils } from "./libs/PayloadUtils.sol";
-import { SignatureUtils } from "./libs/SignatureUtils.sol";
+import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
+import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
+import { RoutingUtils } from "@src/libs/RoutingUtils.sol";
+import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
+import { AddressUtils } from "@src/libs/AddressUtils.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
 
-import { AddressUtils } from "./libs/AddressUtils.sol";
-import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
-import { Structs } from "./common/Structs.sol";
-import { ProtocolConstants } from "./common/ProtocolConstants.sol";
-import { RouterStorage } from "./abstracts/RouterStorage.sol";
-
-/// @dev See {ICube3Router}
-/// @dev All storage variables are defined in RouterStorage.sol and accessed via dedicated getter and setter functions
-
+/// @title Cube3RouterImpl
+/// @notice Defines the implementation contract for the upgradeable CUBE3 Router.
+/// @dev See {ICube3RouterImpl} for documentation, which is inherited implicitly via
+/// {ProtocolManagement} and {IntegrationManagement}.
+/// Notes:
+/// - All storage variables are defined in {RouterStorage} and accessed via
+/// dedicated getter and setter functions.
 contract Cube3RouterImpl is
+    ICube3RouterImpl,
     ContextUpgradeable,
     AccessControlUpgradeable,
     UUPSUpgradeable,
@@ -31,11 +36,10 @@ contract Cube3RouterImpl is
     IntegrationManagement
 {
     using AddressUtils for address;
-    using PayloadUtils for bytes;
+    using RoutingUtils for bytes;
     using SignatureUtils for bytes32;
 
-    // TODO: test this
-    /// @dev The implementation should only be initialized in the constructor of the proxy
+    /// @dev Checks the call can only take place in another contract's constructor.
     modifier onlyConstructor() {
         address(this).assertIsEOAorConstructorCall();
         _;
@@ -45,7 +49,8 @@ contract Cube3RouterImpl is
             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev    lock the implementation contract at deployment to prevent it being used
+    /// @dev Lock the implementation contract at deployment to prevent it being used until
+    /// it is initialized.
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -55,8 +60,7 @@ contract Cube3RouterImpl is
             PROXY + UPGRADE LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: test this
-    /// @dev Initialization can only take place once, and is called by the proxy's constructor.
+    /// @inheritdoc ICube3RouterImpl
     function initialize(address registry) public initializer onlyConstructor {
         // Checks: registry is not the zero address
         if (registry == address(0)) {
@@ -70,7 +74,7 @@ contract Cube3RouterImpl is
         __ERC165_init();
 
         // Not paused by default.
-        _setProtocolConfig(registry, false);
+        _updateProtocolConfig(registry, false);
 
         // The deployer is the EOA who initiated the transaction, and is the account that will revoke
         // it's own access permissions and add new ones immediately following deployment. Using tx.origin accounts
@@ -78,27 +82,19 @@ contract Cube3RouterImpl is
         _grantRole(DEFAULT_ADMIN_ROLE, tx.origin);
     }
 
-    // TODO: test this
     /// @dev Adds access control logic to the {upgradeTo} function
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 
-    /// TODO: maybe use ERC1967Utils
-    // /// @dev returns the proxy's current implementation address
-    // function getImplementation() external view returns (address) {
-    //     return _getImplementation();
-    // }
+    /// @inheritdoc ICube3RouterImpl
+    function getImplementation() external view returns (address) {
+        return ERC1967Utils.getImplementation();
+    }
 
     /*//////////////////////////////////////////////////////////////
             ROUTING
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: test this
-    /// @dev Routes the module payload contained in the integrationCalldata to the appropriate module, provided
-    ///      the originating function call's function is protected.
-    /// @dev Will return PROCEED_WITH_CALL if the function is not protected, the integration's registration status is
-    /// REVOKED, or the protocol is paused.
-    /// @dev Only contracts can complete registration, so checking the caller is a contract is redundant.
-    // TODO: check gas consumption of contract check
+    /// @inheritdoc ICube3RouterImpl
     function routeToModule(
         address integrationMsgSender,
         uint256 integrationMsgValue,
@@ -137,8 +133,7 @@ contract Cube3RouterImpl is
                 integrationMsgSender,
                 msg.sender, // this will be the proxy address if the integration uses a proxy
                 integrationMsgValue,
-                integrationCalldataDigest // the originating function call's msg.data without the cube3SecurePayload
-                    // TODO: better name
+                integrationCalldataDigest // the top-level function call's msg.data without the cube3SecurePayload
             ),
             modulePayload
         );
@@ -151,10 +146,13 @@ contract Cube3RouterImpl is
             ROUTING HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Returns whether routing to the module should be bypassed. Note: There's no need to check for a registration
-    ///      status of PENDING, as an integration's function protection status cannot be enabled until it's registered,
-    /// and
-    ///      thus the first condition will always be false and thus routing should be bypassed.
+    /// @notice Determines whether to forward the relative parts of the calldata to the Security Module.
+    /// @param integrationFnCallSelector The function selector of the top-level call to the integration.
+    /// @dev There's no need to check for a registration status of PENDING, as an integration's function
+    /// protection status cannot be enabled until it's registered, and thus the first condition will always
+    /// be false and thus routing should be bypassed.
+    /// @return Whether routing to the module should be bypassed: `true` to bypass the module and return early
+    /// to the integration, and 'false` to continue on and utilize the Security Module.
     function _shouldBypassRouting(bytes4 integrationFnCallSelector) internal view returns (bool) {
         // Checks: Whether the function is protected. Checking this first ensures that there's only one SLOAD
         // for an integration that has protection disabled before returning.
@@ -177,8 +175,8 @@ contract Cube3RouterImpl is
         return false;
     }
 
-    /// @dev Calls the function on `module` with the given calldata.  Will revert if the call fails or does
-    ///      not return the expected success value.
+    /// @notice Performs the call to the Security Module.
+    /// @dev Reverts under any condition other than a successful return.
     function _executeModuleFunctionCall(address module, bytes memory moduleCalldata) internal returns (bytes32) {
         // Interactions: Makes the call to the desired module, calldataa includes the relevant information about the
         // originating function call.
@@ -195,7 +193,6 @@ contract Cube3RouterImpl is
             }
         }
 
-        // TODO: what happens when returning a large byte array?
         // Interactions: A CUBE3 module will always return the bytes32 value for keccak256("MODULE_CALL_SUCCEEDED").
         // This statement operates like an assertion, whereby any result other than success will result in a revert.
         if (returnOrRevertData.length == 32) {
@@ -213,7 +210,13 @@ contract Cube3RouterImpl is
             ERC165
     //////////////////////////////////////////////////////////////*/
 
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return interfaceId == type(ICube3Router).interfaceId || super.supportsInterface(interfaceId);
+    /// @inheritdoc ICube3RouterImpl
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable, ICube3RouterImpl)
+        returns (bool)
+    {
+        return interfaceId == type(ICube3RouterImpl).interfaceId || super.supportsInterface(interfaceId);
     }
 }

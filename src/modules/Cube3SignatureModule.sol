@@ -1,47 +1,49 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { ICube3SignatureModule } from "../interfaces/ICube3SignatureModule.sol";
-import { ICube3Registry } from "../interfaces/ICube3Registry.sol";
-import { ModuleBase } from "./ModuleBase.sol";
-import { ProtocolErrors } from "../libs/ProtocolErrors.sol";
-import { SignatureUtils } from "../libs/SignatureUtils.sol";
-import { Structs } from "../common/Structs.sol";
+import { ICube3SignatureModule } from "@src/interfaces/ICube3SignatureModule.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { SecurityModuleBase } from "@src/modules/SecurityModuleBase.sol";
 
-/// @dev see {ICube3SignatureModule}
-/// @dev in the unlikely event that the backup signer is compromised, the module should be deprecated
-/// via the router.
-contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
+/// @title Cube3SignatureModule
+/// @notice This Secuity Module contains logic for validating signatures provided by CUBE3's
+/// RASP service.
+/// @dev See {ICube3SignatureModule} for documentation.
+contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     // Used to recover the signature from the signature provided.
     using SignatureUtils for bytes;
 
-    // backup signer is used in the cases where the registry has been removed
-    // having this as immutable saves gas, but the module will need to be deprecated if the
-    // backup signer is compromised
+    // A Universal Signer is used in the cases where the registry has been removed.
+    // Having this as immutable saves gas, but the module will need to be deprecated if this
+    // backup signer is compromised.
     address private immutable _universalSigner;
 
-    // integration => ( integration msg.sender => nonce)
+    // Mapping to keep track of per-integration nonces for callers of the top-level integration functions.
     mapping(address integration => mapping(address integrationMsgSender => uint256 userNonce)) internal
         integrationToUserNonce;
 
-    event logCube3SignatureModulePayload(SignatureModulePayloadData payload);
     /*//////////////////////////////////////////////////////////////
             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Initializes the Signature module.
     /// @dev Passes the `cubeRouterProxy` address and `version` string to the {Cube3Module} constructor.
     /// @param cube3RouterProxy The address of the Cube3RouterImpl proxy.
-    /// @param version Human-readable module version used to generate the module's ID
-    /// @param backupSigner Backup payload signer in the event the registry is removed
+    /// @param version Human-readable module version used to generate the module's ID.
+    /// @param backupSigner Backup payload signer in the event the registry is removed.
     constructor(
         address cube3RouterProxy,
         string memory version,
-        address backupSigner,
-        uint256 expectedPayloadSize
+        address backupSigner
     )
-        ModuleBase(cube3RouterProxy, version, expectedPayloadSize)
+        SecurityModuleBase(cube3RouterProxy, version)
     {
+        // Checks: the universal signer is valid.
+        if (backupSigner == address(0)) {
+            revert ProtocolErrors.Cube3Registry_NullUniversalSigner();
+        }
         _universalSigner = backupSigner;
     }
 
@@ -49,37 +51,33 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             EXTERNAL VALIDATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    event log_struct(SignatureModulePayloadData s);
-    event stored_log(uint256 n);
-
+    /// @inheritdoc ICube3SignatureModule
     function validateSignature(
-        Structs.TopLevelCallComponents memory integrationData,
-        bytes calldata modulePayload
+        Structs.TopLevelCallComponents memory topLevelCallComponents,
+        bytes calldata signatureModulePayload
     )
         external
         onlyCube3Router
         returns (bytes32)
     {
         // Fetch the registry address from the router. This will be used later to fetch the signing authority
-        // for the integration provided in the {integrationData}.
+        // for the integration provided in the {topLevelCallComponents}.
         ICube3Registry cube3registry = _fetchRegistryFromRouter();
 
         // If the signing authority returned by the registry is null, then the registry has been removed.
         // In this case, the module will use the backup universal signer.
         address integrationSigningAuthority = address(cube3registry) == address(0)
             ? _universalSigner
-            : _fetchSigningAuthorityFromRegistry(cube3registry, integrationData.integration);
+            : _fetchSigningAuthorityFromRegistry(cube3registry, topLevelCallComponents.integration);
 
-        // TODO: Test this
         // Checks that neither the signing authority nor universal signer are null.
         if (integrationSigningAuthority == address(0)) {
             revert ProtocolErrors.Cube3SignatureModule_NullSigningAuthority();
         }
 
         // Parse the payload provided by the CUBE3 Risk API.
-        SignatureModulePayloadData memory signatureModulePayloadData = _decodeModulePayload(modulePayload);
-        // emit logCube3SignatureModulePayload(cubeSecuredData);
-        emit log_struct(signatureModulePayloadData);
+        SignatureModulePayloadData memory signatureModulePayloadData = _decodeModulePayload(signatureModulePayload);
+
         // If nonce tracking is not required, we expect the payload nonce to be 0
         uint256 expectedUserNonce;
 
@@ -92,11 +90,10 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             // no user can feasibly get close to type(uint256).max nonces, so use unchecked math.
             unchecked {
                 // First increments the `integrationToUserNonce` storage variable, then sets the in-memory {userNonce}.
-                expectedUserNonce = ++integrationToUserNonce[integrationData.integration][integrationData.msgSender];
+                expectedUserNonce =
+                    ++integrationToUserNonce[topLevelCallComponents.integration][topLevelCallComponents.msgSender];
             }
-            emit stored_log(expectedUserNonce);
-            // TODO: Add an event
-            // TODO: Test
+
             // Checks: the cube3SecuredData.nonce should equal: user's nonce at the time of the tx + 1
             if (signatureModulePayloadData.nonce != expectedUserNonce) {
                 revert ProtocolErrors.Cube3SignatureModule_InvalidNonce();
@@ -112,7 +109,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
                 _getChainID(),
                 // Includes the integration's: address, msg.sender, msg.value, and a hash of the
                 // integration's calldata (which excludes the CUBE3 payload).
-                integrationData,
+                topLevelCallComponents,
                 // Including the module's contract address ensures the payload is intended for this module.
                 address(this),
                 // If a module exposes funcitonality via different functions, ensure the correct one is used.
@@ -137,6 +134,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             EXTERNAL CONVENIENCE FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ICube3SignatureModule
     function integrationUserNonce(address integrationContract, address account) external view returns (uint256) {
         return integrationToUserNonce[integrationContract][account];
     }
@@ -166,6 +164,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
             INTERNAL PAYLOAD UTILITIES
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Util for getting the chain ID.
     function _getChainID() internal view returns (uint256 id) {
         /* solhint-disable no-inline-assembly */
         assembly {
@@ -197,7 +196,6 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         // of the signature as it will be checked when the signer is recovered.
         bytes memory signature = modulePayload[65:];
 
-        // TODO: test this
         // Checks: the expiration timestamp should be in the future.
         if (expirationTimestamp <= block.timestamp) {
             revert ProtocolErrors.Cube3SignatureModule_ExpiredSignature();

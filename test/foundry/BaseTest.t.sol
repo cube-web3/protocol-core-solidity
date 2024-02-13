@@ -5,25 +5,19 @@ import "forge-std/Test.sol";
 import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-
 import { DeployUtils } from "../../script/foundry/utils/DeployUtils.sol";
-
-import { PayloadUtils } from "../../script/foundry/utils/PayloadUtils.sol";
-
-import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "../../src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
-import { ICube3Router } from "../../src/interfaces/ICube3Router.sol";
-import { ProtocolEvents } from "../../src/common/ProtocolEvents.sol";
-import { RouterStorageHarness } from "./harnesses/RouterStorageHarness.sol";
-import { ProtocolManagementHarness } from "./harnesses/ProtocolManagementHarness.sol";
-
-import { ProtocolAdminRoles } from "../../src/common/ProtocolAdminRoles.sol";
-import { ProtocolConstants } from "../../src/common/ProtocolConstants.sol";
-import { TestUtils } from "../utils/TestUtils.t.sol";
-import { TestEvents } from "../utils/TestEvents.t.sol";
-
-import { Demo } from "../demo/Demo.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
+import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import { ProtocolManagementHarness } from "@test/foundry/harnesses/ProtocolManagementHarness.sol";
+import { TestUtils } from "@test/utils/TestUtils.t.sol";
+import { TestEvents } from "@test/utils/TestEvents.t.sol";
+import { Demo } from "@test/demo/Demo.sol";
 
 struct Accounts {
     address deployer;
@@ -35,7 +29,7 @@ struct Accounts {
     address demoDeployer;
 }
 
-contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants {
+contract BaseTest is DeployUtils, ProtocolEvents, TestUtils, TestEvents, ProtocolConstants, Test {
     using ECDSA for bytes32;
 
     // Test-specific contracts
@@ -65,10 +59,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         _installSignatureModuleInRouter();
     }
 
-    // ============= TESTS
-
-    // ============= CUBE
-
     function _createCube3Accounts() internal {
         cube3Accounts = Accounts({
             backupSigner: vm.addr(backupSignerPvtKey),
@@ -87,8 +77,6 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
     }
 
     function _deployProtocol() internal {
-        emit log_string("Deploying protocol");
-
         vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
 
         // ============ registry
@@ -117,53 +105,16 @@ contract BaseTest is DeployUtils, PayloadUtils, ProtocolEvents, TestUtils, TestE
         );
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner, 320);
+        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), version, cube3Accounts.backupSigner);
         vm.label(address(signatureModule), "Cube3SignatureModule");
 
         vm.stopPrank();
     }
 
     function _installSignatureModuleInRouter() internal {
-        emit log_string("installing signature module");
         // install module
         vm.startPrank(cube3Accounts.protocolAdmin);
         wrappedRouterProxy.installModule(address(signatureModule), bytes16(keccak256(abi.encode(version))));
         vm.stopPrank();
-    }
-
-    // ============== UTILS
-
-    function _generateRegistrarSignature(
-        address router,
-        address integration,
-        uint256 signingAuthPvtKey
-    )
-        internal
-        returns (bytes memory)
-    {
-        emit log_string("generating reg sig");
-        address integrationSecurityAdmin = ICube3Router(router).getIntegrationAdmin(integration);
-        return
-            _createSignature(abi.encodePacked(integration, integrationSecurityAdmin, block.chainid), signingAuthPvtKey);
-    }
-
-    // TODO: move to ustils
-    function _createSignature(
-        bytes memory encodedSignatureData,
-        uint256 pvtKeyToSignWith
-    )
-        internal
-        returns (bytes memory signature)
-    {
-        bytes32 signatureHash = keccak256(encodedSignatureData);
-        bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
-
-        signature = abi.encodePacked(r, s, v);
-
-        (, ECDSA.RecoverError error,) = ethSignedHash.tryRecover(signature);
-        if (error != ECDSA.RecoverError.NoError) {
-            revert("No Matchies");
-        }
     }
 }

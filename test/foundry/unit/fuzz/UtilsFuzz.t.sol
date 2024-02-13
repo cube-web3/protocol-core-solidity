@@ -3,17 +3,16 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { MockModule } from "../../../mocks/MockModule.t.sol";
-import { MockCaller, MockTarget } from "../../../mocks/MockContract.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { MockModule } from "@test/mocks/MockModule.t.sol";
+import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { UtilsHarness } from "../../harnesses/UtilsHarness.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
 
-// TODO: use same as script
-import { PayloadCreationUtils } from "../../../libs/PayloadCreationUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Fuzz_Unit_Test is BaseTest {
     using ECDSA for bytes32;
@@ -29,16 +28,8 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     event log_named_bytes16(string name, bytes16 value);
-    // TODO: fix this
 
-    function testFuzz_SucceedsWhen_PayloadDataIsValid(
-        uint256 calldataSize,
-        uint256 modulePayloadSize,
-        uint256 idSeed,
-        uint256 nonce
-    )
-        public
-    {
+    function testFuzz_SucceedsWhen_PayloadDataIsValid(uint256 calldataSize, uint256 idSeed, uint256 nonce) public {
         calldataSize = bound(calldataSize, 32, 256);
         idSeed = bound(idSeed, 1, type(uint256).max);
         vm.assume(calldataSize % 32 == 0);
@@ -59,30 +50,21 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         bytes32 calldataDigest = keccak256(mockSlicedCalldata);
         emit log_named_bytes32("calldataDigest", calldataDigest);
 
-        Structs.TopLevelCallComponents memory callMetadata = Structs.TopLevelCallComponents({
-            msgSender: _randomAddress(),
-            integration: _randomAddress(),
-            msgValue: 0,
-            calldataDigest: calldataDigest
-        });
-
-        // bytes memory signature = _createPayloadSignature(signatureData, pvtKey);
         bytes memory signature = _getRandomBytes(65);
-
-        // create the module payload
-        (bytes memory modulePayloadWithPadding, uint32 padding) = _encodeModulePayloadAndPadToNextFullWord(
-            shouldTrackNonce, // whether to track the nonce
-            block.timestamp + 1 hours,
-            shouldTrackNonce ? nonce + 1 : 0,
-            signature
-        );
+        bytes memory encodedModulePayloadData =
+            abi.encodePacked(block.timestamp + 1 hours, shouldTrackNonce, shouldTrackNonce ? nonce + 1 : 0, signature);
+        uint32 padding =
+            uint32(PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
+        bytes memory modulePayloadWithPadding =
+            PayloadCreationUtils.createPaddedModulePayload(encodedModulePayloadData, padding);
 
         emit log_named_uint32("length", uint32(modulePayloadWithPadding.length));
         emit log_named_uint32("padding", padding);
 
         // create the routing bitmap
-        uint256 routingBitmap =
-            _createRoutingFooterBitmap(mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding);
+        uint256 routingBitmap = PayloadCreationUtils.createRoutingFooterBitmap(
+            mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding
+        );
         emit log_named_uint("routing bitmap", routingBitmap);
 
         // normal abi.encoding adds the length as the first word of modulePayloadWithPadding, so we need to simulate it
@@ -151,7 +133,6 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         assertEq(derivedId, mockId, "id not matching");
     }
 
-    // TODO: create invariant for this
     // succeeds when uint32 is extracted from the bitmap at the correct location
     function testFuzz_SucceedsWhen_Uint32ExtractedFromAnyLocationInBitmap(
         uint256 valueSeed,
@@ -230,7 +211,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
         assertTrue(utilsHarness.assertIsValidSignature(signature, digest, signer));
@@ -241,9 +222,8 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         signerPvtKey = bound(signerPvtKey, 1, type(uint128).max);
         dataLength = bound(dataLength, 1, 4096);
 
-        address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
 
@@ -295,9 +275,8 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         signerPvtKey = bound(signerPvtKey, 1, type(uint128).max);
         dataLength = bound(dataLength, 1, 4096);
 
-        address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
+        bytes memory signature = PayloadCreationUtils.signPayloadData(encodedSignatureData, signerPvtKey);
 
         bytes32 altDigest = keccak256(_getRandomBytes(dataLength + 1));
 
@@ -312,10 +291,8 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
 
         address signer = vm.addr(signerPvtKey);
         bytes memory encodedSignatureData = _getRandomBytes(dataLength);
-        bytes memory signature = _createPayloadSignature(encodedSignatureData, signerPvtKey);
-
         bytes memory altEncodedSignatureData = _getRandomBytes(dataLength + 1);
-        bytes memory altSignature = _createPayloadSignature(altEncodedSignatureData, signerPvtKey);
+        bytes memory altSignature = PayloadCreationUtils.signPayloadData(altEncodedSignatureData, signerPvtKey);
 
         bytes32 digest = keccak256(encodedSignatureData);
 
@@ -324,7 +301,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     }
 
     // Removes `lengthToRemove` bytes from the end of a `bytes memory data`
-    function _removeBytesFromEnd(bytes memory data, uint256 lengthToRemove) internal returns (bytes memory) {
+    function _removeBytesFromEnd(bytes memory data, uint256 lengthToRemove) internal pure returns (bytes memory) {
         require(lengthToRemove <= data.length, "Cannot remove more bytes than the data contains");
 
         uint256 newLength = data.length - lengthToRemove;

@@ -1,12 +1,6 @@
 {
   "solidity.packageDefaultDependenciesContractsDirectory": "src",
   "solidity.packageDefaultDependenciesDirectory": "lib",
-  "solidity.compileUsingRemoteVersion": "v0.8.19",
-  "solidity.formatter": "forge",
-  "editor.formatOnSave": true,
-  "[solidity]": {
-    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
-  },
   "[toml]": {
     "editor.defaultFormatter": "tamasfe.even-better-toml"
   },
@@ -18,9 +12,9 @@
   "files.associations": {
     ".gas-snapshot": "julia"
   },
-  "solidity.defaultCompiler": "localFile",
   "solidity.remappings": [
     "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/"
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+    "@src/=src/"
   ]
 }

@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { ICube3Registry } from "../../../../src/interfaces/ICube3Registry.sol";
-import { SignatureModuleHarness } from "../../harnesses/SignatureModuleHarness.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { MockRouter } from "../../../mocks/MockRouter.t.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
-import { Cube3SignatureModule } from "../../../../src/modules/Cube3SignatureModule.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { SignatureModuleHarness } from "@test/foundry/harnesses/SignatureModuleHarness.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { MockRouter } from "@test/mocks/MockRouter.t.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
 contract SignatureModule_Concrete_Unit_Test is BaseTest {
     SignatureModuleHarness signatureModuleHarness;
     MockRouter mockRouter;
     MockRegistry mockRegistry;
 
-    uint256 uinversalSignerPvtKey;
+    uint256 universalSignerPvtKey;
     address universalSigner;
 
     uint256 signingAuthorityPrivateKey;
@@ -27,12 +27,21 @@ contract SignatureModule_Concrete_Unit_Test is BaseTest {
         mockRouter = new MockRouter();
         mockRegistry = new MockRegistry();
         mockRouter.setRegistryAddress(address(mockRegistry));
-        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner, 320);
+        universalSignerPvtKey = uint256(keccak256("universalSigner"));
+        universalSigner = vm.addr(universalSignerPvtKey);
+        signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner);
     }
 
     modifier asCubeRouter() {
         vm.startPrank(address(mockRouter));
         _;
+    }
+
+    // Reverts when setting the universal signer as the zero address on deployment
+    function test_RevertsWhen_SettingUniversalSignerAsNull() public {
+        vm.expectRevert(ProtocolErrors.Cube3Registry_NullUniversalSigner.selector);
+        SignatureModuleHarness altSigModule =  new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", address(0));
+        (altSigModule);
     }
 
     // succeeds when fetching the remote signing authority from the registry

@@ -37,6 +37,9 @@ library ProtocolErrors {
     /// @notice Throws when the data returned by the module is not 32 bytes in length.
     error Cube3Router_ModuleReturnDataInvalidLength(uint256 size);
 
+    /// @notice Throws when an integration attempts to register when the protocol is paused.
+    error Cube3Router_ProtocolPaused();
+
     /////////////////////////////////////////////////////////////////////////////////
     //                         Router : IntegrationManagement                      //
     /////////////////////////////////////////////////////////////////////////////////
@@ -155,4 +158,7 @@ library ProtocolErrors {
 
     /// @notice Throws when the signing authority retrieved from storage doesn't exist.
     error Cube3Registry_NonExistentSigningAuthority();
+
+    /// @notice Throws when the universal backup signer is the zero address
+    error Cube3Registry_NullUniversalSigner();
 }

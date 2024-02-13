@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
-import { RouterStorageHarness } from "../../harnesses/RouterStorageHarness.sol";
-
-import { MockModule } from "../../../mocks/MockModule.t.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { ProtocolManagement } from "../../../../src/abstracts/ProtocolManagement.sol";
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import { MockModule, MockModuleCustomDeprecate } from "@test/mocks/MockModule.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
 
 contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     MockRegistry mockRegistry;
     MockModule mockModule;
+    MockModuleCustomDeprecate mockModuleCustomDeprecate;
 
     string constant MODULE_VERSION = "mockModule-0.0.1";
 
@@ -23,12 +25,13 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);
 
-        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION, 69);
+        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
+        mockModuleCustomDeprecate = new MockModuleCustomDeprecate(address(protocolManagementHarness), MODULE_VERSION);
         mockRegistry = new MockRegistry();
     }
 
     /*//////////////////////////////////////////////////////////////
-         setProtocolConfig
+         updateProtocolConfig
     //////////////////////////////////////////////////////////////*/
 
     // succeeds when the registry is set
@@ -40,7 +43,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         // set the config
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(address(mockRegistry), paused);
-        protocolManagementHarness.setProtocolConfig(address(mockRegistry), paused);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), paused);
         vm.stopPrank();
 
         // check the config values
@@ -56,21 +59,35 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(address(0), false);
         emit ProtocolRegistryRemoved();
-        protocolManagementHarness.setProtocolConfig(address(0), false);
+        protocolManagementHarness.updateProtocolConfig(address(0), false);
         vm.stopPrank();
 
         // check the config values
         assertEq(address(0), protocolManagementHarness.getProtocolConfig().registry, "registry mismatch");
     }
 
-    // fails when a non-priveleged role tries to set the config
-    function test_RevertsWhen_NonPrivilegedRoleSetsConfig() public {
-        address unprivileged = _randomAddress();
+    // succeeds when updating the config and emitting the paused state change event
+    function test_SucceedsWhen_UpdatingProtocolConfigToPauseProtocol() public {
+        vm.startPrank(cube3Accounts.protocolAdmin);
 
         // set the config
-        // TODO: can we dynamically cast the revert string?
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolConfigUpdated(address(mockRegistry), true);
+        vm.expectEmit(true,true,true,true);
+        emit ProtocolPausedStateChange(true);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), true);
+        vm.stopPrank();
+
+        // check the config values
+        assertEq(address(mockRegistry), protocolManagementHarness.getRegistryAddress(), "registry mismatch");
+        assertTrue(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+    }
+
+    // fails when a non-priveleged role tries to set the config
+    function test_RevertsWhen_NonPrivilegedRoleSetsConfig() public {
+        // set the config
         vm.expectRevert();
-        protocolManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         vm.stopPrank();
     }
 
@@ -80,7 +97,43 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         // set the config
         vm.expectRevert(ProtocolErrors.Cube3Router_NotValidRegistryInterface.selector);
-        protocolManagementHarness.setProtocolConfig(_randomAddress(), true);
+        protocolManagementHarness.updateProtocolConfig(_randomAddress(), true);
+        vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+         setPausedUnpaused
+    //////////////////////////////////////////////////////////////*/
+
+    // fails pausing/unpausing as non admin
+    function test_RevertsWhen_PausingProtocol_AsNonAdmin() public {
+        address caller = _randomAddress();
+        vm.startPrank(caller);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, caller, CUBE3_PROTOCOL_ADMIN_ROLE
+            )
+        );
+        protocolManagementHarness.setPausedUnpaused(true);
+        vm.stopPrank();
+    }
+
+    // succeeds pausing/unpausing as an admin and emits the events
+    function test_SucceedsWhen_PausingProtocol_AsProtocolAdmin() public {
+        vm.startPrank(cube3Accounts.protocolAdmin);
+
+        // pause the protocol
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolPausedStateChange(true);
+        protocolManagementHarness.setPausedUnpaused(true);
+        assertTrue(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+
+        // unpase the protocol
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolPausedStateChange(false);
+        protocolManagementHarness.setPausedUnpaused(false);
+        assertFalse(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+
         vm.stopPrank();
     }
 
@@ -118,7 +171,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         vm.startPrank(randomAccount);
         vm.expectRevert();
-        (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        require(success, "harness call failed");
     }
 
     // fails when called by an admin, with a valid module, but the module fn reverts
@@ -131,7 +185,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
             abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
 
         vm.expectRevert(bytes("FAILED"));
-        (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        require(success, "harness call failed");
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -178,10 +233,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when deploying a module whose ID doesn't match the version
     function test_RevertsWhen_ModuleIdNotMatchingVersion() public {
-        // TODO: need to install a module with a janky version
-
-        bytes16 moduleId = _installModuleAsAdmin();
-        MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
+        MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2");
 
         bytes16 altModuleId = altMockModule.moduleId();
 
@@ -193,8 +245,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         protocolManagementHarness.installModule(address(mockModule), altModuleId);
     }
 
-    // TODO: this logic is flawed. When a module is deprecated, it's (incorrectly?) removed from storage, probably
-    // shouldn't delete it
     // fails reinstalling a module that's been deprecated
     function test_RevertsWhen_ReInstallingDeprecatedModule() public {
         bytes16 moduleId = _installModuleAsAdmin();
@@ -204,7 +254,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         protocolManagementHarness.deprecateModule(moduleId);
 
         // deploy the same module version
-        MockModule duplicate = new MockModule(address(protocolManagementHarness), MODULE_VERSION, 420);
+        MockModule duplicate = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
         bytes16 duplicateId = duplicate.moduleId();
 
         // attempt to reinstall it
@@ -243,6 +293,25 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(cube3Accounts.protocolAdmin);
         vm.expectRevert(ProtocolErrors.Cube3Router_ModuleDeprecationFailed.selector);
         protocolManagementHarness.deprecateModule(moduleId);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+         deprecate override
+    //////////////////////////////////////////////////////////////*/
+
+    // Succeeds when deprecating a module when overriding the deprecate fn to
+    // add additional functionality
+    function test_SucceedsWhen_CallingOverriddenDeprecate_AsRouter() public {
+        // in this instance, the harness is the router from the module's perspective
+        vm.startPrank(address(protocolManagementHarness));
+        vm.expectEmit(true, true, true, true);
+        emit ICube3SecurityModule.ModuleDeprecated(mockModuleCustomDeprecate.moduleId(), MODULE_VERSION);
+        vm.expectEmit(true, true, true, true);
+        emit CustomDeprecation();
+        string memory version = mockModuleCustomDeprecate.deprecate();
+        assertEq(keccak256(abi.encode(version)), keccak256(abi.encode("custom deprecation")), "version mismatch");
+        assertTrue(mockModuleCustomDeprecate.isDeprecated(), "not deprecated");
+        vm.stopPrank();
     }
 
     /*//////////////////////////////////////////////////////////////

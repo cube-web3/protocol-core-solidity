@@ -3,14 +3,14 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
+import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
-import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
+import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
 
 contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
@@ -60,11 +60,11 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     // succeeds accepting integration admin as pending admin and deleting the pending admin
-    function test_Succeeds_AcceptingIntegrationAdmin_AsPendingAdmin(uint256 integrationSeed) public {
+    function test_Succeeds_AcceptingIntegrationAdmin_AsPendingAdmin() public {
         address integration = _randomAddress();
         address pendingAdmin = _randomAddress();
 
-        integrationManagementHarness.setIntegrationPendingAdmin(integration, address(0), pendingAdmin);
+        integrationManagementHarness.setPendingIntegrationAdmin(integration, pendingAdmin);
 
         vm.startPrank(pendingAdmin);
         vm.expectEmit(true, true, true, true);
@@ -84,7 +84,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         address integration = _randomAddress();
         address pendingAdmin = _randomAddress();
 
-        integrationManagementHarness.setIntegrationPendingAdmin(integration, address(0), pendingAdmin);
+        integrationManagementHarness.setPendingIntegrationAdmin(integration, pendingAdmin);
 
         address nonPendingAdmin = _randomAddress();
         vm.startPrank(nonPendingAdmin);
@@ -151,7 +151,6 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_AdminExistsForIntegration() public {
         address integration = _randomAddress();
         address admin = _randomAddress();
-        address newAdmin = _randomAddress();
 
         integrationManagementHarness.setIntegrationAdmin(integration, admin);
 

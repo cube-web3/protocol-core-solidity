@@ -3,10 +3,10 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
-import { RegistryHarness } from "../../harnesses/RegistryHarness.sol";
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { ICube3Registry } from "../../../../src/interfaces/ICube3Registry.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { RegistryHarness } from "@test/foundry/harnesses/RegistryHarness.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 
 contract Registry_Concrete_Unit_Test is BaseTest {
     RegistryHarness registryHarness;
@@ -127,7 +127,6 @@ contract Registry_Concrete_Unit_Test is BaseTest {
     // reverts when caller does not have the key manager role
     function test_RevertsWhen_RevokingSigningAuthority_WithoutRole() public {
         address integrationContract = _randomAddress();
-        address clientSigningAuthority = _randomAddress();
 
         address account = _randomAddress();
         vm.startBroadcast(account);

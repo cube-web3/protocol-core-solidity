@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
-import { ICube3Registry } from "../../../src/interfaces/ICube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 
 contract SignatureModuleHarness is Cube3SignatureModule {
     constructor(
         address cube3RouterProxy,
         string memory version,
-        address backupSigner,
-        uint256 expectedPayloadSize
+        address backupSigner
     )
-        Cube3SignatureModule(cube3RouterProxy, version, backupSigner, expectedPayloadSize)
+        Cube3SignatureModule(cube3RouterProxy, version, backupSigner)
     { }
 
     function setUserNonce(address integration, address caller, uint256 nonce) public {

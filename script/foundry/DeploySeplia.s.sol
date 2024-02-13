@@ -5,20 +5,15 @@ import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { Cube3RouterImpl } from "../../src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "../../src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "../../src/modules/Cube3SignatureModule.sol";
-
-import { DemoIntegrationERC721 } from "../../test/demo/DemoIntegrationERC721.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import { Structs } from "@src/common/Structs.sol";
+import { DemoIntegrationERC721 } from "@test/demo/DemoIntegrationERC721.sol";
 import { DeployUtils } from "./utils/DeployUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
-import { SignatureUtils } from "./utils/SignatureUtils.sol";
-
-import { PayloadUtils } from "./utils/PayloadUtils.sol";
-
-import { Structs } from "../../src/common/Structs.sol";
-
-contract DeploySepolia is Script, DeployUtils, SignatureUtils, PayloadUtils {
+contract DeploySepolia is Script, DeployUtils {
     uint256 internal V2_DEPLOYER_SEPOLIA_PVT_KEY;
     address deployerV2;
 
@@ -49,7 +44,6 @@ contract DeploySepolia is Script, DeployUtils, SignatureUtils, PayloadUtils {
             keyManagerV2,
             integrationAdminV2,
             backupSignerV2,
-            SIGNATURE_MODULE_LENGTH,
             signatureModuleVersion
         );
 

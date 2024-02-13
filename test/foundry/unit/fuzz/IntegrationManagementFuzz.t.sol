@@ -3,15 +3,16 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { BaseTest } from "../../BaseTest.t.sol";
-import { Structs } from "../../../../src/common/Structs.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { Structs } from "@src/common/Structs.sol";
 
-import { IntegrationManagement } from "../../../../src/abstracts/IntegrationManagement.sol";
+import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
 
-import { ProtocolErrors } from "../../../../src/libs/ProtocolErrors.sol";
-import { MockTarget } from "../../../mocks/MockContract.t.sol";
-import { MockRegistry } from "../../../mocks/MockRegistry.t.sol";
-import { IntegrationManagementHarness } from "../../harnesses/IntegrationManagementHarness.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { MockTarget } from "@test/mocks/MockContract.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
@@ -100,7 +101,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
            registerIntegrationWithCube3
     //////////////////////////////////////////////////////////////*/
 
-    // fails if called my non integration admin
+    // fails if called by non integration admin
     function testFuzz_RevertsWhen_RegisteringIntegration_AsNonIntegrationAdmin(uint256 pvtKeySeed) public {
         pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
         (
@@ -121,11 +122,34 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         );
     }
 
+    // fails if the protocol is paused
+    function test_RevertsWhen_RegisteringWhenProtocolIsPaused_AsIntegrationAdmin(uint256 pvtKeySeed) public {
+        pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
+        (
+            address integration,
+            address admin,
+            ,
+            bytes memory registrarSignature,
+            bytes4[] memory enabledByDefaultFnSelectors
+        ) = _generateMockRegistrationData(pvtKeySeed, 1);
+
+        // set the integration admin
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+        assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
+
+        integrationManagementHarness.updateProtocolConfig(_randomAddress(), true);
+        vm.startPrank(admin);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ProtocolPaused.selector);
+        integrationManagementHarness.registerIntegrationWithCube3(
+            integration, registrarSignature, enabledByDefaultFnSelectors
+        );
+    }
+
     // fails if integration is zero address
     function testFuzz_RevertsWhen_IntegrationProvidedIsZeroAddress_AsIntegrationAdmin(uint256 pvtKeySeed) public {
         pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
         (
-            address integration,
+            , // unused integration
             address admin,
             ,
             bytes memory registrarSignature,
@@ -244,7 +268,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         vm.startPrank(admin);
         vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationSigningAuthorityNotSet.selector);
         integrationManagementHarness.registerIntegrationWithCube3(
@@ -259,7 +283,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
             address integration,
             address admin,
             address signer,
-            bytes memory registrarSignature,
+            , // unused registrar isgnature
             bytes4[] memory enabledByDefaultFnSelectors
         ) = _generateMockRegistrationData(pvtKeySeed, 1);
 
@@ -268,7 +292,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -298,7 +322,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -331,7 +355,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -367,7 +391,7 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integrationManagementHarness.setIntegrationRegistrationStatus(
             integration, Structs.RegistrationStatusEnum.PENDING
         );
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
         mockRegistry.setSignatureAuthorityForIntegration(integration, signer);
 
         vm.startPrank(admin);
@@ -393,7 +417,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     )
         public
     {
-        bytes32 integrationSeed = keccak256(abi.encode(integrationsLength));
         uint256 statusSeed = statusesLength;
         integrationsLength = bound(integrationsLength, 1, 16);
         statusesLength = bound(statusesLength, 1, 16);
@@ -421,7 +444,6 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
 
     // fails if updating the status as a non admin
     function test_RevertsWhen_BatchUpdateingRegistrationStatus_AsNonAdmin(uint256 integrationsLength) public {
-        bytes32 integrationSeed = keccak256(abi.encode(integrationsLength));
         uint256 statusSeed = integrationsLength;
         integrationsLength = bound(integrationsLength, 1, 16);
 
@@ -482,13 +504,12 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     //////////////////////////////////////////////////////////////*/
 
     function testFuzz_SucceedsWhen_FetchingSigningAuthorityForIntegration(uint256 numIntegrations) public {
-        uint256 integrationSeed = numIntegrations;
         numIntegrations = bound(numIntegrations, 1, 16);
 
         address[] memory integrations = new address[](numIntegrations);
         address[] memory signers = new address[](numIntegrations);
 
-        integrationManagementHarness.setProtocolConfig(address(mockRegistry), false);
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), false);
 
         for (uint256 i; i < numIntegrations; i++) {
             integrations[i] = _randomAddress();
@@ -563,7 +584,8 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integration = address(new MockTarget());
         admin = _randomAddress();
         signer = vm.addr(pvtKey);
-        registrarSignature = _createSignature(abi.encodePacked(integration, admin, block.chainid), pvtKey);
+        registrarSignature =
+            PayloadCreationUtils.signPayloadData(abi.encodePacked(integration, admin, block.chainid), pvtKey);
         enabledByDefaultFnSelectors = new bytes4[](numSelectors);
     }
 }

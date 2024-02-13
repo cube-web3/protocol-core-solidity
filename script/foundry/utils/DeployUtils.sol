@@ -4,26 +4,18 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import "forge-std/Script.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { Cube3RouterImpl } from "../../../src/Cube3RouterImpl.sol";
+import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 
-import { Cube3Registry } from "../../../src/Cube3Registry.sol";
+import { Cube3Registry } from "@src/Cube3Registry.sol";
 
-import { ProtocolAdminRoles } from "../../../src/common/ProtocolAdminRoles.sol";
-import { Cube3SignatureModule } from "../../../src/modules/Cube3SignatureModule.sol";
-// import {LibDeployConstants} from "../utils/LibDeployConstants.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
+import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
-    // bytes32 internal constant CUBE3_PROTOCOL_ADMIN_ROLE = keccak256("CUBE3_PROTOCOL_ADMIN_ROLE");
-    // bytes32 internal constant CUBE3_INTEGRATION_MANAGER_ROLE = keccak256("CUBE3_INTEGRATION_MANAGER_ROLE");
-    // bytes32 internal constant CUBE3_KEY_MANAGER_ROLE = keccak256("CUBE3_KEY_MANAGER_ROLE");
     bytes32 internal constant DEFAULT_ADMIN_ROLE = bytes32(0);
 
-    event consoleLog(string log);
-    event consoleLog(string key, address value);
-    event consoleLog(string key, uint256 value);
-    event consoleLog(string key, bytes value);
-    event consoleLog(string key, bytes32 value);
+    uint256 internal constant EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH = 320;
 
     // used for writing the json files
     struct AddressMapping {
@@ -66,7 +58,6 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address _keyManager,
         address _integrationAdmin,
         address _backupSigner,
-        uint256 _signatureModulePayloadLength,
         string memory _signatureModuleVersion
     )
         internal
@@ -88,9 +79,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
 
         // =========== signature module
-        signatureModule = new Cube3SignatureModule(
-            address(cubeRouterProxy), _signatureModuleVersion, _backupSigner, _signatureModulePayloadLength
-        );
+        signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), _signatureModuleVersion, _backupSigner);
 
         vm.stopBroadcast();
     }

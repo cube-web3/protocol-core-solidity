@@ -2,14 +2,19 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
-import { ICube3Registry } from "./interfaces/ICube3Registry.sol";
+import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
+import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
 
-import { ProtocolErrors } from "./libs/ProtocolErrors.sol";
-import { ProtocolAdminRoles } from "./common/ProtocolAdminRoles.sol";
-
-/// @dev See {ICube3Registry}
-/// @dev In the event of a catestrophic breach of the KMS, the registry contract will be detached from the module
-contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
+/// @title Cube3Registry
+/// @notice Contract containing logic for the storage and management of integration Signing
+/// Authorities.
+/// @dev See {ICube3Registry} for documentation.
+/// Notes:
+/// - In the event of a catestrophic breach of the KMS, the registry contract can be deprecated and replaced
+/// by a new version.
+contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, ProtocolEvents {
     /*//////////////////////////////////////////////////////////////
             SIGNING AUTHORITY STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -31,6 +36,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
             KEY MANAGER LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ICube3Registry
     function setClientSigningAuthority(
         address integrationContract,
         address clientSigningAuthority
@@ -41,6 +47,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         _setClientSigningAuthority(integrationContract, clientSigningAuthority);
     }
 
+    /// @inheritdoc ICube3Registry
     function batchSetSigningAuthority(
         address[] calldata integrations,
         address[] calldata signingAuthorities
@@ -51,7 +58,6 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 lenIntegrations = integrations.length;
 
-        // TODO: test
         // Checks: make sure there's an authority for each integration provided.
         if (lenIntegrations != signingAuthorities.length) {
             revert ProtocolErrors.Cube3Protocol_ArrayLengthMismatch();
@@ -66,10 +72,12 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         }
     }
 
+    /// @inheritdoc ICube3Registry
     function revokeSigningAuthorityForIntegration(address integration) external onlyRole(CUBE3_KEY_MANAGER_ROLE) {
         _revokeSigningAuthorityForIntegration(integration);
     }
 
+    /// @inheritdoc ICube3Registry
     function batchRevokeSigningAuthoritiesForIntegrations(address[] calldata integrationsToRevoke)
         external
         onlyRole(CUBE3_KEY_MANAGER_ROLE)
@@ -97,8 +105,10 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
             UTILITY FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: rename
-    /// @dev reusable utility function that sets the authority, checks addresses, and emits the event
+    /// @notice Sets the signing authority for an integration.
+    /// @dev Encapsulates the setter for reusability.
+    /// @param integration The contract address of the integration to set the `authority` for.
+    /// @param authority The address of the signing authority.
     function _setClientSigningAuthority(address integration, address authority) internal {
         // Checks: check the integration address is a valid address.
         if (integration == address(0)) {
@@ -117,10 +127,12 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
         emit SigningAuthorityUpdated(integration, authority);
     }
 
-    /// @dev encapsulates revocation code to be reusable
-    function _revokeSigningAuthorityForIntegration(address _integration) internal {
+    /// @notice Revokes the signing authority for an integration.
+    /// @dev encapsulates revocation code for reusability.
+    /// @param integration The integration to revoke the signing authority for.
+    function _revokeSigningAuthorityForIntegration(address integration) internal {
         // Retrieve the integration's signing authority from storage.
-        address revokedSigner = integrationToSigningAuthority[_integration];
+        address revokedSigner = integrationToSigningAuthority[integration];
 
         // Checks: make sure the integration has a signing authority.
         if (revokedSigner == address(0)) {
@@ -129,16 +141,17 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles {
 
         // Effects: remove the signing authority for the integration. Also provides
         // a small gas refund.
-        delete integrationToSigningAuthority[_integration];
+        delete integrationToSigningAuthority[integration];
 
         // Log: the address of the revoked signing authority.
-        emit SigningAuthorityRevoked(_integration, revokedSigner);
+        emit SigningAuthorityRevoked(integration, revokedSigner);
     }
 
     /*//////////////////////////////////////////////////////////////
             VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ICube3Registry
     function getSigningAuthorityForIntegration(address integration) external view returns (address) {
         return integrationToSigningAuthority[integration];
     }

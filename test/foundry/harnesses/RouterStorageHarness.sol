@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { RouterStorage } from "../../../src/abstracts/RouterStorage.sol";
+import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
 
-import { Structs } from "../../../src/common/Structs.sol";
+import { Structs } from "@src/common/Structs.sol";
 /// @notice Testing harness for the RouterStorage contract for testing storage getters and setters.
 /// @dev All getters have a visibility of `public`, so no need to wrap them.
 
@@ -13,13 +13,13 @@ contract RouterStorageHarness is RouterStorage {
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Fuzz
-    function setProtocolConfig(address registry, bool isPaused) public {
-        _setProtocolConfig(registry, isPaused);
+    function updateProtocolConfig(address registry, bool isPaused) public {
+        _updateProtocolConfig(registry, isPaused);
     }
 
     /// @dev Fuzz
-    function setPendingIntegrationAdmin(address integration, address currentAdmin, address pendingAdmin) public {
-        _setPendingIntegrationAdmin(integration, currentAdmin, pendingAdmin);
+    function setPendingIntegrationAdmin(address integration, address pendingAdmin) public {
+        _setPendingIntegrationAdmin(integration, pendingAdmin);
     }
 
     function setIntegrationAdmin(address integration, address newAdmin) public {

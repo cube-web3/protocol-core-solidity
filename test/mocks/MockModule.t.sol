@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {ModuleBase} from "../../src/modules/ModuleBase.sol";
+import {SecurityModuleBase} from "@src/modules/SecurityModuleBase.sol";
+import { TestEvents } from "@test/utils/TestEvents.t.sol";
 
-import { TestEvents } from "../utils/TestEvents.t.sol";
-
-contract MockModule is ModuleBase, TestEvents {
+/// @notice Mock module for testing interactions via the Router.
+contract MockModule is SecurityModuleBase, TestEvents {
 
  bytes32 constant public SUCCESSFUL_RETURN = keccak256("SUCCESSFUL_RETURN");
 
@@ -16,9 +16,7 @@ contract MockModule is ModuleBase, TestEvents {
  bool public forceRevert = false;
 
 
- constructor(address mockRouter, string memory version, uint256 payloadSize) ModuleBase(mockRouter, version, payloadSize) {}
-
-
+ constructor(address mockRouter, string memory version) SecurityModuleBase(mockRouter, version) {}
    function updateForceRevert(bool shouldRevert) public {
       forceRevert = shouldRevert;
    }
@@ -33,12 +31,14 @@ contract MockModule is ModuleBase, TestEvents {
    }
    
    /// @notice emulates a module's core functionality that returns the incorrect amount of data
-   function executeMockModuleFunctionInvalidReturnDataLength(bytes32 randomHash) public onlyCube3Router returns(bytes32, bool) {
+   function executeMockModuleFunctionInvalidReturnDataLength(bytes32 randomHash) public view onlyCube3Router returns(bytes32, bool) {
+   (randomHash);
      return (MODULE_CALL_SUCCEEDED, true);
    }
 
    /// @notice emulates a module's core functionality that returns the incorrect type of data
-   function executeMockModuleFunctionInvalidReturnDataType(bytes32 randomHash) public onlyCube3Router returns(bytes32) {
+   function executeMockModuleFunctionInvalidReturnDataType(bytes32 randomHash) public view onlyCube3Router returns(bytes32) {
+      (randomHash);
      return keccak256(abi.encode(MODULE_CALL_SUCCEEDED));
    }
 
@@ -46,7 +46,11 @@ contract MockModule is ModuleBase, TestEvents {
       preventDeprecation = shouldPreventDeprecation;
    }
 
- // TODO: test payable
+ function privilegedPayableFunction() external payable onlyCube3Router {
+      require(msg.value > 0, "no value sent");
+    emit MockModuleCallSucceeded();
+ }
+ 
  function privilegedFunctionWithArgs(bytes32 arg) external onlyCube3Router returns(bytes32) {
     emit MockModuleCallSucceededWithArgs(arg);
     return arg;
@@ -57,16 +61,27 @@ contract MockModule is ModuleBase, TestEvents {
     return SUCCESSFUL_RETURN;
  }
 
- function privilegedFunctionThatReverts() external onlyCube3Router {
+ function privilegedFunctionThatReverts() external view onlyCube3Router {
   revert("FAILED");
  }
 
- function deprecate() external override returns(string memory) {
+ function deprecate() public view override returns(string memory) {
    if (preventDeprecation) {
       revert("deprecation failed");
    }
 
    return (moduleVersion);
  }
+}
 
+/// @dev Custom module that overrides the deprecate function
+contract MockModuleCustomDeprecate is SecurityModuleBase {
+
+   event CustomDeprecation();
+   constructor(address mockRouter, string memory version) SecurityModuleBase(mockRouter, version) {}
+  function deprecate() public override returns(string memory) {
+    super.deprecate();
+    emit CustomDeprecation();
+    return "custom deprecation";
+  }
 }

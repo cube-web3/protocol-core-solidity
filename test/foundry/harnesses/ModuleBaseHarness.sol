@@ -1,17 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import { ModuleBase } from "../../../src/modules/ModuleBase.sol";
+import { SecurityModuleBase } from "@src/modules/SecurityModuleBase.sol";
 
-/// @notice Testing Harness for the abstract ModuleBase contract.
-contract ModuleBaseHarness is ModuleBase {
-    constructor(
-        address cubeRouterProxy,
-        string memory version,
-        uint256 payloadSize
-    )
-        ModuleBase(cubeRouterProxy, version, payloadSize)
-    { }
+/// @notice Testing Harness for the abstract SecurityModuleBase contract.
+contract ModuleBaseHarness is SecurityModuleBase {
+    constructor(address cubeRouterProxy, string memory version) SecurityModuleBase(cubeRouterProxy, version) { }
 
     function isValidVersionSchema(string memory version) external pure returns (bool) {
         return _isValidVersionSchema(version);

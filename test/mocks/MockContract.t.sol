@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {AddressUtils} from "../../src/libs/AddressUtils.sol";
+import {AddressUtils} from "@src/libs/AddressUtils.sol";
 
 contract MockCaller {
  constructor(address target) {
@@ -23,7 +23,7 @@ contract MockCaller {
 contract MockTarget {
    using AddressUtils for address;
 
-    function checkCallerIsContract() public {
+    function checkCallerIsContract() public view {
       (msg.sender).assertIsContract();
     }
 }
