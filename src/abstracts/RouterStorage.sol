@@ -114,15 +114,38 @@ abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdmin
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Updates the protocol configuration in storage with the new registry and paused state.
-    /// @dev If the `registry` is not being changed, the existing address should be passed.
+    /// @dev If the `registry` is not being changed, the existing address should be passed. Only emits
+    /// the {ProtocolRegistryRemoved} event if the registry is being removed and the
+    /// {ProtocolPausedStateChange} event if the paused state is being changed.
     /// @param registry The new registry address.
     /// @param isPaused The new paused state.
     function _updateProtocolConfig(address registry, bool isPaused) internal {
+        // Place the current paused state on the stack to compare with `isPaused`
+        bool isCurrentlyPaused = _state().protocolConfig.paused;
+        
+        // Update storage.
         _state().protocolConfig = Structs.ProtocolConfig(registry, isPaused);
+        
+        // Log: the updated protocol configuration.
         emit ProtocolConfigUpdated(registry, isPaused);
+        
+        // Log: the paused state change if it has changed.
+        if (isPaused != isCurrentlyPaused) {
+            emit ProtocolPausedStateChange(isPaused);
+        }
+
+        // Log: the removal of the protocol registry if set to the zero address.
         if (registry == address(0)) {
             emit ProtocolRegistryRemoved();
         }
+    }
+
+    /// @notice Pauses or unpauses the protocol.
+    /// @dev Used to pause/unpause the protocol when the registry doesn't need to be updated.
+    /// @param isPaused The new paused state: 'true' for paused, 'false' for unpaused.
+    function _setProtocolPausedUnpaused(bool isPaused) internal {
+        _state().protocolConfig.paused = isPaused;
+        emit ProtocolPausedStateChange(isPaused);
     }
 
     /// @notice Sets the pending admin for an integration in storage.

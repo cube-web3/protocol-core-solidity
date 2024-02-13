@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { Structs } from "@src/common/Structs.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
@@ -65,6 +66,23 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         assertEq(address(0), protocolManagementHarness.getProtocolConfig().registry, "registry mismatch");
     }
 
+    // succeeds when updating the config and emitting the paused state change event
+    function test_SucceedsWhen_UpdatingProtocolConfigToPauseProtocol() public {
+        vm.startPrank(cube3Accounts.protocolAdmin);
+
+        // set the config
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolConfigUpdated(address(mockRegistry), true);
+        vm.expectEmit(true,true,true,true);
+        emit ProtocolPausedStateChange(true);
+        protocolManagementHarness.updateProtocolConfig(address(mockRegistry), true);
+        vm.stopPrank();
+
+        // check the config values
+        assertEq(address(mockRegistry), protocolManagementHarness.getRegistryAddress(), "registry mismatch");
+        assertTrue(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+    }
+
     // fails when a non-priveleged role tries to set the config
     function test_RevertsWhen_NonPrivilegedRoleSetsConfig() public {
         // set the config
@@ -80,6 +98,42 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         // set the config
         vm.expectRevert(ProtocolErrors.Cube3Router_NotValidRegistryInterface.selector);
         protocolManagementHarness.updateProtocolConfig(_randomAddress(), true);
+        vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////
+         setPausedUnpaused
+    //////////////////////////////////////////////////////////////*/
+
+    // fails pausing/unpausing as non admin
+    function test_RevertsWhen_PausingProtocol_AsNonAdmin() public {
+        address caller = _randomAddress();
+        vm.startPrank(caller);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, caller, CUBE3_PROTOCOL_ADMIN_ROLE
+            )
+        );
+        protocolManagementHarness.setPausedUnpaused(true);
+        vm.stopPrank();
+    }
+
+    // succeeds pausing/unpausing as an admin and emits the events
+    function test_SucceedsWhen_PausingProtocol_AsProtocolAdmin() public {
+        vm.startPrank(cube3Accounts.protocolAdmin);
+
+        // pause the protocol
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolPausedStateChange(true);
+        protocolManagementHarness.setPausedUnpaused(true);
+        assertTrue(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+
+        // unpase the protocol
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolPausedStateChange(false);
+        protocolManagementHarness.setPausedUnpaused(false);
+        assertFalse(protocolManagementHarness.getIsProtocolPaused(), "not paused");
+
         vm.stopPrank();
     }
 

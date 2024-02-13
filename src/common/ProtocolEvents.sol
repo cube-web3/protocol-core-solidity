@@ -3,8 +3,6 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { Structs } from "./Structs.sol";
 
-// TODO: maybe this becomes an interface
-
 /// @title ProtocolEvents
 /// @notice Defines the collective events used throughout the Protocol.
 abstract contract ProtocolEvents {
@@ -83,6 +81,10 @@ abstract contract ProtocolEvents {
     /// possibly for upgrades or migration.
     /// @dev Until a new protocol is set, new integration registrations will be blocked.
     event ProtocolRegistryRemoved();
+
+    /// @notice Emitted when the protocol is paused
+    /// @param isPaused A boolean indicating the new paused state of the protocol; `true` for paused and `false` for not.
+    event ProtocolPausedStateChange(bool isPaused);
 
     // ======== REGISTRY
 

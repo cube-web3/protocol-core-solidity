@@ -7,6 +7,22 @@ import { Structs } from "@src/common/Structs.sol";
 /// @notice Contains the logic for privileged accounts belonging to CUBE3 to configure the protocol and
 /// Security Modules.
 interface IProtocolManagement {
+
+    /// @notice Updates the paused state of the protocol.
+    ///
+    /// @dev Emits a {ProtocolPausedStateChange} event.
+    ///
+    /// Notes:
+    /// - Convenience function for pausing/unpausing the protocol without having to update
+    /// the registry address
+    /// - Will not throw if setting the paused state to the current state.
+    ///
+    /// Requirements:
+    /// - `msg.sender` must possess the CUBE3_PROTOCOL_ADMIN_ROLE.
+    ///
+    /// @param isPaused Whether to pause the protocol or not.
+    function setPausedUnpaused(bool isPaused) external;
+
     /// @notice Updates the protocol configuration.
     ///
     /// @dev Emits {ProtocolConfigUpdated} and conditionally {ProtocolRegistryRemoved} events

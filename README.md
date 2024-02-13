@@ -91,6 +91,12 @@ forge test -vvv
 View the coverage report by running:
 
 ```bash
+make coverage
+```
+
+or
+
+```bash
 forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir coverage
 ```
 

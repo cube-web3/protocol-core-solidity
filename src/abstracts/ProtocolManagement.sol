@@ -21,7 +21,11 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
             PROTOCOL ADMINISTRATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: add convenience function for pausing/unpausing
+    /// @inheritdoc IProtocolManagement
+    function setPausedUnpaused(bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
+        // Effects: sets the registry and updates the paused state.
+        _setProtocolPausedUnpaused(isPaused);
+    }
 
     /// @inheritdoc IProtocolManagement
     function updateProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
