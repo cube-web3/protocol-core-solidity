@@ -126,15 +126,13 @@ abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdmin
         }
     }
 
-    // TODO: remove the currentadmin and read from storage
     /// @notice Sets the pending admin for an integration in storage.
-    /// @dev `currentAdmin` should always be `msg.sender`.
+    /// @dev Retrieves the current admin from storage to add to the event.
     /// @param integration The integration address to set the pending admin for.
-    /// @param currentAdmin The current admin of the integration.
     /// @param pendingAdmin The new pending admin of the integration.
-    function _setPendingIntegrationAdmin(address integration, address currentAdmin, address pendingAdmin) internal {
+    function _setPendingIntegrationAdmin(address integration, address pendingAdmin) internal {
         _state().integrationToPendingAdmin[integration] = pendingAdmin;
-        emit IntegrationAdminTransferStarted(integration, currentAdmin, pendingAdmin);
+        emit IntegrationAdminTransferStarted(integration, getIntegrationAdmin(integration), pendingAdmin);
     }
 
     /// @notice Sets the admin for an integration in storage.

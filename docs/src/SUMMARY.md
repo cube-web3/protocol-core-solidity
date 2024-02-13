@@ -27,7 +27,7 @@
   - [SignatureUtils](src/libs/SignatureUtils.sol/library.SignatureUtils.md)
 - [❱ modules](src/modules/README.md)
   - [Cube3SignatureModule](src/modules/Cube3SignatureModule.sol/contract.Cube3SignatureModule.md)
-  - [ModuleBase](src/modules/ModuleBase.sol/abstract.ModuleBase.md)
+  - [SecurityModuleBase](src/modules/SecurityModuleBase.sol/abstract.SecurityModuleBase.md)
   - [ModuleBaseEvents](src/modules/ModuleBaseEvents.sol/abstract.ModuleBaseEvents.md)
 - [Cube3Registry](src/Cube3Registry.sol/contract.Cube3Registry.md)
 - [Cube3RouterImpl](src/Cube3RouterImpl.sol/contract.Cube3RouterImpl.md)

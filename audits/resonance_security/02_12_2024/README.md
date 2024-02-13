@@ -161,7 +161,7 @@ The following protocol contracts are in scope for this audit (including SLOC):
   98 ./abstracts/ProtocolManagement.sol
  215 ./modules/Cube3SignatureModule.sol
   16 ./modules/ModuleBaseEvents.sol
- 123 ./modules/ModuleBase.sol
+ 123 ./modules/SecurityModuleBase.sol
   92 ./interfaces/ICube3Registry.sol
   45 ./interfaces/ICube3SignatureModule.sol
  175 ./interfaces/ICube3Router.sol

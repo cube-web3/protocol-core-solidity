@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {ModuleBase} from "@src/modules/ModuleBase.sol";
+import {SecurityModuleBase} from "@src/modules/SecurityModuleBase.sol";
 import { TestEvents } from "@test/utils/TestEvents.t.sol";
 
 /// @notice Mock module for testing interactions via the Router.
-contract MockModule is ModuleBase, TestEvents {
+contract MockModule is SecurityModuleBase, TestEvents {
 
  bytes32 constant public SUCCESSFUL_RETURN = keccak256("SUCCESSFUL_RETURN");
 
@@ -16,7 +16,7 @@ contract MockModule is ModuleBase, TestEvents {
  bool public forceRevert = false;
 
 
- constructor(address mockRouter, string memory version) ModuleBase(mockRouter, version) {}
+ constructor(address mockRouter, string memory version) SecurityModuleBase(mockRouter, version) {}
    function updateForceRevert(bool shouldRevert) public {
       forceRevert = shouldRevert;
    }
@@ -75,10 +75,10 @@ contract MockModule is ModuleBase, TestEvents {
 }
 
 /// @dev Custom module that overrides the deprecate function
-contract MockModuleCustomDeprecate is ModuleBase {
+contract MockModuleCustomDeprecate is SecurityModuleBase {
 
    event CustomDeprecation();
-   constructor(address mockRouter, string memory version) ModuleBase(mockRouter, version) {}
+   constructor(address mockRouter, string memory version) SecurityModuleBase(mockRouter, version) {}
   function deprecate() public override returns(string memory) {
     super.deprecate();
     emit CustomDeprecation();

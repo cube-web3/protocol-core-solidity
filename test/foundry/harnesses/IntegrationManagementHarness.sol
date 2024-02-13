@@ -15,8 +15,8 @@ contract IntegrationManagementHarness is IntegrationManagement {
         _setIntegrationAdmin(integration, admin);
     }
 
-    function setIntegrationPendingAdmin(address integration, address currentAdmin, address pendingAdmin) public {
-        _setPendingIntegrationAdmin(integration, currentAdmin, pendingAdmin);
+    function setPendingIntegrationAdmin(address integration, address pendingAdmin) public {
+        _setPendingIntegrationAdmin(integration, pendingAdmin);
     }
 
     function setUsedRegistrationSignatureHash(bytes32 sigHash) public {

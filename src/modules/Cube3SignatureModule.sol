@@ -6,13 +6,13 @@ import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
 import { Structs } from "@src/common/Structs.sol";
-import { ModuleBase } from "@src/modules/ModuleBase.sol";
+import { SecurityModuleBase } from "@src/modules/SecurityModuleBase.sol";
 
 /// @title Cube3SignatureModule
 /// @notice This Secuity Module contains logic for validating signatures provided by CUBE3's
 /// RASP service.
 /// @dev See {ICube3SignatureModule} for documentation.
-contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
+contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     // Used to recover the signature from the signature provided.
     using SignatureUtils for bytes;
 
@@ -39,7 +39,7 @@ contract Cube3SignatureModule is ModuleBase, ICube3SignatureModule {
         string memory version,
         address backupSigner
     )
-        ModuleBase(cube3RouterProxy, version)
+        SecurityModuleBase(cube3RouterProxy, version)
     {
         _universalSigner = backupSigner;
     }

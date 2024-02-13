@@ -64,7 +64,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         address integration = _randomAddress();
         address pendingAdmin = _randomAddress();
 
-        integrationManagementHarness.setIntegrationPendingAdmin(integration, address(0), pendingAdmin);
+        integrationManagementHarness.setPendingIntegrationAdmin(integration, pendingAdmin);
 
         vm.startPrank(pendingAdmin);
         vm.expectEmit(true, true, true, true);
@@ -84,7 +84,7 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         address integration = _randomAddress();
         address pendingAdmin = _randomAddress();
 
-        integrationManagementHarness.setIntegrationPendingAdmin(integration, address(0), pendingAdmin);
+        integrationManagementHarness.setPendingIntegrationAdmin(integration, pendingAdmin);
 
         address nonPendingAdmin = _randomAddress();
         vm.startPrank(nonPendingAdmin);

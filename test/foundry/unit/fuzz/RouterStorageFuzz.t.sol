@@ -42,8 +42,8 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         vm.startPrank(currentAdmin);
         // set the pending admin
         vm.expectEmit(true, true, true, true);
-        emit IntegrationAdminTransferStarted(integration, currentAdmin, pendingAdmin);
-        routerStorageHarness.setPendingIntegrationAdmin(integration, currentAdmin, pendingAdmin);
+        emit IntegrationAdminTransferStarted(integration, address(0), pendingAdmin);
+        routerStorageHarness.setPendingIntegrationAdmin(integration, pendingAdmin);
 
         vm.stopPrank();
 

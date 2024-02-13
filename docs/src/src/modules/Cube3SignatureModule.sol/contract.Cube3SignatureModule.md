@@ -3,7 +3,7 @@
 [Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/07ba602bddefe3eb8d740b07000837f7ec2fa9f5/src/modules/Cube3SignatureModule.sol)
 
 **Inherits:**
-[ModuleBase](/src/modules/ModuleBase.sol/abstract.ModuleBase.md), [ICube3SignatureModule](/src/interfaces/ICube3SignatureModule.sol/interface.ICube3SignatureModule.md)
+[SecurityModuleBase](/src/modules/SecurityModuleBase.sol/abstract.SecurityModuleBase.md), [ICube3SignatureModule](/src/interfaces/ICube3SignatureModule.sol/interface.ICube3SignatureModule.md)
 
 _see {ICube3SignatureModule}_
 
@@ -39,7 +39,7 @@ constructor(
     address backupSigner,
     uint256 expectedPayloadSize
 )
-    ModuleBase(cube3RouterProxy, version, expectedPayloadSize);
+    SecurityModuleBase(cube3RouterProxy, version, expectedPayloadSize);
 ```
 
 **Parameters**

@@ -84,7 +84,6 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
             revert ProtocolErrors.Cube3Router_InvalidIdForModule();
         }
 
-        // TODO: should be module base
         // Checks: the deployed module supports the ICube3SecurityModule interface.
         if (!ERC165Checker.supportsInterface(moduleAddress, type(ICube3SecurityModule).interfaceId)) {
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();

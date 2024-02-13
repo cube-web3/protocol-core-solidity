@@ -53,7 +53,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         external
         onlyIntegrationAdmin(integration)
     {
-        _setPendingIntegrationAdmin(integration, msg.sender, newAdmin);
+        _setPendingIntegrationAdmin(integration, newAdmin);
     }
 
     /// @inheritdoc IIntegrationManagement
