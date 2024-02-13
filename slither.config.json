@@ -1,4 +1,4 @@
 {
-  "detectors_to_exclude": "solc-version",
-  "filter_paths": "node_modules|mocks|utils"
+  "detectors_to_exclude": "solc-version, naming-convention, timestamp",
+  "filter_paths": "node_modules|mocks|utils|demo|foundry|test|script"
 }

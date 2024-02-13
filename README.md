@@ -101,3 +101,17 @@ forge coverage --report lcov && genhtml lcov.info --branch-coverage --output-dir
 ```
 
 and opening the `coverage/index.html` file.
+
+## Static Analysis
+
+Static Analysis is performed using Slither.
+
+```bash
+slither .
+```
+
+or
+
+```bash
+make analyze
+```

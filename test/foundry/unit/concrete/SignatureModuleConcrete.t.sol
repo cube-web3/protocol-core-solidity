@@ -15,7 +15,7 @@ contract SignatureModule_Concrete_Unit_Test is BaseTest {
     MockRouter mockRouter;
     MockRegistry mockRegistry;
 
-    uint256 uinversalSignerPvtKey;
+    uint256 universalSignerPvtKey;
     address universalSigner;
 
     uint256 signingAuthorityPrivateKey;
@@ -27,12 +27,21 @@ contract SignatureModule_Concrete_Unit_Test is BaseTest {
         mockRouter = new MockRouter();
         mockRegistry = new MockRegistry();
         mockRouter.setRegistryAddress(address(mockRegistry));
+        universalSignerPvtKey = uint256(keccak256("universalSigner"));
+        universalSigner = vm.addr(universalSignerPvtKey);
         signatureModuleHarness = new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", universalSigner);
     }
 
     modifier asCubeRouter() {
         vm.startPrank(address(mockRouter));
         _;
+    }
+
+    // Reverts when setting the universal signer as the zero address on deployment
+    function test_RevertsWhen_SettingUniversalSignerAsNull() public {
+        vm.expectRevert(ProtocolErrors.Cube3Registry_NullUniversalSigner.selector);
+        SignatureModuleHarness altSigModule =  new SignatureModuleHarness(address(mockRouter), "mock-1.0.0", address(0));
+        (altSigModule);
     }
 
     // succeeds when fetching the remote signing authority from the registry

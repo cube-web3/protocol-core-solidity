@@ -158,4 +158,7 @@ library ProtocolErrors {
 
     /// @notice Throws when the signing authority retrieved from storage doesn't exist.
     error Cube3Registry_NonExistentSigningAuthority();
+
+    /// @notice Throws when the universal backup signer is the zero address
+    error Cube3Registry_NullUniversalSigner();
 }

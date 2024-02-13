@@ -97,6 +97,8 @@ interface IProtocolManagement {
     /// - Deprecation removes the `moduleId` from the list of active modules and adds its to a list
     /// of deprecated modules that ensures it cannot be re-installed.
     /// - If a module is accidentally deprecated, it can be re-installed with a new version string.
+    /// - Modules can only be installed by a CUBE3 admin, and can only be deprecatede by an admin,
+    /// so a reentrancy guard is not required.
     ///
     /// Requirements:
     /// - `msg.sender` must possess the CUBE3_PROTOCOL_ADMIN_ROLE role.

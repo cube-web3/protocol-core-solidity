@@ -69,6 +69,10 @@ Both the protection contracts and the core protocol share the storage namespace 
 keccak256(abi.encode(uint256(keccak256("cube3.storage")) - 1)) & ~bytes32(uint256(0xff));
 ```
 
+### Repository Notes
+
+Based on experienced gathered from the audit of the V1 of the protocol, there is significant lag between development and audit of the smart contracts, and CUBE3 implementing off-chain services and systems to support them. As such, there are things that will continue to evolve following the audit, and as such preparing them for audit does not make sense. These specifically include comprehensive deployment processes and scripts, along with a CI/CD pipeline for testing/deployment. These will be added in the future, and included in the next round of auditing, as they need to be developed and refined alongside the CUBE3 team.
+
 ## Access Control and Roles
 
 ### Integration Access Control
@@ -242,7 +246,14 @@ Bypassing the protection logic for an integration is possible via compromised `i
 
 The protocol and [protection-solidity repo](https://github.com/cube-web3/protection-solidity) are both in scope for this audit and can be considered a single codebase. The core protocol contracts and inheritable protection contracts have been separated into separate repositories to improve the developer experience for anyone wishing to utilize CUBE3's services.
 
-The Protection contracts are included as a dependency in this repo and utilized for all integration testing. The dependencies are included as a git submodule, and are locked to a specific branch for the audit via `.gitmodules`,
+The Protection contracts are included as a dependency in this repo and utilized for all integration testing. The dependencies are included as a git submodule, and are locked to a specific branch for the audit via `.gitmodules`.
+
+```
+[submodule "lib/protection-solidity"]
+  path = lib/protection-solidity
+  url = https://github.com/cube-web3/protection-solidity
+  branch = resonance-audit-02122024
+```
 
 The protocol will be deployed on multiple chains, including Ethereum mainnet and various L2s. There is no cross-chain message passing or function execution. All interactions with the protocol on a specific chain are isolated to that chain. Some target EVM chains, such as Avalanche, do not yet support Solidity `>0.8.19` or the `PUSH0` opcode. This was taken into consideration when designing V2 of the protocol.
 

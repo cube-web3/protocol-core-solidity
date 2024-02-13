@@ -25,7 +25,6 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     mapping(address integration => mapping(address integrationMsgSender => uint256 userNonce)) internal
         integrationToUserNonce;
 
-    event logCube3SignatureModulePayload(SignatureModulePayloadData payload);
     /*//////////////////////////////////////////////////////////////
             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -41,15 +40,16 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     )
         SecurityModuleBase(cube3RouterProxy, version)
     {
+        // Checks: the universal signer is valid.
+        if (backupSigner == address(0)) {
+            revert ProtocolErrors.Cube3Registry_NullUniversalSigner();
+        }
         _universalSigner = backupSigner;
     }
 
     /*//////////////////////////////////////////////////////////////
             EXTERNAL VALIDATION LOGIC
     //////////////////////////////////////////////////////////////*/
-
-    event log_struct(SignatureModulePayloadData s);
-    event stored_log(uint256 n);
 
     /// @inheritdoc ICube3SignatureModule
     function validateSignature(

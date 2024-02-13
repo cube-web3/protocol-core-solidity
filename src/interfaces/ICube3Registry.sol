@@ -71,6 +71,7 @@ interface ICube3Registry {
     /// Notes:
     /// - This operation is irreversible through this function call.
     /// - Removes each signing authority from the `integrationToSigningAuthority` map.
+    /// - No checks on gas limits, use with caution.
     ///
     /// Requirements:
     /// - `msg.sender` must have the CUBE3_KEY_MANAGER_ROLE role.
