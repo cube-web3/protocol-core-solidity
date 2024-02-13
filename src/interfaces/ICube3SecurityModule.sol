@@ -10,8 +10,26 @@ pragma solidity >= 0.8.19 < 0.8.24;
 /// - Any module that inherits this contract should never make use of `selfdestruct` or
 /// delegatecall to a contract that might, as it could potentially render the router proxy
 /// inoperable.
-/// - Events are defined in {ModuleBaseEvents}
 interface ICube3SecurityModule {
+    /*//////////////////////////////////////////////////////////////
+            EVENTS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a new Cube Module is deployed.
+    /// @param routerAddress The address of the Cube3RouterProxy.
+    /// @param moduleId The computed ID of the module.
+    /// @param version The human-readble module version.
+    event ModuleDeployed(address indexed routerAddress, bytes32 indexed moduleId, string indexed version);
+
+    /// @notice Emitted when the module is deprecated.
+    /// @param moduleId The computed ID of the module.
+    /// @param version  The human-readable module version.
+    event ModuleDeprecated(bytes32 indexed moduleId, string indexed version);
+
+    /*//////////////////////////////////////////////////////////////
+            EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
     /// @notice Deprecates the module so that it cannot be used or reinstalled.
     ///
     /// @dev Emits a {ModuleDeprecated} event.

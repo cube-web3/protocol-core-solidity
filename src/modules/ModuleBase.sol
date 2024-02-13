@@ -6,12 +6,11 @@ import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
 import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
-import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 
 /// @title ModuleBase
 /// @notice Provides common functionality for all CUBE3 Security Modules.
 /// @dev See {ICube3SecurityModule} for documentation.
-abstract contract ModuleBase is ICube3SecurityModule, ModuleBaseEvents, ERC165, ProtocolConstants {
+abstract contract ModuleBase is ICube3SecurityModule, ERC165, ProtocolConstants {
     // interface wrapping the CUBE3 Router proxy contract for convenience.
     IRouterStorage internal immutable cube3router;
 

@@ -13,7 +13,7 @@ abstract contract IntegrationTest is BaseTest {
         super.setUp();
         _deployIntegrationDemos();
         _setDemoSigningAuthorityAsKeyManager(address(demo), demoSigningAuthorityPvtKey);
-        _completeRegistrationAndEnableFnProtectionAsDemoDeployer(demoSigningAuthorityPvtKey);
+        _completeRegistrationAndEnableFnProtectionAsDemoDeployer();
     }
 
     function _deployIntegrationDemos() internal {
@@ -29,7 +29,7 @@ abstract contract IntegrationTest is BaseTest {
         vm.stopPrank();
     }
 
-    function _completeRegistrationAndEnableFnProtectionAsDemoDeployer(uint256 demoAuthPvtKey) internal {
+    function _completeRegistrationAndEnableFnProtectionAsDemoDeployer() internal {
         vm.startPrank(cube3Accounts.demoDeployer);
 
         bytes4[] memory fnSelectors = new bytes4[](6);

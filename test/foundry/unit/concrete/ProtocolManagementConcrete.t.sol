@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
-import {ModuleBaseEvents} from "@src/modules/ModuleBaseEvents.sol";
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
 import { Structs } from "@src/common/Structs.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
 import { MockModule, MockModuleCustomDeprecate } from "@test/mocks/MockModule.t.sol";
 import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
-
-
 
 contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     MockRegistry mockRegistry;
@@ -250,11 +248,10 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     // Succeeds when deprecating a module when overriding the deprecate fn to
     // add additional functionality
     function test_SucceedsWhen_CallingOverriddenDeprecate_AsRouter() public {
-
         // in this instance, the harness is the router from the module's perspective
         vm.startPrank(address(protocolManagementHarness));
         vm.expectEmit(true, true, true, true);
-        emit ModuleBaseEvents.ModuleDeprecated(mockModuleCustomDeprecate.moduleId(), MODULE_VERSION);
+        emit ICube3SecurityModule.ModuleDeprecated(mockModuleCustomDeprecate.moduleId(), MODULE_VERSION);
         vm.expectEmit(true, true, true, true);
         emit CustomDeprecation();
         string memory version = mockModuleCustomDeprecate.deprecate();

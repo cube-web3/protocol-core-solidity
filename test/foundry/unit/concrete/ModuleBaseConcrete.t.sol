@@ -3,15 +3,16 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
+import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
+import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 // import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
 import { MockRouter } from "@test/mocks/MockRouter.t.sol";
 import { ModuleBaseHarness } from "@test/foundry/harnesses/ModuleBaseHarness.sol";
-import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ModuleBaseEvents } from "@src/modules/ModuleBaseEvents.sol";
 
-contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
+
+contract ModuleBase_Concrete_Unit_Test is BaseTest {
     ModuleBaseHarness moduleBaseHarness;
     MockRouter mockRouter;
 
@@ -32,7 +33,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     // the correct event
     function test_SucceedsWhen_RouterVersionAndPayloadAreValid() public {
         vm.expectEmit(true, true, true, true);
-        emit ModuleDeployed(address(mockRouter), expectedId, VERSION_ONE);
+        emit ICube3SecurityModule.ModuleDeployed(address(mockRouter), expectedId, VERSION_ONE);
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE);
 
         assertEq(VERSION_ONE, moduleBaseHarness.moduleVersion(), "version mismatch");
@@ -107,7 +108,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
 
         vm.startPrank(address(mockRouter));
         vm.expectEmit(true, true, true, true);
-        emit ModuleDeprecated(moduleBaseHarness.moduleId(), VERSION_ONE);
+        emit ICube3SecurityModule.ModuleDeprecated(moduleBaseHarness.moduleId(), VERSION_ONE);
         string memory version = moduleBaseHarness.deprecate();
         assertEq(keccak256(abi.encode(version)), keccak256(abi.encode(VERSION_ONE)), "version mismatch");
         assertTrue(moduleBaseHarness.isDeprecated(), "not deprecated");
