@@ -193,7 +193,6 @@ contract Cube3RouterImpl is
             }
         }
 
-        // TODO: what happens when returning a large byte array?
         // Interactions: A CUBE3 module will always return the bytes32 value for keccak256("MODULE_CALL_SUCCEEDED").
         // This statement operates like an assertion, whereby any result other than success will result in a revert.
         if (returnOrRevertData.length == 32) {

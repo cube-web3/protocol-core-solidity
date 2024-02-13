@@ -53,14 +53,14 @@ The main areas of change include:
 
 Please review the repositories [README](../../../README.md) for a high-level overview of the Protocol.
 
-TODO: complete
-
 - The Core Protocol provides on-chain security features for smart contracts that inherit the ancillary protection contracts.
 - In order to make use of CUBE3's on-chain protocol, the integration contract must receive data provided by CUBE3's off-chain services.
 - An integration can disconnect from the protocol at any time, or be disconnected from the protocol by CUBE3. From a user-standpoint, disconnecting prevents calls to the router from taking place. Disconnection from the protocol side still requires a call to the Router, which will return early and bypass the protocol's functionality.
 - Only CUBE3 admin accounts can install and deprecate modules.
 - Only CUBE3 key manager accounts can add/revoke signing authorities.
 - No CUBE3 accounts can modify an integration's admin account.
+- Only smart contract can be assigned a registration status of `REGISTERED`.
+- The router will either return `PROCEED_WITH_CALL` or revert the transaction when calling `routeToModule`.
 
 ## Storage
 
@@ -266,13 +266,20 @@ For chains that do not support `PUSH0`, ie that support `solc < 0.8.20`, the con
 
 ### Integration/Protection Contracts
 
+```
+| File                                           | % Lines         | % Statements    | % Branches    | % Funcs        |
+|------------------------------------------------|-----------------|-----------------|---------------|----------------|
+| src/ProtectionBase.sol                         | 100.00% (15/15) | 100.00% (21/21) | 100.00% (6/6) | 100.00% (5/5)  |
+| src/upgradeable/Cube3ProtectionUpgradeable.sol | 100.00% (2/2)   | 100.00% (2/2)   | 100.00% (0/0) | 100.00% (2/2)  |
+```
+
 ### Protocol
 
 ```bash
 | File                                                    | % Lines          | % Statements     | % Branches       | % Funcs          |
 |---------------------------------------------------------|------------------|------------------|------------------|------------------|
 | src/Cube3Registry.sol                                   | 100.00% (25/25)  | 100.00% (33/33)  | 100.00% (8/8)    | 100.00% (8/8)    |
-| src/Cube3RouterImpl.sol                                 | 100.00% (34/34)  | 97.87% (46/47)   | 100.00% (18/18)  | 85.71% (6/7)     |
+| src/Cube3RouterImpl.sol                                 | 100.00% (34/34)  | 97.87% (46/47)   | 100.00% (18/18)  | 100.00% (7/7)    |
 | src/abstracts/IntegrationManagement.sol                 | 100.00% (67/67)  | 100.00% (84/84)  | 100.00% (32/32)  | 100.00% (9/9)    |
 | src/abstracts/ProtocolManagement.sol                    | 100.00% (29/29)  | 100.00% (43/43)  | 100.00% (22/22)  | 100.00% (5/5)    |
 | src/abstracts/RouterStorage.sol                         | 100.00% (40/40)  | 100.00% (41/41)  | 100.00% (4/4)    | 100.00% (22/22)  |
