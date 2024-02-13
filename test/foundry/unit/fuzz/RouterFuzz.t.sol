@@ -19,7 +19,7 @@ contract Router_Fuzz_Unit_Test is BaseTest {
 
     function setUp() public override {
         routerHarness = new RouterHarness();
-        mockModule = new MockModule(address(routerHarness), "version-0.0.1", 69);
+        mockModule = new MockModule(address(routerHarness), "version-0.0.1");
     }
 
     /*//////////////////////////////////////////////////////////////

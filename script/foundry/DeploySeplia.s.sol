@@ -11,8 +11,7 @@ import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
 import { Structs } from "@src/common/Structs.sol";
 import { DemoIntegrationERC721 } from "@test/demo/DemoIntegrationERC721.sol";
 import { DeployUtils } from "./utils/DeployUtils.sol";
-import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
-
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract DeploySepolia is Script, DeployUtils {
     uint256 internal V2_DEPLOYER_SEPOLIA_PVT_KEY;

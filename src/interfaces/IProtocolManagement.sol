@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
+
 import { Structs } from "@src/common/Structs.sol";
 
 /// @title IProtocolManagement
 /// @notice Contains the logic for privileged accounts belonging to CUBE3 to configure the protocol and
 /// Security Modules.
 interface IProtocolManagement {
-
     /// @notice Updates the protocol configuration.
     ///
     /// @dev Emits {ProtocolConfigUpdated} and conditionally {ProtocolRegistryRemoved} events

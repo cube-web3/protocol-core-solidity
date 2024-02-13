@@ -6,7 +6,6 @@ import { Structs } from "@src/common/Structs.sol";
 /// @title IIntegrationManagement
 /// @notice Contains the logic for managing the integration contracts that are registered with the CUBE3 protocol.
 interface IIntegrationManagement {
-
     /// @notice Begins the 2 step transfer process of the admin account for an integration contract.
     ///
     /// @dev Emits an {IntegrationAdminTransferStarted} event.

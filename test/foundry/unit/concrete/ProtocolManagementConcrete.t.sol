@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >= 0.8.19 < 0.8.24;
 
+import {ModuleBaseEvents} from "@src/modules/ModuleBaseEvents.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
 import { Structs } from "@src/common/Structs.sol";
-import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
-
-import { MockModule } from "@test/mocks/MockModule.t.sol";
-import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import { MockModule, MockModuleCustomDeprecate } from "@test/mocks/MockModule.t.sol";
+import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+
+
 
 contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     MockRegistry mockRegistry;
     MockModule mockModule;
+    MockModuleCustomDeprecate mockModuleCustomDeprecate;
 
     string constant MODULE_VERSION = "mockModule-0.0.1";
 
@@ -23,7 +26,8 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);
 
-        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION, 69);
+        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
+        mockModuleCustomDeprecate = new MockModuleCustomDeprecate(address(protocolManagementHarness), MODULE_VERSION);
         mockRegistry = new MockRegistry();
     }
 
@@ -177,7 +181,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
     // fails when deploying a module whose ID doesn't match the version
     function test_RevertsWhen_ModuleIdNotMatchingVersion() public {
-        MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2", 69);
+        MockModule altMockModule = new MockModule(address(protocolManagementHarness), "noduleVersion-0.0.2");
 
         bytes16 altModuleId = altMockModule.moduleId();
 
@@ -198,7 +202,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         protocolManagementHarness.deprecateModule(moduleId);
 
         // deploy the same module version
-        MockModule duplicate = new MockModule(address(protocolManagementHarness), MODULE_VERSION, 420);
+        MockModule duplicate = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
         bytes16 duplicateId = duplicate.moduleId();
 
         // attempt to reinstall it
@@ -237,6 +241,26 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(cube3Accounts.protocolAdmin);
         vm.expectRevert(ProtocolErrors.Cube3Router_ModuleDeprecationFailed.selector);
         protocolManagementHarness.deprecateModule(moduleId);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+         deprecate override
+    //////////////////////////////////////////////////////////////*/
+
+    // Succeeds when deprecating a module when overriding the deprecate fn to
+    // add additional functionality
+    function test_SucceedsWhen_CallingOverriddenDeprecate_AsRouter() public {
+
+        // in this instance, the harness is the router from the module's perspective
+        vm.startPrank(address(protocolManagementHarness));
+        vm.expectEmit(true, true, true, true);
+        emit ModuleBaseEvents.ModuleDeprecated(mockModuleCustomDeprecate.moduleId(), MODULE_VERSION);
+        vm.expectEmit(true, true, true, true);
+        emit CustomDeprecation();
+        string memory version = mockModuleCustomDeprecate.deprecate();
+        assertEq(keccak256(abi.encode(version)), keccak256(abi.encode("custom deprecation")), "version mismatch");
+        assertTrue(mockModuleCustomDeprecate.isDeprecated(), "not deprecated");
+        vm.stopPrank();
     }
 
     /*//////////////////////////////////////////////////////////////

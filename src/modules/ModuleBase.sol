@@ -81,9 +81,8 @@ abstract contract ModuleBase is ICube3SecurityModule, ModuleBaseEvents, ERC165, 
             DEPRECATION
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: test custom override here and call super.deprecate();
     /// @inheritdoc	ICube3SecurityModule
-    function deprecate() external virtual onlyCube3Router returns (string memory) {
+    function deprecate() public virtual onlyCube3Router returns (string memory) {
         isDeprecated = true;
         string memory version = moduleVersion; // gas-saving
         emit ModuleDeprecated(moduleId, version);

@@ -52,7 +52,6 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), "version1");
     }
 
-
     // fails with a version that's too long
     function test_RevertsWhen_VersionStringTooLong() public {
         vm.expectRevert(ProtocolErrors.Cube3Module_DoesNotConformToVersionSchema.selector);
@@ -95,7 +94,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     //////////////////////////////////////////////////////////////*/
 
     // fails when calling `deprecate` as an EOA
-    function test_RevertsWhen_CallingDeprecateAsEOA() public {
+    function test_RevertsWhen_CallingDeprecate_AsEOA() public {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE);
         vm.startPrank(_randomAddress());
         vm.expectRevert(ProtocolErrors.Cube3Module_OnlyRouterAsCaller.selector);
@@ -103,7 +102,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     }
 
     // succeesd when calling `deprecate` as the router
-    function test_SucceedsWhen_CallingDeprecateAsRouter() public {
+    function test_SucceedsWhen_CallingDeprecate_AsRouter() public {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE);
 
         vm.startPrank(address(mockRouter));
@@ -130,7 +129,7 @@ contract ModuleBase_Concrete_Unit_Test is BaseTest, ModuleBaseEvents {
     }
 
     /*//////////////////////////////////////////////////////////////
-            ERC165
+            Version Schema
     //////////////////////////////////////////////////////////////*/
     function test_SucceedsWhen_VersionSchemaIsValid() public {
         moduleBaseHarness = new ModuleBaseHarness(address(mockRouter), VERSION_ONE);

@@ -4,7 +4,7 @@ pragma solidity >= 0.8.19 < 0.8.24;
 import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
 import { Demo } from "@test/demo/Demo.sol";
 import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 abstract contract IntegrationTest is BaseTest {
     Demo demo;
@@ -40,8 +40,11 @@ abstract contract IntegrationTest is BaseTest {
         fnSelectors[4] = Demo.bytesProtected.selector;
         fnSelectors[5] = Demo.payableProtected.selector;
 
-        bytes memory registrationSignature =
-            PayloadCreationUtils.createRegistrarSignature(ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)), address(demo), demoSigningAuthorityPvtKey);
+        bytes memory registrationSignature = PayloadCreationUtils.createRegistrarSignature(
+            ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)),
+            address(demo),
+            demoSigningAuthorityPvtKey
+        );
 
         emit log_named_bytes("registrationSignature", registrationSignature);
 

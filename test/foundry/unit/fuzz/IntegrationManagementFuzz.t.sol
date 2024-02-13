@@ -12,7 +12,7 @@ import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 import { MockTarget } from "@test/mocks/MockContract.t.sol";
 import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
 import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
-import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
+import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
 
 contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
@@ -584,7 +584,8 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         integration = address(new MockTarget());
         admin = _randomAddress();
         signer = vm.addr(pvtKey);
-        registrarSignature = PayloadCreationUtils.signPayloadData(abi.encodePacked(integration, admin, block.chainid), pvtKey);
+        registrarSignature =
+            PayloadCreationUtils.signPayloadData(abi.encodePacked(integration, admin, block.chainid), pvtKey);
         enabledByDefaultFnSelectors = new bytes4[](numSelectors);
     }
 }

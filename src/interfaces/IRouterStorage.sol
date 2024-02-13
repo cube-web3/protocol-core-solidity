@@ -6,7 +6,6 @@ import { Structs } from "@src/common/Structs.sol";
 /// @title IRouterStorage
 /// @notice Contains the dedicated getter functions for accessing the Router's storage.
 interface IRouterStorage {
-
     /// @notice Gets the protection status of an integration contract's function using the selector.
     /// @param integration The address of the integration contract to check the function protection status for.
     /// @param fnSelector The function selector to check the protection status for.

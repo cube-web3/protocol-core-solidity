@@ -51,17 +51,20 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         emit log_named_bytes32("calldataDigest", calldataDigest);
 
         bytes memory signature = _getRandomBytes(65);
-        bytes memory encodedModulePayloadData = abi.encodePacked(block.timestamp + 1 hours, shouldTrackNonce, shouldTrackNonce ? nonce + 1 : 0, signature);
-        uint32 padding = uint32(PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
-        bytes memory modulePayloadWithPadding = PayloadCreationUtils.createPaddedModulePayload(encodedModulePayloadData, padding);
-
+        bytes memory encodedModulePayloadData =
+            abi.encodePacked(block.timestamp + 1 hours, shouldTrackNonce, shouldTrackNonce ? nonce + 1 : 0, signature);
+        uint32 padding =
+            uint32(PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
+        bytes memory modulePayloadWithPadding =
+            PayloadCreationUtils.createPaddedModulePayload(encodedModulePayloadData, padding);
 
         emit log_named_uint32("length", uint32(modulePayloadWithPadding.length));
         emit log_named_uint32("padding", padding);
 
         // create the routing bitmap
-        uint256 routingBitmap =
-            PayloadCreationUtils.createRoutingFooterBitmap(mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding);
+        uint256 routingBitmap = PayloadCreationUtils.createRoutingFooterBitmap(
+            mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding
+        );
         emit log_named_uint("routing bitmap", routingBitmap);
 
         // normal abi.encoding adds the length as the first word of modulePayloadWithPadding, so we need to simulate it

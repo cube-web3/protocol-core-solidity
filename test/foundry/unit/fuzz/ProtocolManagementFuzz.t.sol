@@ -22,7 +22,7 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
 
         protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);
 
-        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION, 69);
+        mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
         mockRegistry = new MockRegistry();
     }
     /*//////////////////////////////////////////////////////////////

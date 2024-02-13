@@ -79,7 +79,6 @@ contract BaseTest is DeployUtils, ProtocolEvents, TestUtils, TestEvents, Protoco
     }
 
     function _deployProtocol() internal {
-
         vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
 
         // ============ registry

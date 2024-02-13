@@ -97,8 +97,11 @@ contract DeployLocal is Script, DeployUtils {
         bytes4[] memory fnSelectors = new bytes4[](1);
         fnSelectors[0] = DemoIntegrationERC721.safeMint.selector;
 
-        bytes memory registrationSignature =
-            PayloadCreationUtils.createRegistrarSignature(ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)), address(demo), demoSigningAuthorityPvtKey);
+        bytes memory registrationSignature = PayloadCreationUtils.createRegistrarSignature(
+            ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)),
+            address(demo),
+            demoSigningAuthorityPvtKey
+        );
 
         wrappedRouterProxy.registerIntegrationWithCube3(address(demo), registrationSignature, fnSelectors);
         vm.stopBroadcast();

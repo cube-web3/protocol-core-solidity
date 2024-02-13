@@ -2,9 +2,9 @@
 pragma solidity >= 0.8.19 < 0.8.24;
 
 import {ModuleBase} from "@src/modules/ModuleBase.sol";
-
 import { TestEvents } from "@test/utils/TestEvents.t.sol";
 
+/// @notice Mock module for testing interactions via the Router.
 contract MockModule is ModuleBase, TestEvents {
 
  bytes32 constant public SUCCESSFUL_RETURN = keccak256("SUCCESSFUL_RETURN");
@@ -16,9 +16,7 @@ contract MockModule is ModuleBase, TestEvents {
  bool public forceRevert = false;
 
 
- constructor(address mockRouter, string memory version, uint256 payloadSize) ModuleBase(mockRouter, version) {}
-
-
+ constructor(address mockRouter, string memory version) ModuleBase(mockRouter, version) {}
    function updateForceRevert(bool shouldRevert) public {
       forceRevert = shouldRevert;
    }
@@ -67,12 +65,23 @@ contract MockModule is ModuleBase, TestEvents {
   revert("FAILED");
  }
 
- function deprecate() external view override returns(string memory) {
+ function deprecate() public view override returns(string memory) {
    if (preventDeprecation) {
       revert("deprecation failed");
    }
 
    return (moduleVersion);
  }
+}
 
+/// @dev Custom module that overrides the deprecate function
+contract MockModuleCustomDeprecate is ModuleBase {
+
+   event CustomDeprecation();
+   constructor(address mockRouter, string memory version) ModuleBase(mockRouter, version) {}
+  function deprecate() public override returns(string memory) {
+    super.deprecate();
+    emit CustomDeprecation();
+    return "custom deprecation";
+  }
 }
