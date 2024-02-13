@@ -1,5 +1,5 @@
 # Structs
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/common/Structs.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/common/Structs.sol)
 
 Defines shared datastructures and enums for the Protocol.
 

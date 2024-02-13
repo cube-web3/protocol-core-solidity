@@ -56,6 +56,16 @@ A signing authority is a dedicated account created and managed by CUBE3 for each
 
 An integration has access to all the functionality offered by the available Security Modules. The Router is responsible for getting your integration's transaction data to the correct Security Module by extracting data from the payload included in the transaction's calldata. For an in-depth overview of how routing works within the payload, please review the [routing docs](./docs/routing/README.md). This explains the relationship between the CUBE3 Payload, the Module Payload, and the Routing Bitmap in great detail.
 
+## Docs
+
+Forge auto generates documentation for the contracts using the in-line natspec docs. Run:
+
+```
+forge doc --serve
+```
+
+And open your browser to `localhost:3000`.
+
 ## Installation
 
 Clone the repository:

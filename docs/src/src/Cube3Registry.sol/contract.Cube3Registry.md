@@ -1,5 +1,5 @@
 # Cube3Registry
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/Cube3Registry.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/Cube3Registry.sol)
 
 **Inherits:**
 AccessControl, [ICube3Registry](/src/interfaces/ICube3Registry.sol/interface.ICube3Registry.md), [ProtocolAdminRoles](/src/common/ProtocolAdminRoles.sol/abstract.ProtocolAdminRoles.md), [ProtocolEvents](/src/common/ProtocolEvents.sol/abstract.ProtocolEvents.md)

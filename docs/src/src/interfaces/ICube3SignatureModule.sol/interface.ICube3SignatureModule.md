@@ -1,5 +1,5 @@
 # ICube3SignatureModule
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/interfaces/ICube3SignatureModule.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/interfaces/ICube3SignatureModule.sol)
 
 Cube3 Runtime Application Self-Protection (RASP) module for signature verification and
 data validation.  The module is responsible for verifying that the payload received by the module was

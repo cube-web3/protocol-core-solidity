@@ -1,5 +1,5 @@
 # Cube3SignatureModule
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/modules/Cube3SignatureModule.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/modules/Cube3SignatureModule.sol)
 
 **Inherits:**
 [SecurityModuleBase](/src/modules/SecurityModuleBase.sol/abstract.SecurityModuleBase.md), [ICube3SignatureModule](/src/interfaces/ICube3SignatureModule.sol/interface.ICube3SignatureModule.md)

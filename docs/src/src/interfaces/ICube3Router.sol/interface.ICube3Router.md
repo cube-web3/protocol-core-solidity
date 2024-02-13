@@ -1,5 +1,5 @@
 # ICube3Router
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/interfaces/ICube3Router.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/interfaces/ICube3Router.sol)
 
 **Inherits:**
 [ICube3Registry](/src/interfaces/ICube3Registry.sol/interface.ICube3Registry.md), [ICube3RouterImpl](/src/interfaces/ICube3RouterImpl.sol/interface.ICube3RouterImpl.md), [IIntegrationManagement](/src/interfaces/IIntegrationManagement.sol/interface.IIntegrationManagement.md), [IProtocolManagement](/src/interfaces/IProtocolManagement.sol/interface.IProtocolManagement.md), [IRouterStorage](/src/interfaces/IRouterStorage.sol/interface.IRouterStorage.md)

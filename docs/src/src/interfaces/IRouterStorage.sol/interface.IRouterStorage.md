@@ -1,5 +1,5 @@
 # IRouterStorage
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c95be0ef92f4c69dc0af4db320cb041b877ea57c/src/interfaces/IRouterStorage.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/interfaces/IRouterStorage.sol)
 
 Contains the dedicated getter functions for accessing the Router's storage.
 
