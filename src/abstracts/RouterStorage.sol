@@ -113,7 +113,6 @@ abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdmin
         SETTERS
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: separe into two functions.
     /// @notice Updates the protocol configuration in storage with the new registry and paused state.
     /// @dev If the `registry` is not being changed, the existing address should be passed.
     /// @param registry The new registry address.

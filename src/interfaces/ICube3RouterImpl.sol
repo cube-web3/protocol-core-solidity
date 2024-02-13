@@ -12,6 +12,11 @@ interface ICube3RouterImpl {
                             CUBE3 Router Implementation
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Used to retrieve the implementation address of the proxy.
+    /// @dev Utilizes {ERC1967Utils-getImplementation}
+    /// @return The address of the implementation contract.
+    function getImplementation() external view returns (address);
+
     /// @notice Initializes the proxy contract.
     ///
     /// @dev Emits a {ProtocolConfigUpdated} event.

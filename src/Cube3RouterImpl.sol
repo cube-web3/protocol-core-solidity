@@ -5,6 +5,7 @@ import {
     AccessControlUpgradeable,
     ERC165Upgradeable
 } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC1967Utils} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 import { ContextUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
@@ -60,7 +61,6 @@ contract Cube3RouterImpl is
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ICube3RouterImpl
-    /// @dev Initialization can only take place once, and is called by the proxy's constructor.
     function initialize(address registry) public initializer onlyConstructor {
         // Checks: registry is not the zero address
         if (registry == address(0)) {
@@ -85,11 +85,10 @@ contract Cube3RouterImpl is
     /// @dev Adds access control logic to the {upgradeTo} function
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) { }
 
-    /// TODO: maybe use ERC1967Utils
-    // /// @dev returns the proxy's current implementation address
-    // function getImplementation() external view returns (address) {
-    //     return _getImplementation();
-    // }
+    /// @inheritdoc ICube3RouterImpl
+    function getImplementation() external view returns (address) {
+        return ERC1967Utils.getImplementation();
+    }
 
     /*//////////////////////////////////////////////////////////////
             ROUTING

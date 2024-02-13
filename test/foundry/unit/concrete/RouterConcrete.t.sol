@@ -27,8 +27,21 @@ contract Router_Concrete_Unit_Test is BaseTest {
     }
 
     // fails when initializing with a zero address registry.
+    // TODO:
 
     // fails when registry is an EOA
+    // TODO:
+
+    /*//////////////////////////////////////////////////////////////
+            getImplementation
+    //////////////////////////////////////////////////////////////*/
+    
+
+    // succeeds when getting the implementation address on the implementation,
+    // when not initialized, which should return the zero address
+    function test_Succeeds_WhenGettingImplWhenNotInitialized() public {
+        assertEq(routerHarness.getImplementation(), address(0), "incorrect implementation");
+    }
 
     /*//////////////////////////////////////////////////////////////
             routeToModule

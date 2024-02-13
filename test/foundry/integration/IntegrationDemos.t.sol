@@ -14,6 +14,13 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         super.setUp();
     }
 
+    // Succeeds when getting the implementation address by calling the proxy
+    function test_SucceedsWhen_GettingProxyImplementationAddress() public {
+        address implementation = wrappedRouterProxy.getImplementation();
+        assertEq(implementation, address(routerImplAddr), "incorrect implementation");
+    }
+
+    // succeeds when routing to the module with no function args
     function test_SucceedsWhen_MintingWithValidPayload_WithNoValue() public {
         address user = _randomAddress();
 
@@ -40,6 +47,7 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         vm.stopPrank();
     }
 
+    // succeeds when routing to the module with no dynamic type arguments
     function test_SucceedsWhen_CallingProtecteDemoFunction() public {
         address user = _randomAddress();
 
@@ -68,6 +76,7 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         vm.stopPrank();
     }
 
+    // succeeds when routing to the module with dynamic type arguments
     function test_SucceedsWhen_CallingProtecedFnWithDynamicTypedArgs() public {
         address user = _randomAddress();
 
