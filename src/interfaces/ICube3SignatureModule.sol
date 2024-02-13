@@ -58,7 +58,11 @@ interface ICube3SignatureModule {
     function validateSignature(
         Structs.TopLevelCallComponents memory topLevelCallComponents,
         bytes calldata signatureModulePayload
-    )
-        external
-        returns (bytes32);
+    ) external returns (bytes32);
+
+    /// @notice Retrieves the per-integration nonce of the `account` provided
+    /// @dev The nonce will only be incremented if directed by the module payload.
+    /// @param integrationContract The integration to retrieve the nonce for.
+    /// @param account The address of the caller to retrieve the nonce for.
+    function integrationUserNonce(address integrationContract, address account) external view returns (uint256);
 }

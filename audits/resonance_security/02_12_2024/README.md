@@ -58,6 +58,9 @@ TODO: complete
 - The Core Protocol provides on-chain security features for smart contracts that inherit the ancillary protection contracts.
 - In order to make use of CUBE3's on-chain protocol, the integration contract must receive data provided by CUBE3's off-chain services.
 - An integration can disconnect from the protocol at any time, or be disconnected from the protocol by CUBE3. From a user-standpoint, disconnecting prevents calls to the router from taking place. Disconnection from the protocol side still requires a call to the Router, which will return early and bypass the protocol's functionality.
+- Only CUBE3 admin accounts can install and deprecate modules.
+- Only CUBE3 key manager accounts can add/revoke signing authorities.
+- No CUBE3 accounts can modify an integration's admin account.
 
 ## Storage
 

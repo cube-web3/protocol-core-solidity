@@ -16,12 +16,12 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     // Used to recover the signature from the signature provided.
     using SignatureUtils for bytes;
 
-    // backup signer is used in the cases where the registry has been removed
-    // having this as immutable saves gas, but the module will need to be deprecated if the
-    // backup signer is compromised
+    // A Universal Signer is used in the cases where the registry has been removed.
+    // Having this as immutable saves gas, but the module will need to be deprecated if this
+    // backup signer is compromised.
     address private immutable _universalSigner;
 
-    // integration => ( integration msg.sender => nonce)
+    // Mapping to keep track of per-integration nonces for callers of the top-level integration functions.
     mapping(address integration => mapping(address integrationMsgSender => uint256 userNonce)) internal
         integrationToUserNonce;
 
@@ -134,6 +134,7 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
             EXTERNAL CONVENIENCE FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ICube3SignatureModule
     function integrationUserNonce(address integrationContract, address account) external view returns (uint256) {
         return integrationToUserNonce[integrationContract][account];
     }
@@ -163,6 +164,7 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
             INTERNAL PAYLOAD UTILITIES
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Util for getting the chain ID.
     function _getChainID() internal view returns (uint256 id) {
         /* solhint-disable no-inline-assembly */
         assembly {

@@ -3,15 +3,13 @@ pragma solidity >= 0.8.19 < 0.8.24;
 
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
 
+/// @title AddressUtils
+/// @notice Contains utility functions for checking what type of accounts an address belongs to.
 library AddressUtils {
-    /**
-     * @dev Ensures the target address is a contract. This is done by checking the length
-     *      of the bytecode stored at that address. Note: This function will be used to complete
-     *      registration, which cannot take place during the contract's deployment, therefore bytecode
-     *      length is expected to be non-zero.
-     *
-     * @param target Address to check the bytecode size.
-     */
+    /// @notice Checks if an account is a contract.
+    /// @dev Ensures the target address is a contract. This is done by checking the length
+    /// of the bytecode stored at that address. Reverts if the address is not a contract.
+    ///@param target Address to check the bytecode size.
     function assertIsContract(address target) internal view {
         uint256 size;
         assembly {
@@ -20,6 +18,10 @@ library AddressUtils {
         if (size == 0) revert ProtocolErrors.Cube3Protocol_TargetNotAContract(target);
     }
 
+    /// @notice Checks if an account is an EOA or a contract under construction.
+    /// @dev Ensures the target address is an EOA, or a contract under construction. Reverts
+    /// if the codesize check is failed.
+    /// @param target Address to check the bytecode size.
     function assertIsEOAorConstructorCall(address target) internal view {
         uint256 size;
         assembly {
