@@ -1,12 +1,8 @@
-# ProtocolManagement
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/abstracts/ProtocolManagement.sol)
+# IProtocolManagement
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/interfaces/IProtocolManagement.sol)
 
-**Inherits:**
-[IProtocolManagement](/src/interfaces/IProtocolManagement.sol/interface.IProtocolManagement.md), AccessControlUpgradeable, [RouterStorage](/src/abstracts/RouterStorage.sol/abstract.RouterStorage.md)
-
-This contract contains all the logic for managing the protocol.
-
-*This contract's functions can only be accessed by CUBE3 accounts with privileged roles.*
+Contains the logic for privileged accounts belonging to CUBE3 to configure the protocol and
+Security Modules.
 
 
 ## Functions
@@ -24,7 +20,7 @@ Requirements:
 
 
 ```solidity
-function setPausedUnpaused(bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE);
+function setPausedUnpaused(bool isPaused) external;
 ```
 **Parameters**
 
@@ -50,7 +46,7 @@ Requirements:
 
 
 ```solidity
-function updateProtocolConfig(address registry, bool isPaused) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE);
+function updateProtocolConfig(address registry, bool isPaused) external;
 ```
 **Parameters**
 
@@ -81,7 +77,6 @@ function callModuleFunctionAsAdmin(
 )
     external
     payable
-    onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE)
     returns (bytes memory);
 ```
 **Parameters**
@@ -118,7 +113,7 @@ Requirements:
 
 
 ```solidity
-function installModule(address moduleAddress, bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE);
+function installModule(address moduleAddress, bytes16 moduleId) external;
 ```
 **Parameters**
 
@@ -146,7 +141,7 @@ Requirements:
 
 
 ```solidity
-function deprecateModule(bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE);
+function deprecateModule(bytes16 moduleId) external;
 ```
 **Parameters**
 

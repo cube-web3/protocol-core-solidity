@@ -1,33 +1,10 @@
-# IntegrationManagement
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/abstracts/IntegrationManagement.sol)
+# IIntegrationManagement
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/interfaces/IIntegrationManagement.sol)
 
-**Inherits:**
-[IIntegrationManagement](/src/interfaces/IIntegrationManagement.sol/interface.IIntegrationManagement.md), AccessControlUpgradeable, [RouterStorage](/src/abstracts/RouterStorage.sol/abstract.RouterStorage.md)
-
-This contract implements logic for managing integration contracts and their relationship with the protocol.
-
-*See {IIntegrationManagement} for documentation.*
+Contains the logic for managing the integration contracts that are registered with the CUBE3 protocol.
 
 
 ## Functions
-### onlyIntegrationAdmin
-
-Checks the caller is the integration admin account of the `integration` contract provided.
-
-
-```solidity
-modifier onlyIntegrationAdmin(address integration);
-```
-
-### onlyPendingIntegrationAdmin
-
-Checks the caller is the pending integration admin account of the `integration` contract provided.
-
-
-```solidity
-modifier onlyPendingIntegrationAdmin(address integration);
-```
-
 ### transferIntegrationAdmin
 
 Begins the 2 step transfer process of the admin account for an integration contract.
@@ -43,7 +20,7 @@ Requirements:
 
 
 ```solidity
-function transferIntegrationAdmin(address integration, address newAdmin) external onlyIntegrationAdmin(integration);
+function transferIntegrationAdmin(address integration, address newAdmin) external;
 ```
 **Parameters**
 
@@ -63,7 +40,7 @@ Requirements:
 
 
 ```solidity
-function acceptIntegrationAdmin(address integration) external onlyPendingIntegrationAdmin(integration);
+function acceptIntegrationAdmin(address integration) external;
 ```
 **Parameters**
 
@@ -96,8 +73,7 @@ function updateFunctionProtectionStatus(
     address integration,
     Structs.FunctionProtectionStatusUpdate[] calldata updates
 )
-    external
-    onlyIntegrationAdmin(integration);
+    external;
 ```
 **Parameters**
 
@@ -168,8 +144,7 @@ function registerIntegrationWithCube3(
     bytes calldata registrarSignature,
     bytes4[] calldata enabledByDefaultFnSelectors
 )
-    external
-    onlyIntegrationAdmin(integration);
+    external;
 ```
 **Parameters**
 
@@ -200,8 +175,7 @@ function batchUpdateIntegrationRegistrationStatus(
     address[] calldata integrations,
     Structs.RegistrationStatusEnum[] calldata statuses
 )
-    external
-    onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE);
+    external;
 ```
 **Parameters**
 
@@ -230,8 +204,7 @@ function updateIntegrationRegistrationStatus(
     address integration,
     Structs.RegistrationStatusEnum registrationStatus
 )
-    external
-    onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE);
+    external;
 ```
 **Parameters**
 
@@ -250,7 +223,7 @@ Fetches the signing authority for the given integration.
 
 ```solidity
 function fetchRegistryAndSigningAuthorityForIntegration(address integration)
-    public
+    external
     view
     returns (address registry, address authority);
 ```
@@ -267,16 +240,4 @@ function fetchRegistryAndSigningAuthorityForIntegration(address integration)
 |`registry`|`address`|The Registry where the signing authority was retrieved from|
 |`authority`|`address`|The signing authority that was retrieved.|
 
-
-### _updateIntegrationRegistrationStatus
-
-Internal helper for performing checks and updating storage for and integration's registration
-status.
-
-*Cannot set the status for the zero address and prevents the status from being set to the same value.*
-
-
-```solidity
-function _updateIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal;
-```
 

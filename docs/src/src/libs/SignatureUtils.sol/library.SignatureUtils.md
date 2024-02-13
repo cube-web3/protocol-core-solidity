@@ -1,5 +1,7 @@
 # SignatureUtils
-[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/07ba602bddefe3eb8d740b07000837f7ec2fa9f5/src/libs/SignatureUtils.sol)
+[Git Source](https://github.com/cube-web3/protocol-core-solidity/blob/c68d80b0bdd3201abf24d2487e2b487b223a629b/src/libs/SignatureUtils.sol)
+
+Contains utils for signature validation using ECDSA.
 
 
 ## Functions
