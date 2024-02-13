@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
 import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
 import { IntegrationTest } from "@test/foundry/IntegrationTest.t.sol";
 import { MockRouter } from "@test/mocks/MockRouter.t.sol";
 import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
@@ -59,19 +60,29 @@ contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
         cube3RouterImpl.initialize(address(mockRegistry));
     }
 
-    // succeeds when initializing the router, with:
-    // - protocol config set correct
-    // - role granted to deployer
-
     // succeeds upgrading the router implementation and storage remaining the same
+    function test_SucceedsWhen_UpgradingProxyImplementation_AsProtocolAdmin() public {
 
-    function test_SucceedsWhen_DeployingAndInitializingUUPSProxyIntegration() public {
-        //  _deployProxyAndImplementation();
-        //  assertTrue(address(demoUUPS) != address(0));
-        //  assertTrue(address(uupsIntegrationProxy) != address(0));
-        //  assertTrue(demoUUPS.owner() == integrationAdmin);
-        //  assertTrue(demoUUPS.router() == address(mockRouter));
+        vm.startPrank(cube3Accounts.deployer,cube3Accounts.deployer);
+        _deployCube3ProxyAndImplementation();
+
+        Cube3RouterImpl(address(routerProxy)).grantRole(ProtocolAdminRoles.CUBE3_PROTOCOL_ADMIN_ROLE,cube3Accounts.protocolAdmin);
+        vm.stopPrank();
+
+        // pause the protocol
+        vm.startPrank(cube3Accounts.protocolAdmin);
+        Cube3RouterImpl(address(routerProxy)).setPausedUnpaused(true);
+        assertTrue(Cube3RouterImpl(address(routerProxy)).getIsProtocolPaused(), "not paused");
+
+        // deploy a new impl and upgrade
+        Cube3RouterImpl newRouterImpl = new Cube3RouterImpl();
+        Cube3RouterImpl(address(routerProxy)).upgradeToAndCall(address(newRouterImpl), new bytes(0));
+        assertEq(address(newRouterImpl), Cube3RouterImpl(address(routerProxy)).getImplementation(), "impl not matching");
+
+        // check the protocol is still paused
+        assertTrue(Cube3RouterImpl(address(routerProxy)).getIsProtocolPaused(), "not paused");
     }
+
 
     function _getProxyImpl(address proxy) internal view returns (address) {
         // Implementation storage slot specified by EIP1967.
