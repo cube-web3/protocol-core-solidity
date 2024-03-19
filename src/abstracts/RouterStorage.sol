@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
-import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
-import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
+import {IRouterStorage} from "@src/interfaces/IRouterStorage.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
+import {ProtocolAdminRoles} from "@src/common/ProtocolAdminRoles.sol";
+import {ProtocolConstants} from "@src/common/ProtocolConstants.sol";
 
 struct Cube3State {
     Structs.ProtocolConfig protocolConfig;
@@ -122,13 +122,13 @@ abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdmin
     function _updateProtocolConfig(address registry, bool isPaused) internal {
         // Place the current paused state on the stack to compare with `isPaused`
         bool isCurrentlyPaused = _state().protocolConfig.paused;
-        
+
         // Update storage.
         _state().protocolConfig = Structs.ProtocolConfig(registry, isPaused);
-        
+
         // Log: the updated protocol configuration.
         emit ProtocolConfigUpdated(registry, isPaused);
-        
+
         // Log: the paused state change if it has changed.
         if (isPaused != isCurrentlyPaused) {
             emit ProtocolPausedStateChange(isPaused);

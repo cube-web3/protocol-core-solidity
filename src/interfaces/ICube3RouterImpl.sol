@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 /// @title ICube3RouterImpl
 /// @notice Contains the collective logic for the {Cube3RouterImpl} contract and the contracts it inherits from:
@@ -70,9 +70,7 @@ interface ICube3RouterImpl {
         address integrationMsgSender,
         uint256 integrationMsgValue,
         bytes calldata integrationCalldata
-    )
-        external
-        returns (bytes32);
+    ) external returns (bytes32);
 
     /// @notice Checks whether the ICube3Router interface is supported.
     /// @param interfaceId The interfaceId to check.

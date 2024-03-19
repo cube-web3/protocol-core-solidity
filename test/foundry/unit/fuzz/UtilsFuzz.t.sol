@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
-import { MockModule } from "@test/mocks/MockModule.t.sol";
-import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {MockRegistry} from "@test/mocks/MockRegistry.t.sol";
+import {MockModule} from "@test/mocks/MockModule.t.sol";
+import {MockCaller, MockTarget} from "@test/mocks/MockContract.t.sol";
 
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {UtilsHarness} from "@test/foundry/harnesses/UtilsHarness.sol";
 
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Fuzz_Unit_Test is BaseTest {
     using ECDSA for bytes32;
@@ -51,25 +51,38 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         emit log_named_bytes32("calldataDigest", calldataDigest);
 
         bytes memory signature = _getRandomBytes(65);
-        bytes memory encodedModulePayloadData =
-            abi.encodePacked(block.timestamp + 1 hours, shouldTrackNonce, shouldTrackNonce ? nonce + 1 : 0, signature);
-        uint32 padding =
-            uint32(PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
-        bytes memory modulePayloadWithPadding =
-            PayloadCreationUtils.createPaddedModulePayload(encodedModulePayloadData, padding);
+        bytes memory encodedModulePayloadData = abi.encodePacked(
+            block.timestamp + 1 hours,
+            shouldTrackNonce,
+            shouldTrackNonce ? nonce + 1 : 0,
+            signature
+        );
+        uint32 padding = uint32(
+            PayloadCreationUtils.calculateRequiredModulePayloadPadding(encodedModulePayloadData.length)
+        );
+        bytes memory modulePayloadWithPadding = PayloadCreationUtils.createPaddedModulePayload(
+            encodedModulePayloadData,
+            padding
+        );
 
         emit log_named_uint32("length", uint32(modulePayloadWithPadding.length));
         emit log_named_uint32("padding", padding);
 
         // create the routing bitmap
         uint256 routingBitmap = PayloadCreationUtils.createRoutingFooterBitmap(
-            mockModuleId, mockSelector, uint32(modulePayloadWithPadding.length), padding
+            mockModuleId,
+            mockSelector,
+            uint32(modulePayloadWithPadding.length),
+            padding
         );
         emit log_named_uint("routing bitmap", routingBitmap);
 
         // normal abi.encoding adds the length as the first word of modulePayloadWithPadding, so we need to simulate it
         bytes memory combined = abi.encodePacked(
-            mockSlicedCalldata, uint256(modulePayloadWithPadding.length), modulePayloadWithPadding, routingBitmap
+            mockSlicedCalldata,
+            uint256(modulePayloadWithPadding.length),
+            modulePayloadWithPadding,
+            routingBitmap
         );
 
         // perform the test
@@ -96,9 +109,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     function testFuzz_SucceedsWhen_ExtractingIntegrationFunctionSelector(
         uint256 selectorSeed,
         uint256 bytesSize
-    )
-        public
-    {
+    ) public {
         bytesSize = bound(bytesSize, 0, 4096);
         bytes4 selector = bytes4(bytes32(keccak256(abi.encodePacked(selectorSeed))));
         bytes memory mockBytes = _getRandomBytes(bytesSize);
@@ -137,9 +148,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     function testFuzz_SucceedsWhen_Uint32ExtractedFromAnyLocationInBitmap(
         uint256 valueSeed,
         uint256 locationSeed
-    )
-        public
-    {
+    ) public {
         locationSeed = bound(locationSeed, 0, 255);
         vm.assume(locationSeed % 32 == 0);
         valueSeed = bound(valueSeed, 0, type(uint32).max);
@@ -157,9 +166,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
     function testFuzz_SucceedsWhen_ExtractingBytes4FromBitmapAtCorrectLocation(
         uint256 bytes4seed,
         uint256 locationSeed
-    )
-        public
-    {
+    ) public {
         locationSeed = bound(locationSeed, 0, 255);
         vm.assume(locationSeed % 32 == 0);
 
@@ -179,9 +186,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         uint256 valueSeed,
         uint256 locationSeed,
         uint256 retrievalSeed
-    )
-        public
-    {
+    ) public {
         locationSeed = bound(locationSeed, 0, 255 - 32);
         retrievalSeed = bound(retrievalSeed, 32, 255);
         locationSeed = _toMultipleOf32(locationSeed);
@@ -252,9 +257,7 @@ contract Utils_Fuzz_Unit_Test is BaseTest {
         uint256 dataLength,
         uint256 signerPvtKey,
         uint256 signatureLength
-    )
-        public
-    {
+    ) public {
         signatureLength = bound(signatureLength, 1, type(uint8).max);
         signerPvtKey = bound(signerPvtKey, 1, type(uint128).max);
         vm.assume(signatureLength != 65);

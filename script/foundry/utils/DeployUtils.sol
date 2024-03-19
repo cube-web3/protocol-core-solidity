@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 
-import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
-import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {Cube3RouterImpl} from "@src/Cube3RouterImpl.sol";
 
-import { Cube3Registry } from "@src/Cube3Registry.sol";
+import {Cube3Registry} from "@src/Cube3Registry.sol";
 
-import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
-import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import {ProtocolAdminRoles} from "@src/common/ProtocolAdminRoles.sol";
+import {Cube3SignatureModule} from "@src/modules/Cube3SignatureModule.sol";
 
 abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // access control roles
@@ -59,9 +59,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address _integrationAdmin,
         address _backupSigner,
         string memory _signatureModuleVersion
-    )
-        internal
-    {
+    ) internal {
         vm.startBroadcast(_deployerPvtKey);
 
         // ============ registry
@@ -72,8 +70,10 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         // deploy the implementation
         routerImplAddr = address(new Cube3RouterImpl());
         // deploy the proxy
-        cubeRouterProxy =
-            new ERC1967Proxy(routerImplAddr, abi.encodeCall(Cube3RouterImpl.initialize, address(registry)));
+        cubeRouterProxy = new ERC1967Proxy(
+            routerImplAddr,
+            abi.encodeCall(Cube3RouterImpl.initialize, address(registry))
+        );
         // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
         _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
@@ -89,9 +89,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address protocolAdmin,
         address integrationManager,
         address deployer
-    )
-        internal
-    {
+    ) internal {
         // make the multisig the default admin
         wrappedRouterProxy.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
         require(wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
@@ -114,9 +112,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address protocolAdmin,
         address keyManager,
         address deployer
-    )
-        internal
-    {
+    ) internal {
         registry.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
         require(registry.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
 

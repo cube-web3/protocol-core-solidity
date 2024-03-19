@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 /// @title IIntegrationManagement
 /// @notice Contains the logic for managing the integration contracts that are registered with the CUBE3 protocol.
@@ -57,8 +57,7 @@ interface IIntegrationManagement {
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
-    )
-        external;
+    ) external;
 
     /// @notice Initiates the registration of a new integration contract with the CUBE3 protocol.
     ///
@@ -110,8 +109,7 @@ interface IIntegrationManagement {
         address integration,
         bytes calldata registrarSignature,
         bytes4[] calldata enabledByDefaultFnSelectors
-    )
-        external;
+    ) external;
 
     /// @notice Updates the registration status of multiple integration contracts in a single call.
     ///
@@ -132,8 +130,7 @@ interface IIntegrationManagement {
     function batchUpdateIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatusEnum[] calldata statuses
-    )
-        external;
+    ) external;
 
     /// @notice Updates the registration status of a single integration.
     ///
@@ -153,16 +150,14 @@ interface IIntegrationManagement {
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
-    )
-        external;
+    ) external;
 
     /// @notice Fetches the signing authority for the given integration.
     /// @dev Will return the zero address for both if the Registry is not set.
     /// @param integration The address of the integration contract to retrieve the signing authority for.
     /// @return registry The Registry where the signing authority was retrieved from
     /// @return authority The signing authority that was retrieved.
-    function fetchRegistryAndSigningAuthorityForIntegration(address integration)
-        external
-        view
-        returns (address registry, address authority);
+    function fetchRegistryAndSigningAuthorityForIntegration(
+        address integration
+    ) external view returns (address registry, address authority);
 }

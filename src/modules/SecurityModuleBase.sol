@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import { IRouterStorage } from "@src/interfaces/IRouterStorage.sol";
-import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {IRouterStorage} from "@src/interfaces/IRouterStorage.sol";
+import {ICube3SecurityModule} from "@src/interfaces/ICube3SecurityModule.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ProtocolConstants} from "@src/common/ProtocolConstants.sol";
 
 /// @title SecurityModuleBase
 /// @notice Provides common functionality for all CUBE3 Security Modules.
@@ -93,13 +93,9 @@ abstract contract SecurityModuleBase is ICube3SecurityModule, ERC165, ProtocolCo
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc	ICube3SecurityModule
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ICube3SecurityModule, ERC165)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ICube3SecurityModule, ERC165) returns (bool) {
         return interfaceId == type(ICube3SecurityModule).interfaceId || super.supportsInterface(interfaceId);
     }
 
@@ -133,7 +129,7 @@ abstract contract SecurityModuleBase is ICube3SecurityModule, ERC165, ProtocolCo
         bytes memory b = bytes(version_);
         uint256 len = b.length;
 
-        for (uint256 i; i < len;) {
+        for (uint256 i; i < len; ) {
             bytes1 char = b[i];
             if (char == ".") {
                 versionSeparatorCount++;

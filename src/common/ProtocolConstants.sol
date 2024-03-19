@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 /// @title ProtocolConstants
 /// @notice Defines unique return values for Protocol actions to be stored in the contract's bytecode.

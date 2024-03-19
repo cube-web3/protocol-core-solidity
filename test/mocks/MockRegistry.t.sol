@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 contract MockRegistry {
+    mapping(address => address) public signatureAuthorities; // integration => signatureAuthority
 
- mapping(address => address) public signatureAuthorities; // integration => signatureAuthority
+    function setSignatureAuthorityForIntegration(address integration, address authority) external {
+        signatureAuthorities[integration] = authority;
+    }
 
- function setSignatureAuthorityForIntegration(address integration, address authority) external {
-  signatureAuthorities[integration] = authority;
- }
+    function getSigningAuthorityForIntegration(address integration) external view returns (address) {
+        return signatureAuthorities[integration];
+    }
 
- function getSigningAuthorityForIntegration(address integration) external view returns (address) {
-  return signatureAuthorities[integration];
- }
-
- function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
-  // account for InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
-  if (interfaceId == 0xffffffff) return false;
-  else return true;
- }
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        // account for InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
+        if (interfaceId == 0xffffffff) return false;
+        else return true;
+    }
 }

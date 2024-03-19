@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import {ProtocolManagement} from "@src/abstracts/ProtocolManagement.sol";
 
 /// @notice Testing harness for the ProtocolManagement contract.
 /// @dev All functionality is already exposed externally, so no need to wrap anything.

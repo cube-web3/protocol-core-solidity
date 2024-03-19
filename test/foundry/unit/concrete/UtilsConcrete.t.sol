@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
-import { MockModule } from "@test/mocks/MockModule.t.sol";
-import { MockCaller, MockTarget } from "@test/mocks/MockContract.t.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { UtilsHarness } from "@test/foundry/harnesses/UtilsHarness.sol";
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {MockRegistry} from "@test/mocks/MockRegistry.t.sol";
+import {MockModule} from "@test/mocks/MockModule.t.sol";
+import {MockCaller, MockTarget} from "@test/mocks/MockContract.t.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {UtilsHarness} from "@test/foundry/harnesses/UtilsHarness.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
 contract Utils_Concrete_Unit_Test is BaseTest {
     UtilsHarness utilsHarness;

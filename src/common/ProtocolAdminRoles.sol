@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 /// @title ProtocolAdminRoles
 /// @notice Defines privileged roles for controlled access to Protocol functions.

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "./Structs.sol";
+import {Structs} from "./Structs.sol";
 
 /// @title ProtocolEvents
 /// @notice Defines the collective events used throughout the Protocol.
@@ -54,7 +54,9 @@ abstract contract ProtocolEvents {
     /// @param oldAdmin The current admin address before the transfer.
     /// @param pendingAdmin The address of the pending admin set to receive admin privileges.
     event IntegrationAdminTransferStarted(
-        address indexed integration, address indexed oldAdmin, address indexed pendingAdmin
+        address indexed integration,
+        address indexed oldAdmin,
+        address indexed pendingAdmin
     );
 
     /// @notice Emitted when the admin transfer for an integration is completed.

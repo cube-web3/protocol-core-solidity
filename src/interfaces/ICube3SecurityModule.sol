@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 /// @title ICube3SecurityModule
 /// @notice Provides an interface for the functionality shared by all CUBE3 Security Modules.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 import {Cube3Protection} from "@cube3/Cube3Protection.sol";
 
@@ -18,18 +18,22 @@ contract Demo is Cube3Protection {
         return balance;
     }
 
-    function protected(uint256 newVal, bool newState, bytes32 newBytes, bytes calldata cubePayload)
-        public
-        cube3Protected(cubePayload)
-    {
+    function protected(
+        uint256 newVal,
+        bool newState,
+        bytes32 newBytes,
+        bytes calldata cubePayload
+    ) public cube3Protected(cubePayload) {
         (newVal, newState, newBytes);
         emit Success();
     }
 
-    function dynamic(uint256[] calldata vals, bool flag, string memory str, bytes calldata cubePayload)
-        external
-        cube3Protected(cubePayload)
-    {
+    function dynamic(
+        uint256[] calldata vals,
+        bool flag,
+        string memory str,
+        bytes calldata cubePayload
+    ) external cube3Protected(cubePayload) {
         (vals, flag, str);
         emit Success();
     }
@@ -51,11 +55,12 @@ contract Demo is Cube3Protection {
         emit Success();
     }
 
-    function payableProtected(uint256 newVal, bool newState, bytes32 newBytes, bytes calldata cubePayload)
-        external
-        payable
-        cube3Protected(cubePayload)
-    {
+    function payableProtected(
+        uint256 newVal,
+        bool newState,
+        bytes32 newBytes,
+        bytes calldata cubePayload
+    ) external payable cube3Protected(cubePayload) {
         require(msg.value > 0, "value = 0");
         (newVal, newState, newBytes);
         emit Success();
