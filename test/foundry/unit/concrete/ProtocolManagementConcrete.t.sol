@@ -213,7 +213,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_ModuleAddressIsZeroAddress() public {
         bytes16 moduleId = bytes16(bytes32(keccak256("unusedId")));
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidAddressForModule.selector);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported.selector);
         protocolManagementHarness.installModule(address(0), moduleId);
     }
 

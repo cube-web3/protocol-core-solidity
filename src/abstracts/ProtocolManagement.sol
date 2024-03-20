@@ -74,16 +74,13 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
 
     /// @inheritdoc IProtocolManagement
     function installModule(address moduleAddress, bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
-        // Checks: the module address is valid.
-        if (moduleAddress == address(0)) {
-            revert ProtocolErrors.Cube3Router_InvalidAddressForModule();
-        }
         // Checks: the module ID is valid.
         if (moduleId == bytes16(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIdForModule();
         }
 
-        // Checks: the deployed module supports the ICube3SecurityModule interface.
+        // Checks: the deployed module supports the ICube3SecurityModule interface. Will revert if the module
+        // address is the zero address.
         if (!ERC165Checker.supportsInterface(moduleAddress, type(ICube3SecurityModule).interfaceId)) {
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();
         }
