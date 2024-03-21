@@ -440,6 +440,36 @@ contract IntegrationManagement_Fuzz_Unit_Test is BaseTest {
         );
     }
 
+    // fails registering an integration when the protocol is paused
+    function test_RevertsWhen_RegisteringIntegration_WhenPaused_AsAdmin(uint256 pvtKeySeed) public {
+        pvtKeySeed = bound(pvtKeySeed, 1, type(uint128).max);
+        (
+            address integration,
+            address admin,
+            address signer,
+            bytes memory registrarSignature,
+            bytes4[] memory enabledByDefaultFnSelectors
+        ) = _generateMockRegistrationData(pvtKeySeed, 0);
+
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+        assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
+        integrationManagementHarness.setIntegrationRegistrationStatus(
+            integration,
+            Structs.RegistrationStatusEnum.PENDING
+        );
+
+        // paused the protocol
+        integrationManagementHarness.updateProtocolConfig(address(mockRegistry), true);
+
+        vm.startPrank(admin);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ProtocolPaused.selector);
+        integrationManagementHarness.registerIntegrationWithCube3(
+            integration,
+            registrarSignature,
+            enabledByDefaultFnSelectors
+        );
+    }
+
     /*//////////////////////////////////////////////////////////////
           batchUpdateIntegrationRegistrationStatus
     //////////////////////////////////////////////////////////////*/

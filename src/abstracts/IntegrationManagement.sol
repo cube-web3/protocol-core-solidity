@@ -41,15 +41,6 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         _;
     }
 
-    /// @notice Checks the protocol is not paused. Reverts if true.
-    modifier whenNotPaused() {
-        // Checks: the protocol is not paused.
-        if (getIsProtocolPaused()) {
-            revert ProtocolErrors.Cube3Router_ProtocolPaused();
-        }
-        _;
-    }
-
     /*//////////////////////////////////////////////////////////////
             INTEGRATION MANAGEMENT
     //////////////////////////////////////////////////////////////*/
@@ -74,7 +65,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
-    ) external onlyIntegrationAdmin(integration) {
+    ) external onlyIntegrationAdmin(integration) whenNotPaused {
         // Checks: the integration has completed the registration step.
         Structs.RegistrationStatusEnum status = getIntegrationStatus(integration);
         if (status == Structs.RegistrationStatusEnum.PENDING) {
@@ -107,7 +98,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIntegrationManagement
-    function initiateIntegrationRegistration(address initialAdmin) external returns (bytes32) {
+    function initiateIntegrationRegistration(address initialAdmin) external whenNotPaused returns (bytes32) {
         // Checks: the integration admin account provided is a valid address.
         if (initialAdmin == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegrationAdmin();

@@ -6,6 +6,7 @@ import {Structs} from "@src/common/Structs.sol";
 import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
 import {ProtocolAdminRoles} from "@src/common/ProtocolAdminRoles.sol";
 import {ProtocolConstants} from "@src/common/ProtocolConstants.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
 
 struct Cube3State {
     Structs.ProtocolConfig protocolConfig;
@@ -40,6 +41,15 @@ struct Cube3State {
 ///      the `_state()` function, which returns a storage pointer to the `Cube3State` struct.  Storage variables
 ///      can only be accessed via dedicated getter and setter functions.
 abstract contract RouterStorage is IRouterStorage, ProtocolEvents, ProtocolAdminRoles, ProtocolConstants {
+    /// @notice Checks the protocol is not paused. Reverts if true.
+    modifier whenNotPaused() {
+        // Checks: the protocol is not paused.
+        if (getIsProtocolPaused()) {
+            revert ProtocolErrors.Cube3Router_ProtocolPaused();
+        }
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////
         STORAGE
     //////////////////////////////////////////////////////////////*/
