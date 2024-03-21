@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 /// @title BitmapUtils
 /// @notice Library containing utilities to extract values packed into a uint256 Bitmap.

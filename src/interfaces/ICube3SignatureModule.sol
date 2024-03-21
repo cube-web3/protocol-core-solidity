@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 /// @title ICube3SignatureModule
 /// @notice Cube3 Runtime Application Self-Protection (RASP) module for signature verification and

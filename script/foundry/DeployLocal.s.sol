@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 
-import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
-import { Cube3RouterImpl } from "@src/Cube3RouterImpl.sol";
-import { Cube3Registry } from "@src/Cube3Registry.sol";
-import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import {ICube3Router} from "@src/interfaces/ICube3Router.sol";
+import {Cube3RouterImpl} from "@src/Cube3RouterImpl.sol";
+import {Cube3Registry} from "@src/Cube3Registry.sol";
+import {Cube3SignatureModule} from "@src/modules/Cube3SignatureModule.sol";
 
-import { DemoIntegrationERC721 } from "@test/demo/DemoIntegrationERC721.sol";
-import { DeployUtils } from "./utils/DeployUtils.sol";
+import {DemoIntegrationERC721} from "@test/demo/DemoIntegrationERC721.sol";
+import {DeployUtils} from "./utils/DeployUtils.sol";
 
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 contract DeployLocal is Script, DeployUtils {
     DemoIntegrationERC721 demo;
@@ -30,7 +30,7 @@ contract DeployLocal is Script, DeployUtils {
     address cube3admin;
 
     uint256 cube3integrationAdminPvtKey = 0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a; // anvil
-        // [4]
+    // [4]
     address cube3integrationAdmin;
 
     uint256 backupSignerPvtKey = 0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97; // anvil[8]
@@ -44,7 +44,7 @@ contract DeployLocal is Script, DeployUtils {
 
     string version = "signature-0.0.1";
 
-    constructor() { }
+    constructor() {}
 
     function setUp() external {
         backupSigner = vm.addr(backupSignerPvtKey);
@@ -88,8 +88,9 @@ contract DeployLocal is Script, DeployUtils {
     function _completeRegistrationAndEnableFnProtectionAsDemoDeployer() internal {
         vm.startBroadcast(demoDeployerPvtKey);
         // deploy the contract
-        Structs.FunctionProtectionStatusUpdate[] memory fnProtectionData =
-            new Structs.FunctionProtectionStatusUpdate[](1);
+        Structs.FunctionProtectionStatusUpdate[] memory fnProtectionData = new Structs.FunctionProtectionStatusUpdate[](
+            1
+        );
         fnProtectionData[0] = Structs.FunctionProtectionStatusUpdate({
             fnSelector: DemoIntegrationERC721.safeMint.selector,
             protectionEnabled: true
@@ -114,16 +115,29 @@ contract DeployLocal is Script, DeployUtils {
         vm.startBroadcast(caller);
         bytes memory emptyBytes = new bytes(352);
 
-        bytes memory calldataWithEmptyPayload =
-            abi.encodeWithSelector(DemoIntegrationERC721.safeMint.selector, 3, emptyBytes);
+        bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
+            DemoIntegrationERC721.safeMint.selector,
+            3,
+            emptyBytes
+        );
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            caller, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                caller,
+                address(demo),
+                0,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), caller, demoSigningAuthorityPvtKey, 1 days, false, signatureModule, topLevelCallComponents
+            address(demo),
+            caller,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            false,
+            signatureModule,
+            topLevelCallComponents
         );
 
         demo.safeMint(3, cube3SecurePayload);

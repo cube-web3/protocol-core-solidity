@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
-import { MockModule, MockModuleCustomDeprecate } from "@test/mocks/MockModule.t.sol";
-import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
+import {ICube3SecurityModule} from "@src/interfaces/ICube3SecurityModule.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ProtocolManagement} from "@src/abstracts/ProtocolManagement.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {RouterStorageHarness} from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import {MockModule, MockModuleCustomDeprecate} from "@test/mocks/MockModule.t.sol";
+import {MockRegistry} from "@test/mocks/MockRegistry.t.sol";
 
 contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     MockRegistry mockRegistry;
@@ -73,7 +73,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         // set the config
         vm.expectEmit(true, true, true, true);
         emit ProtocolConfigUpdated(address(mockRegistry), true);
-        vm.expectEmit(true,true,true,true);
+        vm.expectEmit(true, true, true, true);
         emit ProtocolPausedStateChange(true);
         protocolManagementHarness.updateProtocolConfig(address(mockRegistry), true);
         vm.stopPrank();
@@ -111,7 +111,9 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(caller);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, caller, CUBE3_PROTOCOL_ADMIN_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                caller,
+                CUBE3_PROTOCOL_ADMIN_ROLE
             )
         );
         protocolManagementHarness.setPausedUnpaused(true);
@@ -150,8 +152,11 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit MockModuleCallSucceeded();
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunction.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
         // decode the return data that's encoded as bytes returned by {callModuleFunctionAsAdmin}
@@ -166,12 +171,15 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         bytes16 moduleId = _installModuleAsAdmin();
 
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunction.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
 
         vm.startPrank(randomAccount);
         vm.expectRevert();
-        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
     }
 
@@ -181,11 +189,14 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
 
         vm.startPrank(cube3Accounts.protocolAdmin);
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunctionThatReverts.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
 
         vm.expectRevert(bytes("FAILED"));
-        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
     }
 
@@ -202,7 +213,7 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_ModuleAddressIsZeroAddress() public {
         bytes16 moduleId = bytes16(bytes32(keccak256("unusedId")));
         vm.startPrank(cube3Accounts.protocolAdmin);
-        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidAddressForModule.selector);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported.selector);
         protocolManagementHarness.installModule(address(0), moduleId);
     }
 

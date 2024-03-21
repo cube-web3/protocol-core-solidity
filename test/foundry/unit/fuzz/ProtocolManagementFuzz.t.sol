@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { MockRegistry } from "@test/mocks/MockRegistry.t.sol";
-import { MockModule } from "@test/mocks/MockModule.t.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {MockRegistry} from "@test/mocks/MockRegistry.t.sol";
+import {MockModule} from "@test/mocks/MockModule.t.sol";
 
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ProtocolManagement } from "@src/abstracts/ProtocolManagement.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ProtocolManagement} from "@src/abstracts/ProtocolManagement.sol";
 
 contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
     MockRegistry mockRegistry;
@@ -39,8 +39,11 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit MockModuleCallSucceededWithArgs(arg);
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunctionWithArgs.selector, arg);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
         (bool success, bytes memory returnRevert) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
         // decode the return data that's encoded as bytes returned by {callModuleFunctionAsAdmin}
@@ -57,9 +60,12 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit MockModuleCallSucceeded();
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedPayableFunction.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
-        (bool success,) = address(protocolManagementHarness).call{ value: value }(harnessCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
+        (bool success, ) = address(protocolManagementHarness).call{value: value}(harnessCalldata);
         require(success, "harness call failed");
         require(address(mockModule).balance == value, "ether not sent");
     }
@@ -72,12 +78,15 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
 
         bytes16 moduleId = bytes16(bytes32(keccak256(abi.encode(moduleSeed))));
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunction.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
 
         vm.startPrank(cube3Accounts.protocolAdmin);
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
-        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
         vm.stopPrank();
     }
@@ -90,11 +99,14 @@ contract ProtocolManagement_Fuzz_Unit_Test is BaseTest {
         bytes16 moduleId = bytes16(bytes32(keccak256(abi.encode(moduleSeed))));
         vm.startPrank(cube3Accounts.protocolAdmin);
         bytes memory moduleCalldata = abi.encodeWithSelector(MockModule.privilegedFunctionThatReverts.selector);
-        bytes memory harnessCalldata =
-            abi.encodeWithSelector(ProtocolManagement.callModuleFunctionAsAdmin.selector, moduleId, moduleCalldata);
+        bytes memory harnessCalldata = abi.encodeWithSelector(
+            ProtocolManagement.callModuleFunctionAsAdmin.selector,
+            moduleId,
+            moduleCalldata
+        );
 
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
-        (bool success,) = address(protocolManagementHarness).call(harnessCalldata);
+        (bool success, ) = address(protocolManagementHarness).call(harnessCalldata);
         require(success, "harness call failed");
         vm.stopPrank();
     }

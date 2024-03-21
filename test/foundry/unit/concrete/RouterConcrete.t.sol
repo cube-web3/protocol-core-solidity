@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { ICube3RouterImpl } from "@src/interfaces/ICube3RouterImpl.sol";
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import {ICube3RouterImpl} from "@src/interfaces/ICube3RouterImpl.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
 
-import { RouterHarness } from "@test/foundry/harnesses/RouterHarness.sol";
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { Structs } from "@src/common/Structs.sol";
+import {RouterHarness} from "@test/foundry/harnesses/RouterHarness.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 contract Router_Concrete_Unit_Test is BaseTest {
     RouterHarness routerHarness;
@@ -35,7 +35,6 @@ contract Router_Concrete_Unit_Test is BaseTest {
     /*//////////////////////////////////////////////////////////////
             getImplementation
     //////////////////////////////////////////////////////////////*/
-    
 
     // succeeds when getting the implementation address on the implementation,
     // when not initialized, which should return the zero address
@@ -49,19 +48,22 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // Succeeds if routing is bypassed
     function test_SucceedsWhen_RoutingToModule_WhenProtectionBypassed() public {
-        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
+        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
 
         // without fn protection enabled for `selector`, the router will bypass routing and return early
         vm.startPrank(integration);
-        bytes32 returned =
-            routerHarness.routeToModule(_randomAddress(), 0, abi.encodePacked(selector, _getRandomBytes(256)));
+        bytes32 returned = routerHarness.routeToModule(
+            _randomAddress(),
+            0,
+            abi.encodePacked(selector, _getRandomBytes(256))
+        );
 
         assertEq(returned, PROCEED_WITH_CALL, "incorrect return value");
     }
 
     // Fails if module doesn't exist
     function test_RevertsWhen_ModuleIdDoesNotExist() public {
-        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
+        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
 
         // enable fn protection
         routerHarness.setFunctionProtectionStatus(integration, selector, true);
@@ -83,10 +85,18 @@ contract Router_Concrete_Unit_Test is BaseTest {
         uint256 mockPayloadLength = 130;
 
         // create the mock calldata, with a legitimate routing bitmap as the last word
-        uint256 routingBitmap =
-            PayloadCreationUtils.createRoutingFooterBitmap(moduleId, selector, uint32(mockPayloadLength), 0);
-        bytes memory mockCalldataWithRoutingBitmap =
-            abi.encodePacked(selector, _getRandomBytes(256), _getRandomBytes(mockPayloadLength), routingBitmap);
+        uint256 routingBitmap = PayloadCreationUtils.createRoutingFooterBitmap(
+            moduleId,
+            selector,
+            uint32(mockPayloadLength),
+            0
+        );
+        bytes memory mockCalldataWithRoutingBitmap = abi.encodePacked(
+            selector,
+            _getRandomBytes(256),
+            _getRandomBytes(mockPayloadLength),
+            routingBitmap
+        );
 
         vm.startPrank(integration);
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleNotInstalled.selector, moduleId));
@@ -101,7 +111,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
     // note: An integration with a registration status of PENDING cannot enable protection for a function's
     // selector until it is registered, so the first check will force the return.
     function test_SucceedsWhen_BypassingRouting_WhenIntegrationStatusIsPending() public {
-        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
+        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
 
         // set the registration status to PENDING
         routerHarness.setIntegrationRegistrationStatus(integration, Structs.RegistrationStatusEnum.PENDING);
@@ -137,7 +147,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
 
     // succees (returns true) when the function is protected, but registration status is revoked
     function test_SucceedsWhen_BypassRouting_WhenRegistrationStatusRevoked() public {
-        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
+        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
         // enable fn protection
         routerHarness.setFunctionProtectionStatus(integration, selector, true);
         assertTrue(routerHarness.getIsIntegrationFunctionProtected(integration, selector), "not protected");
@@ -161,7 +171,7 @@ contract Router_Concrete_Unit_Test is BaseTest {
     // succeeds (returns false) when the function is protected, integration is REGISTERED,
     // and protocol is not paused
     function test_SucceedsWhen_Routing_WhenProtectedAndRegisteredAndNotPaused() public {
-        (address integration,, bytes4 selector) = _getRandomRoutingInfo();
+        (address integration, , bytes4 selector) = _getRandomRoutingInfo();
 
         emit log_named_bytes4("selector", selector);
 

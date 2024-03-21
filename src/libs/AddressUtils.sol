@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
 
 /// @title AddressUtils
 /// @notice Contains utility functions for checking what type of accounts an address belongs to.

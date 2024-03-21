@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import {Cube3SignatureModule} from "@src/modules/Cube3SignatureModule.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
 
 contract SignatureModuleHarness is Cube3SignatureModule {
     constructor(
         address cube3RouterProxy,
         string memory version,
         address backupSigner
-    )
-        Cube3SignatureModule(cube3RouterProxy, version, backupSigner)
-    { }
+    ) Cube3SignatureModule(cube3RouterProxy, version, backupSigner) {}
 
     function setUserNonce(address integration, address caller, uint256 nonce) public {
         integrationToUserNonce[integration][caller] = nonce;
@@ -20,11 +18,7 @@ contract SignatureModuleHarness is Cube3SignatureModule {
     function fetchSigningAuthorityFromRegistry(
         ICube3Registry cube3registry,
         address integration
-    )
-        public
-        view
-        returns (address)
-    {
+    ) public view returns (address) {
         return _fetchSigningAuthorityFromRegistry(cube3registry, integration);
     }
 
@@ -36,11 +30,7 @@ contract SignatureModuleHarness is Cube3SignatureModule {
         return _getChainID();
     }
 
-    function decodeModulePayload(bytes calldata modulePayload)
-        public
-        view
-        returns (SignatureModulePayloadData memory)
-    {
+    function decodeModulePayload(bytes calldata modulePayload) public view returns (SignatureModulePayloadData memory) {
         return _decodeModulePayload(modulePayload);
     }
 }

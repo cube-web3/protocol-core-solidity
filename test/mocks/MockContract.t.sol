@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 import {AddressUtils} from "@src/libs/AddressUtils.sol";
 
 contract MockCaller {
- constructor(address target) {
-   (bool success, bytes memory returnOrRevertData ) = target.call(abi.encodeWithSignature("checkCallerIsContract()"));
-           if (!success) {
+    constructor(address target) {
+        (bool success, bytes memory returnOrRevertData) = target.call(
+            abi.encodeWithSignature("checkCallerIsContract()")
+        );
+        if (!success) {
             // Bubble up the revert data from the module call.
             assembly {
                 revert(
@@ -17,13 +19,13 @@ contract MockCaller {
                 )
             }
         }
- }
+    }
 }
 
 contract MockTarget {
-   using AddressUtils for address;
+    using AddressUtils for address;
 
     function checkCallerIsContract() public view {
-      (msg.sender).assertIsContract();
+        (msg.sender).assertIsContract();
     }
 }

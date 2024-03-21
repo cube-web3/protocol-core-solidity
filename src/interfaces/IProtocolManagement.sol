@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 /// @title IProtocolManagement
 /// @notice Contains the logic for privileged accounts belonging to CUBE3 to configure the protocol and
 /// Security Modules.
 interface IProtocolManagement {
-
     /// @notice Updates the paused state of the protocol.
     ///
     /// @dev Emits a {ProtocolPausedStateChange} event.
@@ -62,10 +61,7 @@ interface IProtocolManagement {
     function callModuleFunctionAsAdmin(
         bytes16 moduleId,
         bytes calldata fnCalldata
-    )
-        external
-        payable
-        returns (bytes memory);
+    ) external payable returns (bytes memory);
 
     /// @notice Adds a new module to the Protocol.
     ///

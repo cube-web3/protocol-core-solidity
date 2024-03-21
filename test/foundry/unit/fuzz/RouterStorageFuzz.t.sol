@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { RouterStorageHarness } from "@test/foundry/harnesses/RouterStorageHarness.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {RouterStorageHarness} from "@test/foundry/harnesses/RouterStorageHarness.sol";
 
 contract RouterStorage_Fuzz_Unit_Test is BaseTest {
     uint256 constant HALF_MAX_UINT = type(uint256).max / 2;
@@ -96,9 +96,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         uint256 integrationSeed,
         uint256 selectorSeed,
         uint256 flagSeed
-    )
-        public
-    {
+    ) public {
         integrationSeed = bound(integrationSeed, 1, 1 + HALF_MAX_UINT);
         selectorSeed = bound(selectorSeed, 1, 1 + HALF_MAX_UINT);
         address integration = vm.addr(integrationSeed);
@@ -110,7 +108,9 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         routerStorageHarness.setFunctionProtectionStatus(integration, selector, flag);
 
         assertEq(
-            flag, routerStorageHarness.getIsIntegrationFunctionProtected(integration, selector), "protection mismatch"
+            flag,
+            routerStorageHarness.getIsIntegrationFunctionProtected(integration, selector),
+            "protection mismatch"
         );
 
         vm.expectEmit(true, true, true, true);
@@ -118,7 +118,9 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         routerStorageHarness.setFunctionProtectionStatus(integration, selector, !flag);
 
         assertEq(
-            !flag, routerStorageHarness.getIsIntegrationFunctionProtected(integration, selector), "protection mismatch"
+            !flag,
+            routerStorageHarness.getIsIntegrationFunctionProtected(integration, selector),
+            "protection mismatch"
         );
     }
 
@@ -170,9 +172,7 @@ contract RouterStorage_Fuzz_Unit_Test is BaseTest {
         uint256 moduleIdSeed,
         uint256 addressSeed,
         uint256 versionSeed
-    )
-        public
-    {
+    ) public {
         moduleIdSeed = bound(moduleIdSeed, 1, 1 + HALF_MAX_UINT);
         addressSeed = bound(addressSeed, 1, 1 + HALF_MAX_UINT);
         versionSeed = bound(versionSeed, 1, 1 + HALF_MAX_UINT);

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { RoutingUtils } from "@src/libs/RoutingUtils.sol";
-import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
-import { AddressUtils } from "@src/libs/AddressUtils.sol";
-import { BitmapUtils } from "@src/libs/BitmapUtils.sol";
+import {RoutingUtils} from "@src/libs/RoutingUtils.sol";
+import {SignatureUtils} from "@src/libs/SignatureUtils.sol";
+import {AddressUtils} from "@src/libs/AddressUtils.sol";
+import {BitmapUtils} from "@src/libs/BitmapUtils.sol";
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 /// note: For the purposes of coverage, we utilze the <library>.<function>(...args) approach, rather than
 /// "using <library> for <type>" with the target passed implicitly as the first arg, which coverage doesn't recognize.
@@ -17,7 +17,9 @@ contract UtilsHarness {
     using AddressUtils for address;
     using BitmapUtils for uint256;
 
-    function parseRoutingInfoAndPayload(bytes calldata integrationCalldata)
+    function parseRoutingInfoAndPayload(
+        bytes calldata integrationCalldata
+    )
         external
         pure
         returns (bytes4 moduleSelector, bytes16 moduleId, bytes memory modulePayload, bytes32 originalCalldataDigest)
@@ -37,11 +39,9 @@ contract UtilsHarness {
         return BitmapUtils.extractBytes4FromBitmap(bitmap, offset);
     }
 
-    function parseIntegrationFunctionCallSelector(bytes calldata integrationCalldata)
-        external
-        pure
-        returns (bytes4 selector)
-    {
+    function parseIntegrationFunctionCallSelector(
+        bytes calldata integrationCalldata
+    ) external pure returns (bytes4 selector) {
         return RoutingUtils.parseIntegrationFunctionCallSelector(integrationCalldata);
     }
 
@@ -59,11 +59,7 @@ contract UtilsHarness {
         bytes calldata signature,
         bytes32 digest,
         address signer
-    )
-        external
-        pure
-        returns (bool)
-    {
+    ) external pure returns (bool) {
         SignatureUtils.assertIsValidSignature(signature, digest, signer);
         return true;
     }

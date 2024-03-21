@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 /// @title ICube3Registry
 /// @notice This contract serves as a registry for storing and managing the signing authorities
@@ -43,11 +43,7 @@ interface ICube3Registry {
     ///
     /// @param integrations The addresses of the integration contracts.
     /// @param signingAuthorities The addresses of the signing authorities, indexed to match the `integrations` array.
-    function batchSetSigningAuthority(
-        address[] calldata integrations,
-        address[] calldata signingAuthorities
-    )
-        external;
+    function batchSetSigningAuthority(address[] calldata integrations, address[] calldata signingAuthorities) external;
 
     /// @notice Revokes a signing authority for a specified integration contract.
     ///

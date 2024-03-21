@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity >=0.8.19 <0.8.24;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
+import {IntegrationManagement} from "@src/abstracts/IntegrationManagement.sol";
 
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
 
-import { IntegrationManagementHarness } from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
+import {IntegrationManagementHarness} from "@test/foundry/harnesses/IntegrationManagementHarness.sol";
 
 contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     IntegrationManagementHarness integrationManagementHarness;
@@ -55,6 +55,22 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.stopPrank();
     }
 
+    // fails when transferring admin and the protocol is paused
+    function test_RevertsWhen_TransferringIngrationAdmin_WhilePaused() public {
+        address admin = _randomAddress();
+        address integration = _randomAddress();
+        address registry = _randomAddress();
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+
+        // pause the protocol
+        integrationManagementHarness.updateProtocolConfig(registry, true);
+
+        vm.startPrank(admin);
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ProtocolPaused.selector)));
+        integrationManagementHarness.transferIntegrationAdmin(integration, _randomAddress());
+        vm.stopPrank();
+    }
+
     /*//////////////////////////////////////////////////////////////
            acceptIntegrationAdmin
     //////////////////////////////////////////////////////////////*/
@@ -93,6 +109,31 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.stopPrank();
     }
 
+    // fails when accepting admin transfer while paused
+    function test_RevertsWhen_AcceptingIntegrationAdmin_WhilePaused() public {
+        address admin = _randomAddress();
+        address newAdmin = _randomAddress();
+        address integration = _randomAddress();
+        address registry = _randomAddress();
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+
+        vm.startPrank(admin);
+        integrationManagementHarness.transferIntegrationAdmin(integration, newAdmin);
+        vm.stopPrank();
+        assertEq(
+            newAdmin,
+            integrationManagementHarness.getIntegrationPendingAdmin(integration),
+            "pending admin not set"
+        );
+
+        integrationManagementHarness.updateProtocolConfig(registry, true);
+
+        vm.startPrank(newAdmin);
+        vm.expectRevert(bytes(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ProtocolPaused.selector)));
+        integrationManagementHarness.acceptIntegrationAdmin(integration);
+        vm.stopPrank();
+    }
+
     /*//////////////////////////////////////////////////////////////
            updateFunctionProtectionStatus
     //////////////////////////////////////////////////////////////*/
@@ -126,12 +167,40 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
 
         // set the integration registration status
         integrationManagementHarness.setIntegrationRegistrationStatus(
-            integration, Structs.RegistrationStatusEnum.PENDING
+            integration,
+            Structs.RegistrationStatusEnum.PENDING
         );
 
         Structs.FunctionProtectionStatusUpdate[] memory updates = new Structs.FunctionProtectionStatusUpdate[](0);
         vm.startPrank(admin);
         vm.expectRevert(ProtocolErrors.Cube3Router_IntegrationRegistrationNotComplete.selector);
+        integrationManagementHarness.updateFunctionProtectionStatus(integration, updates);
+        vm.stopPrank();
+    }
+
+    // fails when the protocol is paused
+    function test_RevertsWhen_UpdatingProtectionStatus_WhenProcotolIsPaused_AsAdmin() public {
+        address integration = _randomAddress();
+        address admin = _randomAddress();
+        address registry = _randomAddress();
+        assertNotEq(integration, admin, "integration and admin match");
+
+        // set the integration admin
+        integrationManagementHarness.setIntegrationAdmin(integration, admin);
+        assertEq(admin, integrationManagementHarness.getIntegrationAdmin(integration), "admin not set");
+
+        // ensure the integration is registered
+        integrationManagementHarness.setIntegrationRegistrationStatus(
+            integration,
+            Structs.RegistrationStatusEnum.REGISTERED
+        );
+
+        // pause the protocol
+        integrationManagementHarness.updateProtocolConfig(registry, true);
+
+        Structs.FunctionProtectionStatusUpdate[] memory updates = new Structs.FunctionProtectionStatusUpdate[](0);
+        vm.startPrank(admin);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ProtocolPaused.selector);
         integrationManagementHarness.updateFunctionProtectionStatus(integration, updates);
         vm.stopPrank();
     }
@@ -182,6 +251,22 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         );
     }
 
+    // fails initiating the registration if the protocol is paused
+    function test_RevertsWhen_InitiatingRegistrationWithAdmin_WhenPaused() public {
+        address admin = _randomAddress();
+        address integration = _randomAddress();
+        address registry = _randomAddress();
+        assertNotEq(integration, admin, "integration and admin match");
+
+        // pause the protocol
+        integrationManagementHarness.updateProtocolConfig(registry, true);
+
+        vm.startPrank(integration);
+        vm.expectRevert(ProtocolErrors.Cube3Router_ProtocolPaused.selector);
+        integrationManagementHarness.initiateIntegrationRegistration(admin);
+        vm.stopPrank();
+    }
+
     /*//////////////////////////////////////////////////////////////
           batchUpdateIntegrationRegistrationStatus
     //////////////////////////////////////////////////////////////*/
@@ -197,7 +282,9 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_INTEGRATION_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_INTEGRATION_MANAGER_ROLE
             )
         );
         integrationManagementHarness.batchUpdateIntegrationRegistrationStatus(integrations, statuses);
@@ -214,11 +301,14 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.startPrank(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_INTEGRATION_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_INTEGRATION_MANAGER_ROLE
             )
         );
         integrationManagementHarness.updateIntegrationRegistrationStatus(
-            _randomAddress(), Structs.RegistrationStatusEnum.REGISTERED
+            _randomAddress(),
+            Structs.RegistrationStatusEnum.REGISTERED
         );
         vm.stopPrank();
     }
@@ -232,7 +322,8 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit IntegrationRegistrationStatusUpdated(integration, Structs.RegistrationStatusEnum.REGISTERED);
         integrationManagementHarness.updateIntegrationRegistrationStatus(
-            integration, Structs.RegistrationStatusEnum.REGISTERED
+            integration,
+            Structs.RegistrationStatusEnum.REGISTERED
         );
     }
 
@@ -244,7 +335,8 @@ contract IntegrationManagement_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_IntegrationAddressIsZeroAddress() public {
         vm.expectRevert(ProtocolErrors.Cube3Protocol_InvalidIntegration.selector);
         integrationManagementHarness.wrappedUpdateIntegrationRegistrationStatus(
-            address(0), Structs.RegistrationStatusEnum.REGISTERED
+            address(0),
+            Structs.RegistrationStatusEnum.REGISTERED
         );
     }
 }

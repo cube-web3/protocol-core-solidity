@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,15 +13,14 @@ contract DemoIntegrationERC721 is ERC721, Cube3Protection {
 
     uint256 constant MAX_MINT = 3;
 
-    constructor(address cubeRouter)
-        ERC721("Cube3ProtectedNFT", "CP3NFT")
-        Cube3Protection(cubeRouter, msg.sender, true)
-    {}
+    constructor(
+        address cubeRouter
+    ) ERC721("Cube3ProtectedNFT", "CP3NFT") Cube3Protection(cubeRouter, msg.sender, true) {}
 
     function safeMint(uint256 qty, bytes calldata cube3SecurePayload) public cube3Protected(cube3SecurePayload) {
         require(mintsPerAddress[msg.sender] + qty <= MAX_MINT, "Max mint per address reached");
         uint256 tokenId;
-        for (uint256 i; i < qty;) {
+        for (uint256 i; i < qty; ) {
             tokenId = ++_tokenIdCounter;
             mintsPerAddress[msg.sender] += qty;
             _safeMint(msg.sender, tokenId);

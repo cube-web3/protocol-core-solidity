@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
-import { Demo } from "@test/demo/Demo.sol";
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import {ICube3Router} from "@src/interfaces/ICube3Router.sol";
+import {Demo} from "@test/demo/Demo.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
 abstract contract IntegrationTest is BaseTest {
     Demo demo;
@@ -49,7 +49,9 @@ abstract contract IntegrationTest is BaseTest {
         emit log_named_bytes("registrationSignature", registrationSignature);
 
         ICube3Router(address(cubeRouterProxy)).registerIntegrationWithCube3(
-            address(demo), registrationSignature, fnSelectors
+            address(demo),
+            registrationSignature,
+            fnSelectors
         );
         vm.stopPrank();
     }

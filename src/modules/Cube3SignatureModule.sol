@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { ICube3SignatureModule } from "@src/interfaces/ICube3SignatureModule.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { SecurityModuleBase } from "@src/modules/SecurityModuleBase.sol";
+import {ICube3SignatureModule} from "@src/interfaces/ICube3SignatureModule.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {SignatureUtils} from "@src/libs/SignatureUtils.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {SecurityModuleBase} from "@src/modules/SecurityModuleBase.sol";
 
 /// @title Cube3SignatureModule
 /// @notice This Secuity Module contains logic for validating signatures provided by CUBE3's
@@ -22,8 +22,8 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     address private immutable _universalSigner;
 
     // Mapping to keep track of per-integration nonces for callers of the top-level integration functions.
-    mapping(address integration => mapping(address integrationMsgSender => uint256 userNonce)) internal
-        integrationToUserNonce;
+    mapping(address integration => mapping(address integrationMsgSender => uint256 userNonce))
+        internal integrationToUserNonce;
 
     /*//////////////////////////////////////////////////////////////
             CONSTRUCTOR
@@ -37,9 +37,7 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
         address cube3RouterProxy,
         string memory version,
         address backupSigner
-    )
-        SecurityModuleBase(cube3RouterProxy, version)
-    {
+    ) SecurityModuleBase(cube3RouterProxy, version) {
         // Checks: the universal signer is valid.
         if (backupSigner == address(0)) {
             revert ProtocolErrors.Cube3Registry_NullUniversalSigner();
@@ -55,11 +53,7 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     function validateSignature(
         Structs.TopLevelCallComponents memory topLevelCallComponents,
         bytes calldata signatureModulePayload
-    )
-        external
-        onlyCube3Router
-        returns (bytes32)
-    {
+    ) external onlyCube3Router returns (bytes32) {
         // Fetch the registry address from the router. This will be used later to fetch the signing authority
         // for the integration provided in the {topLevelCallComponents}.
         ICube3Registry cube3registry = _fetchRegistryFromRouter();
@@ -90,8 +84,9 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
             // no user can feasibly get close to type(uint256).max nonces, so use unchecked math.
             unchecked {
                 // First increments the `integrationToUserNonce` storage variable, then sets the in-memory {userNonce}.
-                expectedUserNonce =
-                    ++integrationToUserNonce[topLevelCallComponents.integration][topLevelCallComponents.msgSender];
+                expectedUserNonce = ++integrationToUserNonce[topLevelCallComponents.integration][
+                    topLevelCallComponents.msgSender
+                ];
             }
 
             // Checks: the cube3SecuredData.nonce should equal: user's nonce at the time of the tx + 1
@@ -147,11 +142,7 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     function _fetchSigningAuthorityFromRegistry(
         ICube3Registry cube3registry,
         address integration
-    )
-        internal
-        view
-        returns (address signer)
-    {
+    ) internal view returns (address signer) {
         signer = cube3registry.getSigningAuthorityForIntegration(integration);
     }
 
@@ -176,11 +167,9 @@ contract Cube3SignatureModule is SecurityModuleBase, ICube3SignatureModule {
     ///      constituent elements as a SignatureModulePayloadData struct.
     /// @dev Checks the validity of the payloads target function selector, module Id, and expiration.
     /// @param modulePayload The module payload to decode, created with abi.encodePacked().
-    function _decodeModulePayload(bytes calldata modulePayload)
-        internal
-        view
-        returns (SignatureModulePayloadData memory)
-    {
+    function _decodeModulePayload(
+        bytes calldata modulePayload
+    ) internal view returns (SignatureModulePayloadData memory) {
         // Extract the uint256 timestamp from the first word.
         uint256 expirationTimestamp = uint256(bytes32(modulePayload[:32]));
 

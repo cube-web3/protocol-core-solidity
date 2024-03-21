@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
-import { RegistryHarness } from "@test/foundry/harnesses/RegistryHarness.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
+import {RegistryHarness} from "@test/foundry/harnesses/RegistryHarness.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
 
 contract Registry_Concrete_Unit_Test is BaseTest {
     RegistryHarness registryHarness;
@@ -38,7 +38,8 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertFalse(
-            registryConstructor.hasRole(registryConstructor.DEFAULT_ADMIN_ROLE(), _randomAddress()), "incorrect"
+            registryConstructor.hasRole(registryConstructor.DEFAULT_ADMIN_ROLE(), _randomAddress()),
+            "incorrect"
         );
     }
 
@@ -55,7 +56,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.startBroadcast(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_KEY_MANAGER_ROLE
             )
         );
         registryHarness.setClientSigningAuthority(integrationContract, clientSigningAuthority);
@@ -94,7 +97,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.startBroadcast(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_KEY_MANAGER_ROLE
             )
         );
         registryHarness.batchSetSigningAuthority(integrations, signingAuthorities);
@@ -132,7 +137,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.startBroadcast(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_KEY_MANAGER_ROLE
             )
         );
         registryHarness.revokeSigningAuthorityForIntegration(integrationContract);
@@ -151,7 +158,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.stopBroadcast();
 
         assertEq(
-            registryHarness.getSigningAuthorityForIntegration(integrationContract), address(0), "incorrect authority"
+            registryHarness.getSigningAuthorityForIntegration(integrationContract),
+            address(0),
+            "incorrect authority"
         );
     }
 
@@ -168,7 +177,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         vm.startBroadcast(account);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector, account, CUBE3_KEY_MANAGER_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector,
+                account,
+                CUBE3_KEY_MANAGER_ROLE
             )
         );
         registryHarness.batchRevokeSigningAuthoritiesForIntegrations(integrations);
@@ -270,7 +281,9 @@ contract Registry_Concrete_Unit_Test is BaseTest {
         emit SigningAuthorityRevoked(integrationContract, clientSigningAuthority);
         registryHarness.wrappedRevokeSigningAuthorityForIntegration(integrationContract);
         assertEq(
-            registryHarness.getSigningAuthorityForIntegration(integrationContract), address(0), "existing authority"
+            registryHarness.getSigningAuthorityForIntegration(integrationContract),
+            address(0),
+            "existing authority"
         );
     }
 }

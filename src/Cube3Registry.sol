@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ProtocolAdminRoles } from "@src/common/ProtocolAdminRoles.sol";
-import { ProtocolEvents } from "@src/common/ProtocolEvents.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ProtocolAdminRoles} from "@src/common/ProtocolAdminRoles.sol";
+import {ProtocolEvents} from "@src/common/ProtocolEvents.sol";
 
 /// @title Cube3Registry
 /// @notice Contract containing logic for the storage and management of integration Signing
@@ -40,10 +40,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
     function setClientSigningAuthority(
         address integrationContract,
         address clientSigningAuthority
-    )
-        external
-        onlyRole(CUBE3_KEY_MANAGER_ROLE)
-    {
+    ) external onlyRole(CUBE3_KEY_MANAGER_ROLE) {
         _setClientSigningAuthority(integrationContract, clientSigningAuthority);
     }
 
@@ -51,10 +48,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
     function batchSetSigningAuthority(
         address[] calldata integrations,
         address[] calldata signingAuthorities
-    )
-        external
-        onlyRole(CUBE3_KEY_MANAGER_ROLE)
-    {
+    ) external onlyRole(CUBE3_KEY_MANAGER_ROLE) {
         // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 lenIntegrations = integrations.length;
 
@@ -63,7 +57,7 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
             revert ProtocolErrors.Cube3Protocol_ArrayLengthMismatch();
         }
 
-        for (uint256 i; i < lenIntegrations;) {
+        for (uint256 i; i < lenIntegrations; ) {
             // Effects: set the signing authority for the integration.
             _setClientSigningAuthority(integrations[i], signingAuthorities[i]);
             unchecked {
@@ -78,13 +72,12 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
     }
 
     /// @inheritdoc ICube3Registry
-    function batchRevokeSigningAuthoritiesForIntegrations(address[] calldata integrationsToRevoke)
-        external
-        onlyRole(CUBE3_KEY_MANAGER_ROLE)
-    {
+    function batchRevokeSigningAuthoritiesForIntegrations(
+        address[] calldata integrationsToRevoke
+    ) external onlyRole(CUBE3_KEY_MANAGER_ROLE) {
         // Store the length in memory so we're not continually reading the size from calldata for each iteration.
         uint256 len = integrationsToRevoke.length;
-        for (uint256 i; i < len;) {
+        for (uint256 i; i < len; ) {
             // Effects: revoke the signing authority for the integration at the current index.
             _revokeSigningAuthorityForIntegration(integrationsToRevoke[i]);
             unchecked {

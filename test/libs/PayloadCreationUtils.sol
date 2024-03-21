@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Vm } from "forge-std/Vm.sol";
-import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { Cube3SignatureModule } from "@src/modules/Cube3SignatureModule.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {Cube3SignatureModule} from "@src/modules/Cube3SignatureModule.sol";
 
 library PayloadCreationUtils {
     address private constant VM_ADDRESS = address(bytes20(uint160(uint256(keccak256("hevm cheat code")))));
@@ -48,10 +48,7 @@ library PayloadCreationUtils {
         bool trackNonce,
         Cube3SignatureModule signatureModule,
         Structs.TopLevelCallComponents memory topLevelCallComponents
-    )
-        internal
-        returns (bytes memory)
-    {
+    ) internal returns (bytes memory) {
         uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = trackNonce ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
 
@@ -100,11 +97,7 @@ library PayloadCreationUtils {
     function signPayloadData(
         bytes memory encodedSignatureData,
         uint256 pvtKeyToSignWith
-    )
-        internal
-        pure
-        returns (bytes memory signature)
-    {
+    ) internal pure returns (bytes memory signature) {
         bytes32 signatureHash = keccak256(encodedSignatureData);
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
@@ -126,16 +119,12 @@ library PayloadCreationUtils {
     function createPaddedModulePayload(
         bytes memory modulePayload,
         uint32 modulePaddingSize
-    )
-        internal
-        pure
-        returns (bytes memory)
-    {
+    ) internal pure returns (bytes memory) {
         // pad the module payload to the next word
         bytes memory payloadWithPadding = new bytes(modulePayload.length + modulePaddingSize);
 
         // only fill the data up until the payload lenght, the rest will be 0s (matching the paddingLength)
-        for (uint256 i = 0; i < modulePayload.length;) {
+        for (uint256 i = 0; i < modulePayload.length; ) {
             payloadWithPadding[i] = modulePayload[i];
             unchecked {
                 ++i;
@@ -151,11 +140,7 @@ library PayloadCreationUtils {
         uint256 msgValue,
         bytes memory integrationCalldataWithEmptyPayload,
         uint256 expectedPayloadSize
-    )
-        internal
-        pure
-        returns (Structs.TopLevelCallComponents memory)
-    {
+    ) internal pure returns (Structs.TopLevelCallComponents memory) {
         // remove the payload so we can create a hash of the calldata without the payload,
         // note: because payload is type bytes, the slicedCalldata may contain some data about the payload,
         // eg. the offset to the payload, and the length of the payload, but this will be the case when it's
@@ -176,11 +161,7 @@ library PayloadCreationUtils {
         bytes4 moduleSelector,
         uint32 paddedModulePayloadLength,
         uint32 modulePadding
-    )
-        internal
-        pure
-        returns (uint256)
-    {
+    ) internal pure returns (uint256) {
         /*
             stores 4 values in a single word (as a uint256) using a bitmap, where:
             4: empty<4bytes|32bits>
@@ -288,7 +269,7 @@ library PayloadCreationUtils {
     }
 
     function addUint32ToBitmap(uint256 bitmap, uint32 value, uint8 offset) public pure returns (uint256) {
-        return bitmap + uint256(value) << offset;
+        return (bitmap + uint256(value)) << offset;
     }
 
     function sliceBytes(bytes memory _bytes, uint256 start, uint256 end) public pure returns (bytes memory) {
@@ -301,16 +282,11 @@ library PayloadCreationUtils {
         return tempBytes;
     }
 
-
     function createRegistrarSignature(
         address integrationAdmin,
         address integration,
         uint256 signingAuthPvtKey
-    )
-        internal
-        view
-        returns (bytes memory)
-    {
+    ) internal view returns (bytes memory) {
         return signPayloadData(abi.encodePacked(integration, integrationAdmin, block.chainid), signingAuthPvtKey);
     }
 }

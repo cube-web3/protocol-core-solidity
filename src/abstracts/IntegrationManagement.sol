@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
-import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ICube3SecurityModule} from "@src/interfaces/ICube3SecurityModule.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
+import {RouterStorage} from "@src/abstracts/RouterStorage.sol";
 
-import { IIntegrationManagement } from "@src/interfaces/IIntegrationManagement.sol";
+import {IIntegrationManagement} from "@src/interfaces/IIntegrationManagement.sol";
 
-import { ProtocolConstants } from "@src/common/ProtocolConstants.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { SignatureUtils } from "@src/libs/SignatureUtils.sol";
-import { AddressUtils } from "@src/libs/AddressUtils.sol";
+import {ProtocolConstants} from "@src/common/ProtocolConstants.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {SignatureUtils} from "@src/libs/SignatureUtils.sol";
+import {AddressUtils} from "@src/libs/AddressUtils.sol";
 
 /// @title IntegrationManagment
 /// @notice This contract implements logic for managing integration contracts and their relationship with the protocol.
@@ -49,15 +49,14 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     function transferIntegrationAdmin(
         address integration,
         address newAdmin
-    )
-        external
-        onlyIntegrationAdmin(integration)
-    {
+    ) external onlyIntegrationAdmin(integration) whenNotPaused {
         _setPendingIntegrationAdmin(integration, newAdmin);
     }
 
     /// @inheritdoc IIntegrationManagement
-    function acceptIntegrationAdmin(address integration) external onlyPendingIntegrationAdmin(integration) {
+    function acceptIntegrationAdmin(
+        address integration
+    ) external onlyPendingIntegrationAdmin(integration) whenNotPaused {
         _setIntegrationAdmin(integration, msg.sender);
         _deleteIntegrationPendingAdmin(integration); // small gas refund
     }
@@ -66,10 +65,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     function updateFunctionProtectionStatus(
         address integration,
         Structs.FunctionProtectionStatusUpdate[] calldata updates
-    )
-        external
-        onlyIntegrationAdmin(integration)
-    {
+    ) external onlyIntegrationAdmin(integration) whenNotPaused {
         // Checks: the integration has completed the registration step.
         Structs.RegistrationStatusEnum status = getIntegrationStatus(integration);
         if (status == Structs.RegistrationStatusEnum.PENDING) {
@@ -80,7 +76,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         bool isRegistrationRevoked = status == Structs.RegistrationStatusEnum.REVOKED;
         uint256 len = updates.length;
 
-        for (uint256 i; i < len;) {
+        for (uint256 i; i < len; ) {
             Structs.FunctionProtectionStatusUpdate calldata update = updates[i];
             // Checks: only an integration that's REGISTERED can enable protection for a function and utilize the
             // protocol.  However, if an integration has protections enabled, we allow them to disable them even if
@@ -102,7 +98,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIntegrationManagement
-    function initiateIntegrationRegistration(address initialAdmin) external returns (bytes32) {
+    function initiateIntegrationRegistration(address initialAdmin) external whenNotPaused returns (bytes32) {
         // Checks: the integration admin account provided is a valid address.
         if (initialAdmin == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIntegrationAdmin();
@@ -127,15 +123,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         address integration,
         bytes calldata registrarSignature,
         bytes4[] calldata enabledByDefaultFnSelectors
-    )
-        external
-        onlyIntegrationAdmin(integration)
-    {
-        // Checks: the protocol is not paused.
-        if (getIsProtocolPaused()) {
-            revert ProtocolErrors.Cube3Router_ProtocolPaused();
-        }
-
+    ) external onlyIntegrationAdmin(integration) whenNotPaused {
         // Checks: the integration being registered is a valid address.
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Protocol_InvalidIntegration();
@@ -160,8 +148,9 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         }
 
         // Checks: the registry and registrar are valid accounts.
-        (address registry, address integrationSigningAuthority) =
-            fetchRegistryAndSigningAuthorityForIntegration(integration);
+        (address registry, address integrationSigningAuthority) = fetchRegistryAndSigningAuthorityForIntegration(
+            integration
+        );
 
         // Checks: the registry has been set.
         if (registry == address(0)) {
@@ -174,8 +163,9 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         }
 
         // Generate the digest with the integration-specific data. Using `chainid` prevents replay across chains.
-        bytes32 registrationDigest =
-            keccak256(abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid));
+        bytes32 registrationDigest = keccak256(
+            abi.encodePacked(integration, getIntegrationAdmin(integration), block.chainid)
+        );
 
         // Checks: uses ECDSA recovery to validates the signature.  Reverts if the registrarSignature is invalid.
         registrarSignature.assertIsValidSignature(registrationDigest, integrationSigningAuthority);
@@ -189,7 +179,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
 
         // Update the protection status for each selector provided in the array.
         if (numSelectors > 0) {
-            for (uint256 i; i < numSelectors;) {
+            for (uint256 i; i < numSelectors; ) {
                 tempSelector = enabledByDefaultFnSelectors[i];
 
                 // Checks: the selector being set is not null.
@@ -217,10 +207,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     function batchUpdateIntegrationRegistrationStatus(
         address[] calldata integrations,
         Structs.RegistrationStatusEnum[] calldata statuses
-    )
-        external
-        onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE)
-    {
+    ) external onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE) {
         uint256 numIntegrations = integrations.length;
 
         // Checks: the array lengths are equal.
@@ -229,7 +216,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         }
 
         // Interactions: updates the registration status for each integration in the array.
-        for (uint256 i; i < numIntegrations;) {
+        for (uint256 i; i < numIntegrations; ) {
             _updateIntegrationRegistrationStatus(integrations[i], statuses[i]);
             unchecked {
                 ++i;
@@ -241,10 +228,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     function updateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum registrationStatus
-    )
-        external
-        onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE)
-    {
+    ) external onlyRole(CUBE3_INTEGRATION_MANAGER_ROLE) {
         _updateIntegrationRegistrationStatus(integration, registrationStatus);
     }
 
@@ -253,11 +237,9 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIntegrationManagement
-    function fetchRegistryAndSigningAuthorityForIntegration(address integration)
-        public
-        view
-        returns (address registry, address authority)
-    {
+    function fetchRegistryAndSigningAuthorityForIntegration(
+        address integration
+    ) public view returns (address registry, address authority) {
         // Get the registry address from storage.
         registry = getRegistryAddress();
 
@@ -271,12 +253,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
     /// @notice Internal helper for performing checks and updating storage for and integration's registration
     /// status.
     /// @dev Cannot set the status for the zero address and prevents the status from being set to the same value.
-    function _updateIntegrationRegistrationStatus(
-        address integration,
-        Structs.RegistrationStatusEnum status
-    )
-        internal
-    {
+    function _updateIntegrationRegistrationStatus(address integration, Structs.RegistrationStatusEnum status) internal {
         // Checks: the integration address is valid.
         if (integration == address(0)) {
             revert ProtocolErrors.Cube3Protocol_InvalidIntegration();

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { Structs } from "@src/common/Structs.sol";
-import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {IntegrationManagement} from "@src/abstracts/IntegrationManagement.sol";
 
 /// @notice Testing harness for the IntegrationManagement contract, exposing internal functions for testing
 contract IntegrationManagementHarness is IntegrationManagement {
@@ -34,9 +34,7 @@ contract IntegrationManagementHarness is IntegrationManagement {
     function wrappedUpdateIntegrationRegistrationStatus(
         address integration,
         Structs.RegistrationStatusEnum status
-    )
-        public
-    {
+    ) public {
         _updateIntegrationRegistrationStatus(integration, status);
     }
 }

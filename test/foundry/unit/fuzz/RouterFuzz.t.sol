@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import { BaseTest } from "@test/foundry/BaseTest.t.sol";
+import {BaseTest} from "@test/foundry/BaseTest.t.sol";
 
-import { RouterHarness } from "@test/foundry/harnesses/RouterHarness.sol";
-import { MockModule } from "@test/mocks/MockModule.t.sol";
+import {RouterHarness} from "@test/foundry/harnesses/RouterHarness.sol";
+import {MockModule} from "@test/mocks/MockModule.t.sol";
 
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
-import { ICube3Router } from "@src/interfaces/ICube3Router.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
+import {ICube3Router} from "@src/interfaces/ICube3Router.sol";
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 contract Router_Fuzz_Unit_Test is BaseTest {
     RouterHarness routerHarness;
@@ -91,8 +91,10 @@ contract Router_Fuzz_Unit_Test is BaseTest {
     // fails if return data is not 32 bytes
     function testFuzz_RevertsWhen_ReturnDataLengthNot32Bytes(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
-        bytes memory moduleCalldata =
-            abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataLength.selector, arg);
+        bytes memory moduleCalldata = abi.encodeWithSelector(
+            MockModule.executeMockModuleFunctionInvalidReturnDataLength.selector,
+            arg
+        );
         // we know the mock module returns 64 bytes: bytes32 + uint256
         vm.expectRevert(abi.encodeWithSelector(ProtocolErrors.Cube3Router_ModuleReturnDataInvalidLength.selector, 64));
         routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
@@ -101,8 +103,10 @@ contract Router_Fuzz_Unit_Test is BaseTest {
     // fails if return data is not bytes32 value of MODULE_CALL_SUCCEEDED
     function testFuzz_RevertsWhen_ReturnDataNotMatchingExpected(uint256 dataSeed) public {
         bytes32 arg = keccak256(abi.encode(dataSeed));
-        bytes memory moduleCalldata =
-            abi.encodeWithSelector(MockModule.executeMockModuleFunctionInvalidReturnDataType.selector, arg);
+        bytes memory moduleCalldata = abi.encodeWithSelector(
+            MockModule.executeMockModuleFunctionInvalidReturnDataType.selector,
+            arg
+        );
         vm.expectRevert(ProtocolErrors.Cube3Router_ModuleReturnedInvalidData.selector);
         routerHarness.executeModuleFunctionCall(address(mockModule), moduleCalldata);
     }

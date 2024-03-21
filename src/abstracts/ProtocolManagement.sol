@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.19 < 0.8.24;
+pragma solidity 0.8.23;
 
-import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { ERC165Checker } from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
-import { ICube3SecurityModule } from "@src/interfaces/ICube3SecurityModule.sol";
-import { ICube3Registry } from "@src/interfaces/ICube3Registry.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import {ICube3SecurityModule} from "@src/interfaces/ICube3SecurityModule.sol";
+import {ICube3Registry} from "@src/interfaces/ICube3Registry.sol";
 
-import { IProtocolManagement } from "@src/interfaces/IProtocolManagement.sol";
+import {IProtocolManagement} from "@src/interfaces/IProtocolManagement.sol";
 
-import { IntegrationManagement } from "@src/abstracts/IntegrationManagement.sol";
-import { RouterStorage } from "@src/abstracts/RouterStorage.sol";
-import { Structs } from "@src/common/Structs.sol";
-import { ProtocolErrors } from "@src/libs/ProtocolErrors.sol";
+import {IntegrationManagement} from "@src/abstracts/IntegrationManagement.sol";
+import {RouterStorage} from "@src/abstracts/RouterStorage.sol";
+import {Structs} from "@src/common/Structs.sol";
+import {ProtocolErrors} from "@src/libs/ProtocolErrors.sol";
 
 /// @title ProtocolManagement
 /// @notice This contract contains all the logic for managing the protocol.
@@ -44,12 +44,7 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
     function callModuleFunctionAsAdmin(
         bytes16 moduleId,
         bytes calldata fnCalldata
-    )
-        external
-        payable
-        onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE)
-        returns (bytes memory)
-    {
+    ) external payable onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) returns (bytes memory) {
         // Retrieve the module address using the ID.
         address module = getModuleAddressById(moduleId);
 
@@ -58,7 +53,7 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
             revert ProtocolErrors.Cube3Router_ModuleNotInstalled(moduleId);
         }
 
-        (bool success, bytes memory returnOrRevertData) = payable(module).call{ value: msg.value }(fnCalldata);
+        (bool success, bytes memory returnOrRevertData) = payable(module).call{value: msg.value}(fnCalldata);
         if (!success) {
             // Bubble up the revert data unmolested.
             assembly {
@@ -79,16 +74,13 @@ abstract contract ProtocolManagement is IProtocolManagement, AccessControlUpgrad
 
     /// @inheritdoc IProtocolManagement
     function installModule(address moduleAddress, bytes16 moduleId) external onlyRole(CUBE3_PROTOCOL_ADMIN_ROLE) {
-        // Checks: the module address is valid.
-        if (moduleAddress == address(0)) {
-            revert ProtocolErrors.Cube3Router_InvalidAddressForModule();
-        }
         // Checks: the module ID is valid.
         if (moduleId == bytes16(0)) {
             revert ProtocolErrors.Cube3Router_InvalidIdForModule();
         }
 
-        // Checks: the deployed module supports the ICube3SecurityModule interface.
+        // Checks: the deployed module supports the ICube3SecurityModule interface. Will revert if the module
+        // address is the zero address.
         if (!ERC165Checker.supportsInterface(moduleAddress, type(ICube3SecurityModule).interfaceId)) {
             revert ProtocolErrors.Cube3Router_ModuleInterfaceNotSupported();
         }
