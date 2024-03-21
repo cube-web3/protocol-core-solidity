@@ -51,7 +51,6 @@ library RoutingUtils {
 
         // Creating a hash of the integration calldata, minus the module payload, can be used to verify the function
         // params used in the function call are equivalent to the ones used to create the signature.
-        // TODO: note about the 64
         originalCalldataDigest = keccak256(integrationCalldata[:integrationCalldata.length - moduleLength - 64]);
     }
 
