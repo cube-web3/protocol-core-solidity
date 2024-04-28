@@ -161,4 +161,7 @@ library ProtocolErrors {
 
     /// @notice Throws when the universal backup signer is the zero address
     error Cube3Registry_NullUniversalSigner();
+
+    /// @notice Throws when the zero address is provided as an admin.
+    error Cube3Registry_InvalidAdmin();
 }
