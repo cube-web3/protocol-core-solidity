@@ -66,7 +66,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         vm.startBroadcast(_deployerPvtKey);
 
         // ============ registry
-        registry = new Cube3Registry(_protocolAdmin);
+        registry = new Cube3Registry(vm.addr(_deployerPvtKey));
         _addAccessControlAndRevokeDeployerPermsForRegistry(_protocolAdmin, _keyManager, vm.addr(_deployerPvtKey));
 
         // ============ router
