@@ -1,13 +1,13 @@
-pragma solidity >=0.8.19 < 0.8.24;
+pragma solidity >=0.8.19 <0.8.24;
 
 import "forge-std/Test.sol";
 
-import { Demo } from "@test/demo/Demo.sol";
-import { IntegrationTest } from "@test/foundry/IntegrationTest.t.sol";
+import {Demo} from "@test/demo/Demo.sol";
+import {IntegrationTest} from "@test/foundry/IntegrationTest.t.sol";
 
-import { PayloadCreationUtils } from "@test/libs/PayloadCreationUtils.sol";
+import {PayloadCreationUtils} from "@test/libs/PayloadCreationUtils.sol";
 
-import { Structs } from "@src/common/Structs.sol";
+import {Structs} from "@src/common/Structs.sol";
 
 contract Integration_Standlone_Concrete_Test is IntegrationTest {
     function setUp() public override {
@@ -34,11 +34,21 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), 0, mintCalldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                user,
+                address(demo),
+                0,
+                mintCalldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, true, signatureModule, topLevelCallComponents
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
         );
 
         emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
@@ -60,16 +70,31 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         // generate the payload
         bytes memory emptyBytes = new bytes(352); // payload length
 
-        bytes memory calldataWithEmptyPayload =
-            abi.encodeWithSelector(Demo.protected.selector, newVal, newState, newBytes, emptyBytes);
+        bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.protected.selector,
+            newVal,
+            newState,
+            newBytes,
+            emptyBytes
+        );
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                user,
+                address(demo),
+                0,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, true, signatureModule, topLevelCallComponents
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
         );
 
         demo.protected(newVal, newState, newBytes, cube3SecurePayload);
@@ -92,17 +117,34 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
 
         // generate the payload
         bytes memory emptyBytes = new bytes(352); // payload length
-        bytes memory calldataWithEmptyPayload =
-            abi.encodeWithSelector(Demo.dynamic.selector, vals, flag, str, emptyBytes);
+        bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.dynamic.selector,
+            vals,
+            flag,
+            str,
+            emptyBytes
+        );
 
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                user,
+                address(demo),
+                0,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, true, signatureModule, topLevelCallComponents
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
         );
+
+        emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
 
         demo.dynamic(vals, flag, str, cube3SecurePayload);
         vm.stopPrank();
@@ -127,15 +169,32 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         // generate the payload
         bytes memory emptyBytes = new bytes(352); // payload length
         bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
-            Demo.bytesProtected.selector, firstBytes, newVal, secondBytes, uint256s, str, flag, emptyBytes
+            Demo.bytesProtected.selector,
+            firstBytes,
+            newVal,
+            secondBytes,
+            uint256s,
+            str,
+            flag,
+            emptyBytes
         );
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                user,
+                address(demo),
+                0,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, true, signatureModule, topLevelCallComponents
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
         );
 
         demo.bytesProtected(firstBytes, newVal, secondBytes, uint256s, str, flag, cube3SecurePayload);
@@ -153,15 +212,25 @@ contract Integration_Standlone_Concrete_Test is IntegrationTest {
         bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(Demo.noArgs.selector, emptyBytes);
         Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
             .packageTopLevelCallComponents(
-            user, address(demo), 0, calldataWithEmptyPayload, EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
-        );
+                user,
+                address(demo),
+                0,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
 
         bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
-            address(demo), user, demoSigningAuthorityPvtKey, 1 days, true, signatureModule, topLevelCallComponents
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
         );
         demo.noArgs(cube3SecurePayload);
         vm.stopPrank();
     }
 
-    function testPayable() public { }
+    function testPayable() public {}
 }

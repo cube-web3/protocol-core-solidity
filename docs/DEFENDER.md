@@ -61,6 +61,17 @@ forge clean \
 && forge build \
 && forge script script/foundry/DefenderDeploySepolia.s.sol \
 --force \
---rpc-url <rpc_url> \
---verify
+--rpc-url <rpc_url>
+```
+
+Results will look like:
+
+```
+== Logs ==
+  Deploy approval process address 0x760c379198d95a449596e9aC92330319E17359D1
+  Deploy approval process ID f7e0b5be-0cd0-4f28-8f1f-82a64157a1ec
+  Deploy approval type Relayer
+  Deployed Registry contract to address 0x287FC531CFF30fEcA5034348bCB99cb71bF838a4
+  Deployed Router Proxy contract to address 0x3a165f2C19964eCb394d38533100C821a7bC151b
+  Deployed Registry contract to address 0x5F8d26b0B80c2f5885b6c91E35c7Fc76384a2D2C
 ```
