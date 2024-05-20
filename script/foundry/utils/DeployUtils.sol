@@ -3,6 +3,9 @@ pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 
+import {Defender, ApprovalProcessResponse} from "openzeppelin-foundry-upgrades/Defender.sol";
+import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
+
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {Cube3RouterImpl} from "@src/Cube3RouterImpl.sol";
 
@@ -63,7 +66,7 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         vm.startBroadcast(_deployerPvtKey);
 
         // ============ registry
-        registry = new Cube3Registry();
+        registry = new Cube3Registry(vm.addr(_deployerPvtKey));
         _addAccessControlAndRevokeDeployerPermsForRegistry(_protocolAdmin, _keyManager, vm.addr(_deployerPvtKey));
 
         // ============ router

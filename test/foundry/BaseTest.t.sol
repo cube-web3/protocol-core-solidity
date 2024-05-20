@@ -80,7 +80,7 @@ contract BaseTest is DeployUtils, ProtocolEvents, TestUtils, TestEvents, Protoco
         vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
 
         // ============ registry
-        registry = new Cube3Registry();
+        registry = new Cube3Registry(cube3Accounts.protocolAdmin);
         vm.label(address(registry), "Cube3Registry");
 
         _addAccessControlAndRevokeDeployerPermsForRegistry(

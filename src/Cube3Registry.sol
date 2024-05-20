@@ -26,10 +26,11 @@ contract Cube3Registry is AccessControl, ICube3Registry, ProtocolAdminRoles, Pro
             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor() {
-        // The deployer is the EOA who initiated the transaction, and is the account that will revoke
-        // it's own access permissions and add new ones immediately following deployment.
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    constructor(address admin) {
+        if (admin == address(0)) {
+            revert ProtocolErrors.Cube3Registry_InvalidAdmin();
+        }
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     /*//////////////////////////////////////////////////////////////
