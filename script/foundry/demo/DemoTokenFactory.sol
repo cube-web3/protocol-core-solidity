@@ -20,12 +20,12 @@ contract DemoTokenFactory {
     }
 
     /// @notice Deploys a new minimal proxy using the token template.
-    function deployToken(string calldata tokenName, string calldata tokenSymbol) public {
+    function deployToken(string calldata tokenName, string calldata tokenSymbol, bool protectByDefault) public {
         address token = tokenTemplate.clone();
         DemoTokenImpl(payable(token)).initialize(
             router,
             msg.sender, // protection admin
-            true, // enable protection
+            protectByDefault, // enable protection
             tokenName,
             tokenSymbol
         );

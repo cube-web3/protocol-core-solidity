@@ -33,4 +33,11 @@ contract DemoTokenImpl is Cube3ProtectionUpgradeable, ERC20Upgradeable {
 
         _mint(to, amount);
     }
+
+    function updateCube3Connection(bool useCube3) external {
+        if (msg.sender != owner) {
+            revert("DemoImpl: only owner can update connection");
+        }
+        _updateShouldUseProtocol(useCube3);
+    }
 }

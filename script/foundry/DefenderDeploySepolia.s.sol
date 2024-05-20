@@ -18,7 +18,7 @@ contract DefenderDeploySepolia is DefenderDeploy {
             deploymentSalt: keccak256(abi.encode("sepolia-15")),
             registryBackupSigner: 0x0f9F153454E08cE185E555C0dc3c034C5f66dd77,
             signatureModuleVersion: "signature-0.0.1",
-            relayerAdmin: 0x760c379198d95a449596e9aC92330319E17359D1,
+            relayerAdmin: 0x760c379198d95a449596e9aC92330319E17359D1, // TODO: is this the multisig?
             gasConfig: gasConfig
         });
     }

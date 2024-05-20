@@ -79,7 +79,7 @@ abstract contract IntegrationManagement is IIntegrationManagement, AccessControl
         for (uint256 i; i < len; ) {
             Structs.FunctionProtectionStatusUpdate calldata update = updates[i];
             // Checks: only an integration that's REGISTERED can enable protection for a function and utilize the
-            // protocol.  However, if an integration has protections enabled, we allow them to disable them even if
+            // protocol.  However, if an integration has protections enabled, we allow them to disable even if
             // REVOKED.
             if (update.protectionEnabled && isRegistrationRevoked) {
                 revert ProtocolErrors.Cube3Router_IntegrationRegistrationRevoked();
