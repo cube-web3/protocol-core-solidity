@@ -58,11 +58,18 @@ contract Cube3RouterImpl is
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ICube3RouterImpl
-    function initialize(address registry) public initializer onlyConstructor {
+    function initialize(address registry, address initialAdmin) public initializer onlyConstructor {
         // Checks: registry is not the zero address
         if (registry == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidRegistry();
         }
+
+        // TODO: Test this
+        // Checks: initialAdmin is not the zero address
+        if (initialAdmin == address(0)) {
+            revert ProtocolErrors.Cube3Router_InvalidAdmin();
+        }
+
         // Checks: the registry is a valid contract.
         registry.assertIsContract();
 
@@ -73,10 +80,9 @@ contract Cube3RouterImpl is
         // Not paused by default.
         _updateProtocolConfig(registry, false);
 
-        // The deployer is the EOA who initiated the transaction, and is the account that will revoke
-        // it's own access permissions and add new ones immediately following deployment. Using tx.origin accounts
-        // for salted contract creation via another contract.
-        _grantRole(DEFAULT_ADMIN_ROLE, tx.origin); // TODO: pass in explicitly
+        // The deployer may be a contract, via salted contract creation, so set the inital
+        // admin explicitly
+        _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
     }
 
     /// @dev Adds access control logic to the {upgradeTo} function

@@ -13,6 +13,7 @@ contract DefenderDeploySepolia is DefenderDeploy {
             maxPriorityFeePerGas: 1_500_000_000 // 1.5 gwei
         });
         opts = NetworkDeploymentDetails({
+            protocolAdmin: address(0), // TODO: set this to the multisig
             deployerRelayerId: "2bfac9a1-9830-4e3f-8059-1501b253a2b5", // Sepolia Deployer Relayer
             upgradeApprovalProcessId: "b294df0c-3320-4352-a526-40d59629ab72",
             deploymentSalt: keccak256(abi.encode("sepolia-15")),

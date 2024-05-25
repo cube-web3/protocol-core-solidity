@@ -18,6 +18,7 @@ struct DeployGasConfig {
     uint256 maxPriorityFeePerGas;
 }
 struct NetworkDeploymentDetails {
+    address protocolAdmin;
     string deployerRelayerId; // ID of the relayer responsible for deployments
     string upgradeApprovalProcessId; // ID of the upgrade approval process (multisig)
     bytes32 deploymentSalt; // Salt used for CREATE2 deployments
@@ -46,18 +47,21 @@ abstract contract DefenderDeploy is Script {
         }
 
         _deployRegistry(
+            networkOpts.protocolAdmin,
             networkOpts.deployerRelayerId,
             networkOpts.deploymentSalt,
             networkOpts.relayerAdmin,
             networkOpts.gasConfig
         );
         _deployRouter(
+            networkOpts.protocolAdmin,
             networkOpts.deployerRelayerId,
             networkOpts.deploymentSalt,
             networkOpts.upgradeApprovalProcessId,
             networkOpts.gasConfig
         );
         _deploySignatureModule(
+            networkOpts.protocolAdmin,
             networkOpts.deployerRelayerId,
             networkOpts.deploymentSalt,
             networkOpts.signatureModuleVersion,
@@ -67,6 +71,7 @@ abstract contract DefenderDeploy is Script {
     }
 
     function _deployRegistry(
+        address protocolAdmin,
         string memory relayerId,
         bytes32 salt,
         address relayerAdmin,
@@ -104,6 +109,7 @@ abstract contract DefenderDeploy is Script {
     }
 
     function _deployRouter(
+        address protocolAdmin,
         string memory relayerId,
         bytes32 salt,
         string memory upgradeApprovalProcessId,
@@ -126,7 +132,7 @@ abstract contract DefenderDeploy is Script {
 
         routerProxy = Upgrades.deployUUPSProxy(
             "Cube3RouterImpl.sol",
-            abi.encodeCall(Cube3RouterImpl.initialize, registry),
+            abi.encodeCall(Cube3RouterImpl.initialize, (registry, protocolAdmin)),
             opts
         );
 
@@ -134,6 +140,7 @@ abstract contract DefenderDeploy is Script {
     }
 
     function _deploySignatureModule(
+        address protocolAdmin,
         string memory relayerId,
         bytes32 salt,
         string memory signatureModuleVersion,

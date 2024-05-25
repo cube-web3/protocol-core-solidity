@@ -49,7 +49,7 @@ library PayloadCreationUtils {
         Cube3SignatureModule signatureModule,
         Structs.TopLevelCallComponents memory topLevelCallComponents
     ) internal returns (bytes memory) {
-        uint256 expirationTimestamp = 1715545464; // block.timestamp + expirationWindow;
+        uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = trackNonce ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
         emit log_named_uint("expectedUserNonce", userNonce);
 
@@ -58,7 +58,7 @@ library PayloadCreationUtils {
         emit log_named_uint("expirationTimestamp", expirationTimestamp);
         // create the signature using the signers private key
         bytes memory encodedDataForSigning = abi.encode(
-            11155111, //block.chainid, // chain id
+            block.chainid, // chain id
             topLevelCallComponents,
             address(signatureModule), // module contract address
             sigSelector, // the module fn's signature
