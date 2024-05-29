@@ -64,7 +64,6 @@ contract Cube3RouterImpl is
             revert ProtocolErrors.Cube3Router_InvalidRegistry();
         }
 
-        // TODO: Test this
         // Checks: initialAdmin is not the zero address
         if (initialAdmin == address(0)) {
             revert ProtocolErrors.Cube3Router_InvalidAdmin();

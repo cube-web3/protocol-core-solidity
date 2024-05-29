@@ -64,7 +64,6 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         string memory _signatureModuleVersion
     ) internal {
         address deployer = vm.addr(_deployerPvtKey);
-        vm.startBroadcast(_deployerPvtKey);
 
         // ============ registry
         registry = new Cube3Registry(_protocolAdmin);
@@ -80,21 +79,19 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         );
 
         // renounce the role as the deployer, new roles will be assigned by the protocol admin
-        wrappedRouterProxy.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
-        require(!wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
+        // wrappedRouterProxy.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
 
         // renounce the deployer role, which will be reassigned by the protocol admin
-        registry.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
+        // registry.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
         require(!registry.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: no cube3 admin role");
 
         // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
+        require(!wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
         // _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
 
         // =========== signature module
         signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), _signatureModuleVersion, _backupSigner);
-
-        vm.stopBroadcast();
     }
     // trick foundry into ignoring for coverage
 
