@@ -71,3 +71,19 @@ contract Demo is Cube3Protection {
         emit Success();
     }
 }
+
+contract DemoAssertProtect is Cube3Protection {
+    event ProtectionChecked(bool connected, uint256 payloadLength);
+
+    constructor(address _router) Cube3Protection(_router, msg.sender, true) {}
+
+    function exposedAssertProtectWhenConnected(bytes calldata payload) external {
+        _assertProtectWhenConnected(payload);
+        emit ProtectionChecked(connectedToCUBE3(), payload.length);
+    }
+
+    /// @dev in a production contract, this function MUST be access controlled
+    function updateConnection(bool shouldConnect) external {
+        _updateShouldUseProtocol(shouldConnect);
+    }
+}

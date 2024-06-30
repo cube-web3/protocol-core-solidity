@@ -5,7 +5,7 @@ Ensure the private keys and RPC url are set in the `.env` file.
 Then, eg.:
 
 ```
-source .env && forge script script/foundry/DeploySeplia.s.sol --rpc-url <rpc_url> -vvvvv --broadcast --verify
+  --broadcast --verify
 
 ```
 
