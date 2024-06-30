@@ -117,8 +117,8 @@ contract Demo is Cube3Protection {
         bytes32 newBytes,
         bytes calldata cubePayload
     ) external payable {
-        require(msg.value > 0, "value = 0");
         _assertProtectWhenConnected(cubePayload);
+        require(msg.value > 0, "value = 0");
         (newVal, newState, newBytes);
         emit Success();
         emit BalanceUpdated(address(this), address(this).balance);
