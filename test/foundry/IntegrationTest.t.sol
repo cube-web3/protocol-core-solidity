@@ -37,13 +37,20 @@ abstract contract IntegrationTest is BaseTest {
     function _completeRegistrationAndEnableFnProtectionAsDemoDeployer() internal {
         vm.startPrank(cube3Accounts.demoDeployer);
 
-        bytes4[] memory fnSelectors = new bytes4[](6);
+        bytes4[] memory fnSelectors = new bytes4[](12);
         fnSelectors[0] = Demo.mint.selector;
-        fnSelectors[1] = Demo.protected.selector;
-        fnSelectors[2] = Demo.dynamic.selector;
-        fnSelectors[3] = Demo.noArgs.selector;
-        fnSelectors[4] = Demo.bytesProtected.selector;
-        fnSelectors[5] = Demo.payableProtected.selector;
+        fnSelectors[1] = Demo.mintAssertion.selector;
+        fnSelectors[2] = Demo.protected.selector;
+        fnSelectors[3] = Demo.protectedAssertion.selector;
+        fnSelectors[4] = Demo.dynamic.selector;
+        fnSelectors[5] = Demo.dynamicAssertion.selector;
+        fnSelectors[6] = Demo.noArgs.selector;
+        fnSelectors[7] = Demo.noArgsAssertion.selector;
+
+        fnSelectors[8] = Demo.bytesProtected.selector;
+        fnSelectors[9] = Demo.bytesProtectedAssertion.selector;
+        fnSelectors[10] = Demo.payableProtected.selector;
+        fnSelectors[11] = Demo.payableProtectedAssertion.selector;
 
         bytes memory registrationSignature = PayloadCreationUtils.createRegistrarSignature(
             ICube3Router(address(cubeRouterProxy)).getIntegrationAdmin(address(demo)),

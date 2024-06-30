@@ -26,6 +26,7 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
 
         vm.startPrank(user);
 
+        // test the modifier
         // generate the calldata for the integration function calls
         bytes memory emptyBytes = new bytes(352); //352
         bytes memory mintCalldataWithEmptyPayload = abi.encodeWithSelector(Demo.mint.selector, 99, emptyBytes);
@@ -51,8 +52,27 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
             topLevelCallComponents
         );
 
-        emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
         demo.mint(99, cube3SecurePayload);
+
+        // test the assertion
+        mintCalldataWithEmptyPayload = abi.encodeWithSelector(Demo.mintAssertion.selector, 69, emptyBytes);
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            0,
+            mintCalldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+        demo.mintAssertion(69, cube3SecurePayload);
 
         vm.stopPrank();
     }
@@ -98,6 +118,37 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
         );
 
         demo.protected(newVal, newState, newBytes, cube3SecurePayload);
+
+        // test the assertion
+
+        calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.protectedAssertion.selector,
+            newVal,
+            newState,
+            newBytes,
+            emptyBytes
+        );
+
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            0,
+            calldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+
+        demo.protectedAssertion(newVal, newState, newBytes, cube3SecurePayload);
+
         vm.stopPrank();
     }
 
@@ -147,6 +198,31 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
         emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
 
         demo.dynamic(vals, flag, str, cube3SecurePayload);
+
+        // test the assertion
+        calldataWithEmptyPayload = abi.encodeWithSelector(Demo.dynamicAssertion.selector, vals, flag, str, emptyBytes);
+
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            0,
+            calldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+
+        emit log_named_bytes("cube3SecurePayload", cube3SecurePayload);
+
+        demo.dynamicAssertion(vals, flag, str, cube3SecurePayload);
         vm.stopPrank();
     }
 
@@ -198,6 +274,38 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
         );
 
         demo.bytesProtected(firstBytes, newVal, secondBytes, uint256s, str, flag, cube3SecurePayload);
+
+        // test the assertion
+        calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.bytesProtectedAssertion.selector,
+            firstBytes,
+            newVal,
+            secondBytes,
+            uint256s,
+            str,
+            flag,
+            emptyBytes
+        );
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            0,
+            calldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+
+        demo.bytesProtectedAssertion(firstBytes, newVal, secondBytes, uint256s, str, flag, cube3SecurePayload);
+
         vm.stopPrank();
     }
 
@@ -229,10 +337,98 @@ contract Integration_Modifier_Standlone_Concrete_Test is IntegrationTest {
             topLevelCallComponents
         );
         demo.noArgs(cube3SecurePayload);
+
+        // test the assertion
+        calldataWithEmptyPayload = abi.encodeWithSelector(Demo.noArgsAssertion.selector, emptyBytes);
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            0,
+            calldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+        demo.noArgsAssertion(cube3SecurePayload);
+
         vm.stopPrank();
     }
 
     // TODO: add reverts for wrong args
 
-    function testPayable() public {}
+    function test_SucceedsWhen_PayableFunctionSucceeds() public {
+        uint256 msgVal = 0.1 ether;
+        address user = _randomAddress();
+
+        vm.deal(user, msgVal * 2);
+        vm.startPrank(user);
+
+        uint256 newValue = 420;
+        bool newState = true;
+        bytes32 newBytes = keccak256(abi.encode(99, true, "hello"));
+
+        // generate the payload
+        bytes memory emptyBytes = new bytes(352); // payload length
+        bytes memory calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.payableProtected.selector,
+            newValue,
+            newState,
+            newBytes,
+            emptyBytes
+        );
+        Structs.TopLevelCallComponents memory topLevelCallComponents = PayloadCreationUtils
+            .packageTopLevelCallComponents(
+                user,
+                address(demo),
+                msgVal,
+                calldataWithEmptyPayload,
+                EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+            );
+
+        bytes memory cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+        demo.payableProtected{value: msgVal}(newValue, newState, newBytes, cube3SecurePayload);
+
+        // test the assertion
+        calldataWithEmptyPayload = abi.encodeWithSelector(
+            Demo.payableProtectedAssertion.selector,
+            newValue,
+            newState,
+            newBytes,
+            emptyBytes
+        );
+        topLevelCallComponents = PayloadCreationUtils.packageTopLevelCallComponents(
+            user,
+            address(demo),
+            msgVal,
+            calldataWithEmptyPayload,
+            EXPECTED_SIGNATURE_MODULE_PAYLOAD_LENGTH
+        );
+
+        cube3SecurePayload = PayloadCreationUtils.createCube3PayloadForSignatureModule(
+            address(demo),
+            user,
+            demoSigningAuthorityPvtKey,
+            1 days,
+            true,
+            signatureModule,
+            topLevelCallComponents
+        );
+        demo.payableProtectedAssertion{value: msgVal}(newValue, newState, newBytes, cube3SecurePayload);
+    }
 }
