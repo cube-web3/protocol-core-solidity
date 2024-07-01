@@ -23,8 +23,6 @@ contract ProtocolManagement_Concrete_Unit_Test is BaseTest {
         _createCube3Accounts();
         _deployTestingHarnessContracts();
 
-        protocolManagementHarness.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, cube3Accounts.protocolAdmin);
-
         mockModule = new MockModule(address(protocolManagementHarness), MODULE_VERSION);
         mockModuleCustomDeprecate = new MockModuleCustomDeprecate(address(protocolManagementHarness), MODULE_VERSION);
         mockRegistry = new MockRegistry();

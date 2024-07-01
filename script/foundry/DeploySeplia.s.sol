@@ -37,7 +37,9 @@ contract DeploySepolia is Script, DeployUtils {
         if (block.chainid != 11_155_111) revert("not sepolia");
         _loadAccountsFromEnv();
 
-        // calls startBroadcast internally
+        uint256 deployerPvtKey = V2_PROTOCOL_ADMIN_SEPOLIA_PVT_KEY;
+
+        vm.startBroadcast(deployerPvtKey);
         _deployProtocol(
             V2_DEPLOYER_SEPOLIA_PVT_KEY,
             protocolAdminV2,
@@ -46,8 +48,12 @@ contract DeploySepolia is Script, DeployUtils {
             backupSignerV2,
             signatureModuleVersion
         );
+        vm.stopBroadcast();
 
-        vm.startBroadcast(V2_PROTOCOL_ADMIN_SEPOLIA_PVT_KEY);
+        vm.startBroadcast(protocolAdminV2);
+        _addAccessControlAndRevokeDeployerPermsForRegistry(protocolAdminV2, keyManagerV2, vm.addr(deployerPvtKey));
+        _addAccessControlAndRevokeDeployerPermsForRouter(protocolAdminV2, integrationAdminV2, vm.addr(deployerPvtKey));
+
         wrappedRouterProxy.installModule(
             address(signatureModule),
             bytes16(keccak256(abi.encode(signatureModuleVersion)))

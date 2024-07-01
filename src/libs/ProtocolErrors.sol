@@ -28,6 +28,9 @@ library ProtocolErrors {
     /// @notice Throws when the provided registry address is the Zero address.
     error Cube3Router_InvalidRegistry();
 
+    /// @notice Throws when the provided admin is the Zero address.
+    error Cube3Router_InvalidAdmin();
+
     /// @notice Throws when the module address being retrieved using the ID doesn't exist.
     error Cube3Router_ModuleNotInstalled(bytes16 moduleId);
 
@@ -161,4 +164,7 @@ library ProtocolErrors {
 
     /// @notice Throws when the universal backup signer is the zero address
     error Cube3Registry_NullUniversalSigner();
+
+    /// @notice Throws when the zero address is provided as an admin.
+    error Cube3Registry_InvalidAdmin();
 }

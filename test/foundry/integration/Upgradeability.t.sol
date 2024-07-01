@@ -34,7 +34,7 @@ contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
         cube3RouterImpl = new Cube3RouterImpl();
         routerProxy = new ERC1967Proxy(
             address(cube3RouterImpl),
-            abi.encodeCall(Cube3RouterImpl.initialize, (address(mockRegistry)))
+            abi.encodeCall(Cube3RouterImpl.initialize, (address(mockRegistry), cube3Accounts.protocolAdmin))
         );
     }
 
@@ -44,7 +44,7 @@ contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
         vm.expectRevert(ProtocolErrors.Cube3Router_InvalidRegistry.selector);
         routerProxy = new ERC1967Proxy(
             address(cube3RouterImpl),
-            abi.encodeCall(Cube3RouterImpl.initialize, (address(0)))
+            abi.encodeCall(Cube3RouterImpl.initialize, (address(0), cube3Accounts.protocolAdmin))
         );
     }
 
@@ -56,26 +56,36 @@ contract Integration_Upgradeability_Concrete_Test is IntegrationTest {
         assertEq(address(cube3RouterImpl), _getProxyImpl(address(routerProxy)), "impl not matching");
     }
 
+    // fails when the admin passed is the zero address
+    function test_RevertsWhen_InitializingWithAnInvalidAdmin() public {
+        address randomAdmin = makeAddr("randomAddr");
+        cube3RouterImpl = new Cube3RouterImpl();
+        vm.expectRevert(ProtocolErrors.Cube3Router_InvalidAdmin.selector);
+        routerProxy = new ERC1967Proxy(
+            address(cube3RouterImpl),
+            abi.encodeCall(Cube3RouterImpl.initialize, (address(mockRegistry), address(0)))
+        );
+    }
+
     // fails when intializing as an EOA
     function test_RevertsWhen_InitializingRouterImplementationAsEOA() public {
         cube3RouterImpl = new Cube3RouterImpl();
         vm.expectRevert(Initializable.InvalidInitialization.selector);
-        cube3RouterImpl.initialize(address(mockRegistry));
+        cube3RouterImpl.initialize(address(mockRegistry), cube3Accounts.protocolAdmin);
     }
 
     // succeeds upgrading the router implementation and storage remaining the same
     function test_SucceedsWhen_UpgradingProxyImplementation_AsProtocolAdmin() public {
         vm.startPrank(cube3Accounts.deployer, cube3Accounts.deployer);
         _deployCube3ProxyAndImplementation();
-
-        Cube3RouterImpl(address(routerProxy)).grantRole(
-            ProtocolAdminRoles.CUBE3_PROTOCOL_ADMIN_ROLE,
-            cube3Accounts.protocolAdmin
-        );
         vm.stopPrank();
 
         // pause the protocol
         vm.startPrank(cube3Accounts.protocolAdmin);
+        Cube3RouterImpl(address(routerProxy)).grantRole(
+            ProtocolAdminRoles.CUBE3_PROTOCOL_ADMIN_ROLE,
+            cube3Accounts.protocolAdmin
+        );
         Cube3RouterImpl(address(routerProxy)).setPausedUnpaused(true);
         assertTrue(Cube3RouterImpl(address(routerProxy)).getIsProtocolPaused(), "not paused");
 

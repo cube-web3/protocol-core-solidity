@@ -24,7 +24,7 @@ library PayloadCreationUtils {
      - calculate the amount of padding required to fill the module payload to the next word {modulePaddingUsed}
      - create the routing bitmap by packing the following:
        - moduleID (bytes16)
-       - moduleSelector (butes4)
+       - moduleSelector (bytes4)
        - modulePayloadLength (uint32)
        - modulePaddingUsed (uint32)
      - create the packedModulePayload by concatenating the modulePayload and the padding
@@ -38,7 +38,7 @@ library PayloadCreationUtils {
     event log_named_uint(string name, uint256 l);
     event log_named_bytes32(string name, bytes32 b);
     event log_named_address(string name, address a);
-
+    event log_named_bytes(string name, bytes b);
     /// @dev The CUBE3 payload combines the module payload and the routing bitmap.
     function createCube3PayloadForSignatureModule(
         address integration,
@@ -51,24 +51,32 @@ library PayloadCreationUtils {
     ) internal returns (bytes memory) {
         uint256 expirationTimestamp = block.timestamp + expirationWindow;
         uint256 userNonce = trackNonce ? signatureModule.integrationUserNonce(integration, caller) + 1 : 0;
+        emit log_named_uint("expectedUserNonce", userNonce);
 
+        bytes4 sigSelector = Cube3SignatureModule.validateSignature.selector;
+        emit log_named_bytes4("sigSelector", sigSelector);
+        emit log_named_uint("expirationTimestamp", expirationTimestamp);
         // create the signature using the signers private key
         bytes memory encodedDataForSigning = abi.encode(
             block.chainid, // chain id
             topLevelCallComponents,
             address(signatureModule), // module contract address
-            Cube3SignatureModule.validateSignature.selector, // the module fn's signature
+            sigSelector, // the module fn's signature
             userNonce,
             expirationTimestamp // expiration
         );
+
+        emit log_named_bytes("encodedDataForSigning", encodedDataForSigning);
         bytes memory signature = signPayloadData(encodedDataForSigning, pvtKeyToSignWith);
-        emit log_payload(signature);
+        emit log_named_bytes("signature", signature);
         emit log_uint(signature.length);
 
         // create the signature module payload and pad it to the next full word
         bytes memory encodedModulePayloadData = abi.encodePacked(expirationTimestamp, trackNonce, userNonce, signature);
         emit log_payload(encodedModulePayloadData);
+
         uint32 paddingNeeded = uint32(calculateRequiredModulePayloadPadding(encodedModulePayloadData.length));
+        emit log_named_uint("paddingNeeded", paddingNeeded);
         bytes memory modulePayloadWithPadding = createPaddedModulePayload(encodedModulePayloadData, paddingNeeded);
         emit log_payload(modulePayloadWithPadding);
         emit log_uint(paddingNeeded);
@@ -99,6 +107,7 @@ library PayloadCreationUtils {
         uint256 pvtKeyToSignWith
     ) internal pure returns (bytes memory signature) {
         bytes32 signatureHash = keccak256(encodedSignatureData);
+
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(signatureHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(pvtKeyToSignWith, ethSignedHash);
 
@@ -152,7 +161,9 @@ library PayloadCreationUtils {
             0,
             integrationCalldataWithEmptyPayload.length - expectedPayloadSize - 64
         );
+
         bytes32 calldataDigest = keccak256(slicedCalldata);
+
         return Structs.TopLevelCallComponents(caller, integration, msgValue, calldataDigest);
     }
 
