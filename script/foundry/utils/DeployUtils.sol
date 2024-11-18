@@ -57,7 +57,6 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
 
     function _deployProtocol(
         uint256 _deployerPvtKey,
-        address _protocolAdmin,
         address _keyManager,
         address _integrationAdmin,
         address _backupSigner,
@@ -66,29 +65,24 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
         address deployer = vm.addr(_deployerPvtKey);
 
         // ============ registry
-        registry = new Cube3Registry(_protocolAdmin);
+        registry = new Cube3Registry(vm.addr(_deployerPvtKey));
         // _addAccessControlAndRevokeDeployerPermsForRegistry(_protocolAdmin, _keyManager, vm.addr(_deployerPvtKey));
 
         // ============ router
         // deploy the implementation
         routerImplAddr = address(new Cube3RouterImpl());
+
         // deploy the proxy
         cubeRouterProxy = new ERC1967Proxy(
             routerImplAddr,
-            abi.encodeCall(Cube3RouterImpl.initialize, (address(registry), _protocolAdmin))
+            abi.encodeCall(Cube3RouterImpl.initialize, (address(registry), vm.addr(_deployerPvtKey)))
         );
 
-        // renounce the role as the deployer, new roles will be assigned by the protocol admin
-        // wrappedRouterProxy.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
 
-        // renounce the deployer role, which will be reassigned by the protocol admin
-        // registry.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
-        require(!registry.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: no cube3 admin role");
+        require(registry.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: no cube3 admin role");
 
-        // create a wrapper interface (for convenience)
         wrappedRouterProxy = Cube3RouterImpl(payable(address(cubeRouterProxy)));
-        require(!wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
-        // _addAccessControlAndRevokeDeployerPermsForRouter(_protocolAdmin, _integrationAdmin, vm.addr(_deployerPvtKey));
+        require(wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
 
         // =========== signature module
         signatureModule = new Cube3SignatureModule(address(cubeRouterProxy), _signatureModuleVersion, _backupSigner);
@@ -96,17 +90,20 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
     // trick foundry into ignoring for coverage
 
     function _addAccessControlAndRevokeDeployerPermsForRouter(
-        address protocolAdmin,
+        address adminMultisig,
         address integrationManager,
         address deployer
     ) internal {
-        // make the multisig the default admin
-        // wrappedRouterProxy.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
-        // require(wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
 
-        // make the multisig the protocol admin
-        wrappedRouterProxy.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin);
-        require(wrappedRouterProxy.hasRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin), "router: no cube3 admin role");
+
+
+        // make the multisig the default admin
+
+        wrappedRouterProxy.grantRole(DEFAULT_ADMIN_ROLE, adminMultisig);
+        require(wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, adminMultisig), "router: no cube3 default admin role");
+
+        wrappedRouterProxy.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, adminMultisig);
+        require(wrappedRouterProxy.hasRole(CUBE3_PROTOCOL_ADMIN_ROLE, adminMultisig), "router: no cube3 admin role");
 
         wrappedRouterProxy.grantRole(CUBE3_INTEGRATION_MANAGER_ROLE, integrationManager);
         require(
@@ -114,25 +111,26 @@ abstract contract DeployUtils is Script, ProtocolAdminRoles {
             "router: no cube3 integration  role"
         );
 
-        // wrappedRouterProxy.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
-        // require(!wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
+        wrappedRouterProxy.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
+        require(!wrappedRouterProxy.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: deployer still default admin");
     }
 
     function _addAccessControlAndRevokeDeployerPermsForRegistry(
-        address protocolAdmin,
+        address adminMultisig,
         address keyManager,
         address deployer
     ) internal {
-        // registry.grantRole(DEFAULT_ADMIN_ROLE, protocolAdmin);
-        // require(registry.hasRole(DEFAULT_ADMIN_ROLE, protocolAdmin), "router: no default admin role");
 
-        registry.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin);
-        require(registry.hasRole(CUBE3_PROTOCOL_ADMIN_ROLE, protocolAdmin), "router: no cube3 admin role");
+        registry.grantRole(DEFAULT_ADMIN_ROLE, adminMultisig);
+        require(registry.hasRole(DEFAULT_ADMIN_ROLE, adminMultisig), "router: no cube3 admin role");
+
+        registry.grantRole(CUBE3_PROTOCOL_ADMIN_ROLE, adminMultisig);
+        require(registry.hasRole(CUBE3_PROTOCOL_ADMIN_ROLE, adminMultisig), "router: no cube3 admin role");
 
         registry.grantRole(CUBE3_KEY_MANAGER_ROLE, keyManager);
         require(registry.hasRole(CUBE3_KEY_MANAGER_ROLE, keyManager), "router: keyManager role");
 
-        // registry.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
-        // require(!registry.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: no cube3 admin role");
+        registry.renounceRole(DEFAULT_ADMIN_ROLE, deployer);
+        require(!registry.hasRole(DEFAULT_ADMIN_ROLE, deployer), "router: no cube3 admin role");
     }
 }

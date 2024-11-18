@@ -14,13 +14,13 @@ abstract contract ProtocolEvents {
     /// @param moduleId The module's computed ID.
     /// @param moduleAddress The contract address of the module.
     /// @param version A string representing the modules version in the form `<module_name>-<semantic_version>`.
-    event RouterModuleInstalled(bytes32 indexed moduleId, address indexed moduleAddress, string indexed version);
+    event RouterModuleInstalled(bytes16 indexed moduleId, address indexed moduleAddress, string indexed version);
 
     /// @notice Emitted when a Cube3 admin deprecates an installed module.
     /// @param moduleId The computed ID of the module that was deprecated.
     /// @param moduleAddress The contract address of the module that was deprecated.
     /// @param version The human-readable version of the deprecated module.
-    event RouterModuleDeprecated(bytes32 indexed moduleId, address indexed moduleAddress, string indexed version);
+    event RouterModuleDeprecated(bytes16 indexed moduleId, address indexed moduleAddress, string indexed version);
 
     /// @notice Emitted when a module is removed from the Router's storage.
     /// @dev Emitted during the uninstallation of a module.
