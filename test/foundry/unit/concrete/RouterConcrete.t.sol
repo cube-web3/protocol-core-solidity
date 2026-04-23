@@ -23,14 +23,8 @@ contract Router_Concrete_Unit_Test is BaseTest {
     function test_RevertsWhen_InitializingOutsideTheConstructor() public {
         address mockRegistry = _randomAddress();
         vm.expectRevert(Initializable.InvalidInitialization.selector);
-        routerHarness.initialize(mockRegistry);
+        routerHarness.initialize(mockRegistry, makeAddr("admin"));
     }
-
-    // fails when initializing with a zero address registry.
-    // TODO:
-
-    // fails when registry is an EOA
-    // TODO:
 
     /*//////////////////////////////////////////////////////////////
             getImplementation

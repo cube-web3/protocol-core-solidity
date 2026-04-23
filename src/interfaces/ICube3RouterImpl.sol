@@ -26,7 +26,7 @@ interface ICube3RouterImpl {
     /// - Initialized UUPSUpgradeable
     /// - Initializes ERC165
     /// - Sets the initial configuration of the protocol.
-    /// - Grants the DEFAULT_ADMIN_ROLE to the EOA responsible for deployment. This accounts
+    /// - Sets the DEFAULT_ADMIN_ROLE explicitly. This accounts
     /// for deployment using salted contract creation via a contract.
     /// - The protocol is not paused by default.
     ///
@@ -35,7 +35,8 @@ interface ICube3RouterImpl {
     /// - `registry` cannot be the zero address.
     ///
     /// @param registry The address of the CUBE3 Registry contract.
-    function initialize(address registry) external;
+    /// @param initialAdmin The address of the CUBE3 Protocol Admin.
+    function initialize(address registry, address initialAdmin) external;
 
     /// @notice Routes the top-level calldata to the Security Module using data
     /// embedded in the routing bitmap.

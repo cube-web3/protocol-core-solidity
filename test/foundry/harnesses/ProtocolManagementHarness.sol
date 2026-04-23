@@ -17,8 +17,8 @@ contract ProtocolManagementHarness is ProtocolManagement {
     Event emission is not tested here, but in the unit tests for the setter functions.
     */
 
-    constructor() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    constructor(address admin) {
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     function setModuleInstalled(bytes16 moduleId, address module, string memory version) external {

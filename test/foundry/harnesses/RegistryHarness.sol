@@ -7,6 +7,7 @@ import {Structs} from "@src/common/Structs.sol";
 
 /// @notice Testing harness for the Cube3Registry contract for testing internal and external functions.
 contract RegistryHarness is Cube3Registry {
+    constructor() Cube3Registry(msg.sender) {}
     function wrappedSetSigningAuthority(address integrationContract, address clientSigningAuthority) external {
         _setClientSigningAuthority(integrationContract, clientSigningAuthority);
     }

@@ -12,4 +12,7 @@
 [submodule "lib/protection-solidity"]
 	path = lib/protection-solidity
 	url = https://github.com/cube-web3/protection-solidity
-	branch = resonance-audit-02122024
+	branch = main
+[submodule "lib/openzeppelin-foundry-upgrades"]
+	path = lib/openzeppelin-foundry-upgrades
+	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades
